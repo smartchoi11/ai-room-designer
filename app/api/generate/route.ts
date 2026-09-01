@@ -1,0 +1,312 @@
+import { NextRequest, NextResponse } from 'next/server';
+import { GoogleGenAI } from '@google/genai';
+import { DAILY_IP_LIMIT, ROOM_TYPES, STYLES } from '@/lib/constants';
+
+export const runtime = 'nodejs';
+export const maxDuration = 60;
+
+// IP당 일일 제한을 관리하기 위한 인메모리 맵
+// key: IP주소, value: { count: number, resetAt: number }
+const ipLimits = new Map<string, { count: number; resetAt: number }>();
+
+function getIpUsage(ip: string): { allowed: boolean } {
+  const now = Date.now();
+  const limit = ipLimits.get(ip);
+
+  // 첫 요청이거나 24시간 윈도우가 지난 경우 초기화
+  if (!limit || now > limit.resetAt) {
+    ipLimits.set(ip, { count: 0, resetAt: now + 24 * 60 * 60 * 1000 });
+    return { allowed: true };
+  }
+
+  return { allowed: limit.count < DAILY_IP_LIMIT };
+}
+
+// 생성 성공 시에만 카운트를 차감해 실패한 요청이 횟수를 소모하지 않도록 한다
+function consumeIpUsage(ip: string) {
+  const limit = ipLimits.get(ip);
+  if (limit) limit.count += 1;
+}
+
+export async function POST(req: NextRequest) {
+  try {
+    // 요청 용량 제한 체크 (~8MB)
+    const contentLength = req.headers.get('content-length');
+    if (contentLength && parseInt(contentLength, 10) > 8 * 1024 * 1024) {
+      return NextResponse.json(
+        { error: '업로드 요청 크기가 제한(8MB)을 초과했습니다. 이미지 해상도를 줄여주세요.' },
+        { status: 413 }
+      );
+    }
+
+    const { image, roomTypeId, styleId, customPrompt, preserveFurniture, redesignMode, mode, count = 1, byokKey } = await req.json();
+
+    if (!image || typeof image !== 'string') {
+      return NextResponse.json(
+        { error: '인테리어 디자인을 입힐 원본 방 사진을 업로드해 주세요.' },
+        { status: 400 }
+      );
+    }
+
+    const roomType = ROOM_TYPES.find((r) => r.id === roomTypeId);
+    const style = STYLES.find((s) => s.id === styleId);
+    if (!roomType || !style) {
+      return NextResponse.json(
+        { error: '공간 유형과 인테리어 스타일을 선택해 주세요.' },
+        { status: 400 }
+      );
+    }
+
+    const requestedCount = Math.min(4, Math.max(1, Number(count) || 1));
+
+    const ip =
+      req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
+      req.headers.get('x-real-ip') ||
+      '127.0.0.1';
+
+    // API 키 결정 (BYOK 우선, 없으면 서버 환경변수 키)
+    const apiKey = (typeof byokKey === 'string' && byokKey.trim()) || process.env.GEMINI_API_KEY;
+
+    if (!apiKey || apiKey === 'your_gemini_api_key_here') {
+      return NextResponse.json(
+        { error: 'GEMINI_API_KEY가 설정되지 않았습니다. 서버 환경변수를 확인해 주세요.' },
+        { status: 500 }
+      );
+    }
+
+    // 데모 모드(서버 제공 키)인 경우에만 IP당 일일 제한 검증
+    const isDemoMode = !byokKey;
+    if (isDemoMode && !getIpUsage(ip).allowed) {
+      return NextResponse.json(
+        {
+          error: `일일 생성 제한(IP당 하루 ${DAILY_IP_LIMIT}회)을 초과했습니다. 계속 이용하시려면 요금제를 업그레이드해 주세요.`,
+        },
+        { status: 429 }
+      );
+    }
+
+    // base64 및 mimeType 파싱
+    let mimeType = 'image/jpeg';
+    let base64Image = image;
+
+    if (image.startsWith('data:')) {
+      const match = image.match(/^data:([^;]+);base64,(.*)$/);
+      if (match) {
+        mimeType = match[1];
+        base64Image = match[2];
+      }
+    }
+
+    // 이미지 base64 바이트 사이즈 검증 (~8MB)
+    if (base64Image.length > 8 * 1024 * 1024 * 1.33) {
+      return NextResponse.json(
+        { error: '업로드 이미지 용량이 8MB를 초과합니다. 더 작은 이미지를 업로드해 주세요.' },
+        { status: 413 }
+      );
+    }
+
+    // 모드 결정: redesignMode 우선, 없으면 preserveFurniture 기준
+    const effectiveMode = redesignMode || (preserveFurniture ? 'preserve_layout' : 'clear_room');
+
+    let baseInstruction = '';
+
+    if (mode === 'edit_existing') {
+      // 이미 완성된 결과 이미지를 고정하고 사람/반려동물/소품만 자연스럽게 추가/수정하는 인페인팅 모드
+      const userReq = (typeof customPrompt === 'string' && customPrompt.trim())
+        ? customPrompt.trim()
+        : 'Keep the room exact and add high quality detail';
+
+      baseInstruction = `You are a precision photo editor and inpainting master.
+TASK: You are given an already finished interior room photo. You MUST PRESERVE the entire room exactly as-is.
+
+ABSOLUTE STRICT CONSTRAINTS (ZERO COLOR DRIFT / ZERO RE-STYLING):
+1. COLOR & FABRIC LOCK: Absolutely DO NOT change, shift, recolor, repaint, or replace the colors, fabrics, textures, wood grains, or materials of ANY existing furniture (sofa, chairs, coffee table, rugs, cushions, bed, cabinets, walls, ceiling, flooring). If the sofa is beige, it MUST remain the exact same beige. If the table is walnut wood, it MUST remain the exact same walnut wood.
+2. FURNITURE & ARCHITECTURE LOCK: Keep every single piece of furniture, wall decor, windows, lighting fixtures, and floor tiles in the exact same position, shape, angle, and dimensions. DO NOT rearrange or re-render them.
+3. INPAINTING ONLY: Your ONLY permitted modification is to seamlessly place/render the following requested addition into the existing room scene:
+"${userReq}"
+4. REALISTIC BLENDING: If adding a person or animal (dog, cat, etc.), blend them naturally onto/into the existing furniture (e.g. sitting naturally on the existing sofa or resting on the existing rug) with matching camera perspective, scale, and natural soft drop-shadows matching the room's existing light source.
+5. PRESERVE ORIGINAL PHOTO TONE: Maintain the exact same white balance, exposure, lighting color, and resolution of the input image.`;
+    } else if (effectiveMode === 'preserve_surface' || effectiveMode === 'surface_only') {
+      // 🎨🧱 모드 4: 가구/배치 100% 그대로 유지하고 벽지/페인트 색상/바닥재/질감만 변경
+      baseInstruction = `You are a precision interior architectural colorist and surface retexturing master.
+TASK: Redesign ONLY the wall paint color, wallpaper pattern/material, and flooring material/texture of this ${roomType.prompt} while STRICTLY PRESERVING 100% of all existing furniture, layout, sofa, tables, chairs, lighting fixtures, and decor objects.
+
+ABSOLUTE STRICT CONSTRAINTS:
+1. 100% FURNITURE & INTERIOR LAYOUT LOCK: Keep every single sofa, chair, table, cabinet, bed, curtain, lamp, plant, window, and wall decor object in their EXACT same 3D positions, shapes, sizes, colors, and arrangements. DO NOT replace, move, scale, or remove any furniture.
+2. SURFACE MODIFICATION ONLY: Your ONLY permitted changes are to update the wall paint/wallpaper color/texture and floor material/texture according to ${style.prompt}.
+3. Photorealistic surface rendering, Architectural Digest quality, natural daylight, seamless material texture mapping.`;
+
+      if (typeof customPrompt === 'string' && customPrompt.trim()) {
+        const trimmedCustom = customPrompt.trim().slice(0, 500);
+        baseInstruction += `\n\nUSER SPECIFIC SURFACE REQUIREMENTS: "${trimmedCustom}". Apply these specific paint colors, wallpaper patterns, or flooring textures to the walls and floor while keeping all furniture 100% identical.`;
+      }
+    } else if (effectiveMode === 'preserve_all') {
+      // 🎨 모드 3: 기존 가구 배치 + 원래 색상 + 원래 스타일 완전 보존 (정리정돈 & 고급 조명/스테이징 강화)
+      baseInstruction = `You are an elite interior photographer and digital restoration architect.
+TASK: Clean up, stage, and professionally photograph this exact ${roomType.prompt} while STRICTLY PRESERVING its existing furniture layout, original colors, wood tones, and core style identity.
+
+RULES:
+1. STRICT COLOR & MATERIAL PRESERVATION: Keep the original color palette, wood finishes, upholstery colors, wall paint, and floor materials EXACTLY as they appear in the input photo. DO NOT recolor or re-theme the furniture or walls.
+2. PRESERVE FURNITURE POSITIONS & SHAPES: Keep the main furniture (bed, sofa, tables, chairs, cabinets) in their exact positions and shapes.
+3. CLEAN UP & DECLUTTER: Remove messy cables, trash, scattered clutter, and temporary junk to make the room look perfectly organized and tidy.
+4. PREMIUM RESTORATION & LIGHTING: Enhance the room with architectural-grade ambient lighting, clean glass reflections, balanced window daylight, crisp textures, and subtle high-end styling props that match the existing room's color tone.
+5. Ultra-photorealistic photography, Architectural Digest editorial quality, 8k resolution.`;
+
+      if (typeof customPrompt === 'string' && customPrompt.trim()) {
+        const trimmedCustom = customPrompt.trim().slice(0, 500);
+        baseInstruction += `\n\nUSER SPECIFIC REQUIREMENTS: "${trimmedCustom}". Seamlessly integrate these details while keeping existing furniture colors and layout intact.`;
+      }
+    } else if (effectiveMode === 'rearrange_layout' || effectiveMode === 'preserve_layout') {
+      // 📐 3D 공간 입체 구조 분석 및 가구 배치 최적화 모드 (사용자 맞춤 프롬프트 반영)
+      baseInstruction = `You are a world-class Interior Spatial Architect and 3D Furniture Layout Master.
+TASK: Perform an architectural 3D furniture repositioning and spatial layout optimization on the attached room photo.
+
+CRITICAL MANDATES FOR FURNITURE INTEGRITY & SPATIAL REARRANGEMENT:
+1. FURNITURE SHAPE & ORIGINAL FORM 100% LOCK (체크한 품목의 가구나 소품 원형은 100% 그대로 보존): You MUST preserve 100% of the exact original shape, design, color, material, and form of all checked furniture and decor items. DO NOT change a rectangular dining table into a round table! Keep rectangular tables strictly RECTANGULAR. Keep island counters strictly as island counters.
+2. SPATIAL REARRANGEMENT (실내공간에 알맞게 위치를 바꾸어서 배치): Visually reposition, move, translate, and re-stage the primary furniture items (dining table, chairs, island bar stools, lamps, potted plants) into a brand-new, open, highly functional indoor layout.
+3. ARCHITECTURAL ROOM SHELL LOCK: Maintain 100% of the structural walls, window grids, ceiling, doors, and floor materials.
+4. Photorealistic interior photography, Architectural Digest editorial quality, 8k resolution.`;
+
+      if (typeof customPrompt === 'string' && customPrompt.trim()) {
+        const trimmedCustom = customPrompt.trim().slice(0, 500);
+        baseInstruction += `\n\nUSER SPECIFIC 3D LAYOUT REQUIREMENTS: "${trimmedCustom}". Reposition and re-stage furniture items while locking 100% of original furniture shapes and room shell.`;
+      }
+    } else {
+      // 🧹 모드 1: 완전 비우기 후 새로운 가구와 인테리어로 배치 (기본)
+      baseInstruction = `You are a world-class professional interior architect and 3D visualizer.
+TASK: Completely clear out and empty all existing furniture and clutter from this room, then furnish and redesign it from scratch as a brand new ${roomType.prompt} in ${style.prompt}.
+RULES:
+1. STRICT ARCHITECTURAL CONSTRAINTS: Keep the exact room shell, camera perspective, viewpoint, wall boundaries, ceiling, floor plane, windows, and doors unchanged.
+2. COMPLETE DECLUTTER & OBJECT REMOVAL: Erase and remove all existing furniture, beds, sofas, desks, chairs, tables, shelves, clutter, electronics, cables, boxes, and old decor from the room. Treat the space as a clean, empty room.
+3. FRESH VIRTUAL STAGING & INTERIOR: Place brand new, stylish, beautifully proportioned modern furniture, designer lighting, curated decor, plants, and textures suited for ${style.prompt}.
+4. Photorealistic interior photography, architectural digest quality, realistic ambient lighting, clean reflections, 8k resolution.`;
+
+      if (typeof customPrompt === 'string' && customPrompt.trim()) {
+        const trimmedCustom = customPrompt.trim().slice(0, 500);
+        baseInstruction += `\n\nUSER SPECIFIC REQUIREMENTS: "${trimmedCustom}". Seamlessly integrate these requested items, colors, materials, or features into the new design while strictly maintaining the architectural room shell.`;
+      }
+    }
+
+    // 다중 시안 생성을 위한 고유 뉘앙스 디렉티브 (대표 테마/스타일은 100% 유지하면서 각 시안마다 차별화된 미학 제공)
+    const VARIATION_DIRECTIVES = (effectiveMode === 'rearrange_layout' || effectiveMode === 'preserve_layout')
+      ? [
+          'VARIATION 1 (Open Island & Bar Stools Layout): DRAMATICALLY REARRANGE THE ROOM. Move and rotate the main dining table/desk by 90 degrees. Add bar stools around the island/counter to turn it into a functional breakfast bar. Re-align seating into an open conversational layout while preserving structural walls.',
+          'VARIATION 2 (Round Scandinavian Dining & Lounge Chair Layout): DRAMATICALLY REARRANGE THE ROOM. Replace or reposition the dining table into a round Scandinavian dining table set on the right. Stage a cozy bouclé lounge reading chair with a glass side table by the window view.',
+          'VARIATION 3 (Parallel Functional Zoning Layout): DRAMATICALLY REARRANGE THE ROOM. Re-organize furniture along parallel functional zones: create a central seating zone, relocate plant accents to create focal depth, and style the island counter with fresh flowers and serving boards.',
+          'VARIATION 4 (Symmetrical Architectural Layout): DRAMATICALLY REARRANGE THE ROOM. Arrange seating and tables in a balanced symmetrical staging around the primary window view.',
+        ]
+      : [
+          'VARIATION 1 (Classic Balance): Focus on quintessential style harmony, perfectly balanced proportion, and natural midday ambient daylight.',
+          'VARIATION 2 (Atmospheric Mood): Focus on rich layered lighting, cozy evening warm luminescence, and refined statement accent textures.',
+          'VARIATION 3 (Spacious Minimal Elegance): Focus on airy open spatial feel, sleek architectural silhouettes, and sophisticated textural contrasts.',
+          'VARIATION 4 (Curated Botanical & Luxe): Focus on curated designer decor objects, lush botanical greenery accents, and bespoke editorial touches.',
+        ];
+
+    const ai = new GoogleGenAI({ apiKey });
+
+    // requestedCount만큼 병렬 비동기 생성 요청
+    const generationPromises = Array.from({ length: requestedCount }).map(async (_, index) => {
+      let finalInstruction = baseInstruction;
+      if (requestedCount > 1) {
+        finalInstruction += `\n\n${VARIATION_DIRECTIVES[index % VARIATION_DIRECTIVES.length]}`;
+      }
+
+      let res;
+      try {
+        res = await ai.models.generateContent({
+          model: 'gemini-3.7-flash',
+          contents: [
+            {
+              role: 'user',
+              parts: [{ inlineData: { mimeType, data: base64Image } }, { text: finalInstruction }],
+            },
+          ],
+        });
+      } catch (err37) {
+        try {
+          console.warn('Gemini 3.7 model call failed, falling back to gemini-3.1-flash-image-preview:', err37);
+          res = await ai.models.generateContent({
+            model: 'gemini-3.1-flash-image-preview',
+            contents: [
+              {
+                role: 'user',
+                parts: [{ inlineData: { mimeType, data: base64Image } }, { text: finalInstruction }],
+              },
+            ],
+          });
+        } catch (err31) {
+          console.warn('Gemini 3.1 model call failed, falling back to gemini-2.5-flash:', err31);
+          res = await ai.models.generateContent({
+            model: 'gemini-2.5-flash',
+            contents: [
+              {
+                role: 'user',
+                parts: [{ inlineData: { mimeType, data: base64Image } }, { text: finalInstruction }],
+              },
+            ],
+          });
+        }
+      }
+
+      const candidate = res.candidates?.[0];
+      if (candidate?.finishReason === 'SAFETY') {
+        throw new Error('안전 정책에 의해 이미지 생성이 차단되었습니다.');
+      }
+
+      const part = candidate?.content?.parts?.find((p) => p.inlineData);
+      const data = part?.inlineData?.data;
+      if (!data) {
+        throw new Error('이미지 생성이 실패했거나 차단되었습니다.');
+      }
+      return data;
+    });
+
+    const generatedImages = await Promise.all(generationPromises);
+
+    if (isDemoMode) {
+      // 데모 모드 차감
+      for (let i = 0; i < requestedCount; i++) {
+        consumeIpUsage(ip);
+      }
+    }
+
+    return NextResponse.json({
+      image: generatedImages[0],
+      images: generatedImages,
+      count: generatedImages.length,
+    });
+  } catch (error) {
+    console.error('Gemini Generate API Error:', error);
+    const errMsg = error instanceof Error ? error.message : '';
+
+    if (
+      errMsg.includes('API_KEY_INVALID') ||
+      errMsg.includes('API key not valid') ||
+      errMsg.includes('invalid api key')
+    ) {
+      return NextResponse.json(
+        { error: 'API 키가 잘못되었습니다. 발급받은 유효한 API 키를 정확히 입력해 주세요.' },
+        { status: 401 }
+      );
+    }
+
+    if (errMsg.includes('RESOURCE_EXHAUSTED') || errMsg.includes('quota') || errMsg.includes('429')) {
+      return NextResponse.json(
+        { error: 'API 무료 요청 할당량을 초과했습니다. 잠시 후 다시 시도해 주세요.' },
+        { status: 429 }
+      );
+    }
+
+    if (errMsg.includes('SAFETY') || errMsg.includes('safety') || errMsg.includes('blocked')) {
+      return NextResponse.json(
+        { error: '안전 필터에 의해 생성이 거부되었습니다. 다른 사진이나 스타일로 시도해 주세요.' },
+        { status: 400 }
+      );
+    }
+
+    return NextResponse.json(
+      { error: `인테리어 생성 실패: ${errMsg || '알 수 없는 서버 내부 오류'}` },
+      { status: 500 }
+    );
+  }
+}

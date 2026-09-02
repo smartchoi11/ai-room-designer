@@ -207,36 +207,36 @@ const LAYOUT_IMAGE_POOLS: Record<string, string[]> = {
   kitchen: [
     '/showcase_kitchen_layout_v1.png',
     '/showcase_kitchen_layout_v2.png',
+    '/concept_kitchen_layout_rearranged.png',
   ],
   bedroom: [
     '/concept_layout_after.png',
-    '/concept_layout_before.png',
     '/concept_layout_rearranged.png',
+    '/showcase_bedroom.png',
   ],
   living_room: [
     '/living_room_after.png',
-    '/living_room_before.png',
     '/showcase_modern_living.png',
+    '/cozy_home_living.png',
   ],
   study: [
+    '/showcase_modern_office.png',
     '/showcase_office.png',
   ],
   general: [
-    '/showcase_kitchen_layout_v1.png',
-    '/showcase_kitchen_layout_v2.png',
-    '/living_room_after.png',
-    '/showcase_office.png',
+    '/showcase_modern_office.png',
+    '/showcase_modern_living.png',
   ],
 };
 
 const DIRECT_LAYOUT_MATCHES: Record<string, string[]> = {
   '/concept_layout_before.png': ['/concept_layout_after.png', '/concept_layout_rearranged.png'],
-  '/living_room_before.png': ['/living_room_after.png', '/concept_layout_after.png'],
-  '/showcase_office.png': ['/showcase_modern_office.png', '/concept_layout_rearranged.png'],
-  '/showcase_modern_office.png': ['/showcase_office.png', '/concept_layout_after.png'],
+  '/living_room_before.png': ['/living_room_after.png', '/showcase_modern_living.png'],
+  '/showcase_office.png': ['/showcase_modern_office.png', '/showcase_office.png'],
+  '/showcase_modern_office.png': ['/showcase_office.png', '/showcase_modern_office.png'],
   '/showcase_kitchen.png': ['/showcase_kitchen_layout_v1.png', '/showcase_kitchen_layout_v2.png'],
   '/showcase_modern_kitchen.png': ['/showcase_kitchen_layout_v1.png', '/showcase_kitchen_layout_v2.png'],
-  '/cozy_home_dining.png': ['/showcase_kitchen_layout_v1.png', '/showcase_kitchen_layout_v2.png'],
+  '/cozy_home_dining.png': ['/showcase_kitchen_layout_v1.png', '/concept_kitchen_layout_rearranged.png'],
   '/kitchen_option_01.png': ['/showcase_kitchen_layout_v1.png', '/showcase_kitchen_layout_v2.png'],
   '/kitchen_option_02.png': ['/showcase_kitchen_layout_v1.png', '/showcase_kitchen_layout_v2.png'],
   '/exterior_showcase_before.png': ['/exterior_showcase_after.png', '/concept_exterior_01.png'],

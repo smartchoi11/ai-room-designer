@@ -1128,7 +1128,65 @@ export default function Studio() {
                       {t.step3Label}
                     </label>
                     <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-4 lg:grid-cols-2 xl:grid-cols-4">
-                                          <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2 lg:grid-cols-4">
+                      {STYLES.map((style) => (
+                        <button
+                          key={style.id}
+                          type="button"
+                          onClick={() => {
+                            setSelectedStyle(style.id);
+                            setErrorMsg(null);
+                          }}
+                          className={`group cursor-pointer rounded-2xl border p-3 text-left transition-all duration-200 ${
+                            selectedStyle === style.id
+                              ? 'border-clay bg-clay-soft shadow-lift ring-2 ring-clay'
+                              : 'border-line bg-paper hover:border-line-strong'
+                          }`}
+                        >
+                          <div className="flex items-center justify-between">
+                            <span className="text-xs font-bold text-ink">
+                              {lang === 'en' ? style.labelEn : lang === 'ja' ? style.labelJa : style.label}
+                            </span>
+                            <div className="flex items-center gap-1">
+                              {style.swatch.map((c, i) => (
+                                <span key={i} className="h-2.5 w-2.5 rounded-full border border-black/10" style={{ backgroundColor: c }} />
+                              ))}
+                            </div>
+                          </div>
+                          <p className="mt-1 text-[11px] leading-snug text-ink-faint">
+                            {lang === 'en' ? style.descEn : lang === 'ja' ? style.descJa : style.desc}
+                          </p>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* 추천 키워드 태그 */}
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span className="text-xs font-semibold text-ink-faint">
+                      {lang === 'en' ? 'Suggested Tags:' : lang === 'ja' ? 'おすすめタグ:' : '추천 키워드 태그:'}
+                    </span>
+                    {(lang === 'en' ? SUGGESTED_PROMPTS_EN : lang === 'ja' ? SUGGESTED_PROMPTS_JA : SUGGESTED_PROMPTS_KR).map((tag) => (
+                      <button
+                        key={tag}
+                        type="button"
+                        onClick={() => handleToggleTag(tag)}
+                        className={`cursor-pointer rounded-full border px-3 py-1 text-xs transition-all duration-150 ${
+                          customPrompt.includes(tag)
+                            ? 'border-clay bg-clay-soft text-clay-deep font-semibold'
+                            : 'border-line bg-paper-raised text-ink-soft hover:border-line-strong hover:text-ink'
+                        }`}
+                      >
+                        + {tag}
+                      </button>
+                    ))}
+                  </div>
+
+                  {/* 공간 변환 모드 4단 선택기 */}
+                  <div className="mt-2 flex flex-col gap-2">
+                    <span className="text-xs font-bold text-ink">
+                      {lang === 'en' ? 'Spatial Transformation Mode:' : lang === 'ja' ? '空間変革モード選択:' : '공간 변환 모드 선택:'}
+                    </span>
+                    <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2 lg:grid-cols-4">
                       {/* 1. 가구 싹 비우기 */}
                       <button
                         type="button"
@@ -1179,7 +1237,7 @@ export default function Studio() {
                         </p>
                       </button>
 
-                      {/* 3. 가구 100% 보존 + 벽지·페인트·바닥재만 변경 */}
+                      {/* 3. 가구 100% 보존 + 벽지·바닥재만 변경 */}
                       <button
                         type="button"
                         onClick={() => setRedesignMode('preserve_surface')}
@@ -1205,109 +1263,6 @@ export default function Studio() {
                       </button>
 
                       {/* 4. 스타일 & 색상 유지 */}
-                      <button
-                        type="button"
-                        onClick={() => setRedesignMode('preserve_all')}
-                        className={`cursor-pointer rounded-xl border p-3.5 text-left transition-all ${
-                          redesignMode === 'preserve_all'
-                            ? 'border-clay bg-clay-soft shadow-sm ring-1 ring-clay'
-                            : 'border-line bg-paper-raised hover:border-line-strong'
-                        }`}
-                      >
-                        <div className="flex items-center gap-2">
-                          <span className="text-base">🎨</span>
-                          <span className="text-xs font-bold text-ink">
-                            {lang === 'en' ? 'Maintain Materials' : lang === 'ja' ? 'スタイル・色彩維持' : '스타일·색상 유지'}
-                          </span>
-                        </div>
-                        <p className="mt-1.5 text-[11px] leading-relaxed text-ink-soft">
-                          {lang === 'en'
-                            ? 'Preserves original furniture shapes and colors while cleaning up clutter and adding warm lights.'
-                            : lang === 'ja'
-                            ? '元の家具の形や色合いを保ちつつ、雑然とした荷物を整理し上質な照明を追加します。'
-                            : '원래 방의 가구 형태, 고유 색상, 마감재를 100% 보존하며 잡동사니 정리와 고급 조명을 더합니다.'}
-                        </p>
-                      </button>
-                    </div>        />
-
-                  {/* 추천 키워드 태그 */}
-                  <div className="flex flex-wrap items-center gap-2">
-                    <span className="text-xs font-semibold text-ink-faint">
-                      {lang === 'en' ? 'Suggested Tags:' : lang === 'ja' ? 'おすすめタグ:' : '추천 키워드 태그:'}
-                    </span>
-                    {(lang === 'en' ? SUGGESTED_PROMPTS_EN : lang === 'ja' ? SUGGESTED_PROMPTS_JA : SUGGESTED_PROMPTS_KR).map((tag) => (
-                      <button
-                        key={tag}
-                        type="button"
-                        onClick={() => handleToggleTag(tag)}
-                        className={`cursor-pointer rounded-full border px-3 py-1 text-xs transition-all duration-150 ${
-                          customPrompt.includes(tag)
-                            ? 'border-clay bg-clay-soft text-clay-deep font-semibold'
-                            : 'border-line bg-paper-raised text-ink-soft hover:border-line-strong hover:text-ink'
-                        }`}
-                      >
-                        + {tag}
-                      </button>
-                    ))}
-                  </div>
-
-                  {/* 가구 및 스타일 보존 모드 3단 선택기 */}
-                  <div className="mt-2 flex flex-col gap-2">
-                    <span className="text-xs font-bold text-ink">
-                      {lang === 'en' ? 'Spatial Transformation Mode:' : lang === 'ja' ? '空間変革モード選択:' : '공간 변환 모드 선택:'}
-                    </span>
-                    <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-3">
-                      {/* 1. 가구 싹 비우기 */}
-                      <button
-                        type="button"
-                        onClick={() => setRedesignMode('clear_room')}
-                        className={`cursor-pointer rounded-xl border p-3.5 text-left transition-all ${
-                          redesignMode === 'clear_room'
-                            ? 'border-clay bg-clay-soft shadow-sm ring-1 ring-clay'
-                            : 'border-line bg-paper-raised hover:border-line-strong'
-                        }`}
-                      >
-                        <div className="flex items-center gap-2">
-                          <span className="text-base">🧹</span>
-                          <span className="text-xs font-bold text-ink">
-                            {lang === 'en' ? 'Full Transformation' : lang === 'ja' ? '家具フルリセット' : '가구 싹 비우기'}
-                          </span>
-                        </div>
-                        <p className="mt-1.5 text-[11px] leading-relaxed text-ink-soft">
-                          {lang === 'en'
-                            ? 'Clears existing furniture and renders a fresh layout and modern interior decor.'
-                            : lang === 'ja'
-                            ? '既存の家具や荷物をクリアし、構図に合わせて全く新しい家具・インテリアを配置します。'
-                            : '기존 가구와 짐을 모두 치우고 구도에 맞춰 완전히 새로운 가구와 인테리어로 배치합니다.'}
-                        </p>
-                      </button>
-
-                      {/* 2. 기존 가구 배치 유지 */}
-                      <button
-                        type="button"
-                        onClick={() => setRedesignMode('preserve_layout')}
-                        className={`cursor-pointer rounded-xl border p-3.5 text-left transition-all ${
-                          redesignMode === 'preserve_layout'
-                            ? 'border-clay bg-clay-soft shadow-sm ring-1 ring-clay'
-                            : 'border-line bg-paper-raised hover:border-line-strong'
-                        }`}
-                      >
-                        <div className="flex items-center gap-2">
-                          <span className="text-base">📐</span>
-                          <span className="text-xs font-bold text-ink">
-                            {lang === 'en' ? 'Balanced Redesign' : lang === 'ja' ? '配置維持モード' : '가구 배치 유지'}
-                          </span>
-                        </div>
-                        <p className="mt-1.5 text-[11px] leading-relaxed text-ink-soft">
-                          {lang === 'en'
-                            ? 'Keeps main furniture positions while updating materials, colors, and design style.'
-                            : lang === 'ja'
-                            ? 'ソファやベッドの位置を保ちつつ、選択したスタイルに合わせてデザインや素材を変更します。'
-                            : '소파, 침대 등의 위치는 그대로 두고 선택한 스타일에 맞춰 가구 디자인과 재질을 바꿉니다.'}
-                        </p>
-                      </button>
-
-                      {/* 3. 스타일 & 색상 유지 */}
                       <button
                         type="button"
                         onClick={() => setRedesignMode('preserve_all')}

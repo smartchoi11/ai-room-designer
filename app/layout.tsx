@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Noto_Serif_KR } from "next/font/google";
 import "./globals.css";
 
@@ -8,6 +8,14 @@ const notoSerif = Noto_Serif_KR({
   variable: "--font-noto-serif",
   display: "swap",
 });
+
+export const viewport: Viewport = {
+  themeColor: "#4f46e5",
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
+};
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://reroom-ai.vercel.app"),
@@ -35,7 +43,7 @@ export const metadata: Metadata = {
     icon: "/icon.svg",
     apple: "/icon-192.png",
   },
-  manifest: "/manifest.json",
+  manifest: "/manifest.webmanifest",
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",

@@ -95,6 +95,19 @@ export async function POST(req: NextRequest) {
         mimeType = match[1];
         base64Image = match[2];
       }
+    } else {
+      // 상대 경로나 static 샘플 경로인 경우 public 디렉토리에서 읽어서 base64 변환
+      try {
+        const fs = await import('fs/promises');
+        const path = await import('path');
+        const cleanPath = image.split('?')[0].replace(/^\//, '');
+        const filePath = path.join(process.cwd(), 'public', cleanPath);
+        const fileBuffer = await fs.readFile(filePath);
+        base64Image = fileBuffer.toString('base64');
+        mimeType = cleanPath.endsWith('.png') ? 'image/png' : 'image/jpeg';
+      } catch (errFile) {
+        console.warn('Failed to convert relative static image to base64:', errFile);
+      }
     }
 
     // 이미지 base64 바이트 사이즈 검증 (~8MB)
@@ -158,18 +171,18 @@ RULES:
       }
     } else if (effectiveMode === 'rearrange_layout' || effectiveMode === 'preserve_layout') {
       // 📐 3D 공간 입체 구조 분석 및 가구 배치 최적화 모드 (사용자 맞춤 프롬프트 반영)
-      baseInstruction = `You are a world-class Interior Spatial Architect and 3D Furniture Layout Master.
-TASK: Perform an architectural 3D furniture repositioning and spatial layout optimization on the attached room photo.
+      baseInstruction = `You are a world-class Interior Spatial Architect and 3D Visualizer.
+TASK: Perform a noticeable 3D furniture repositioning and spatial layout redesign on this ${roomType.prompt}.
 
-CRITICAL MANDATES FOR FURNITURE INTEGRITY & SPATIAL REARRANGEMENT:
-1. FURNITURE SHAPE & ORIGINAL FORM 100% LOCK (체크한 품목의 가구나 소품 원형은 100% 그대로 보존): You MUST preserve 100% of the exact original shape, design, color, material, and form of all checked furniture and decor items. DO NOT change a rectangular dining table into a round table! Keep rectangular tables strictly RECTANGULAR. Keep island counters strictly as island counters.
-2. SPATIAL REARRANGEMENT (실내공간에 알맞게 위치를 바꾸어서 배치): Visually reposition, move, translate, and re-stage the primary furniture items (dining table, chairs, island bar stools, lamps, potted plants) into a brand-new, open, highly functional indoor layout.
-3. ARCHITECTURAL ROOM SHELL LOCK: Maintain 100% of the structural walls, window grids, ceiling, doors, and floor materials.
-4. Photorealistic interior photography, Architectural Digest editorial quality, 8k resolution.`;
+CRITICAL MANDATES FOR LAYOUT REARRANGEMENT:
+1. DRAMATIC FURNITURE REPOSITIONING: Visually move, re-orient, and relocate the primary room furniture (desk, office chair, bookshelf, sofa, tables, lamps, plants) into a fresh, open, highly functional spatial layout. Change their placement, angle, and layout arrangement so the transformation is clearly visible.
+2. CLEAN WINDOWS & ARCHITECTURAL LOCK: Maintain 100% straight, clean structural walls, ceiling lines, floor planes, and window frames. DO NOT distort, warp, or artifact the window glass, window grids, or wall lines.
+3. PRESERVE STYLE IDENTITY: Keep the original design aesthetic, material quality, and color palette of the room.
+4. Photorealistic interior photography, Architectural Digest editorial quality, clean daylighting, 8k resolution.`;
 
       if (typeof customPrompt === 'string' && customPrompt.trim()) {
         const trimmedCustom = customPrompt.trim().slice(0, 500);
-        baseInstruction += `\n\nUSER SPECIFIC 3D LAYOUT REQUIREMENTS: "${trimmedCustom}". Reposition and re-stage furniture items while locking 100% of original furniture shapes and room shell.`;
+        baseInstruction += `\n\nUSER SPECIFIC 3D LAYOUT REQUIREMENTS: "${trimmedCustom}". Reposition furniture into a new functional layout while keeping window frames, walls, and style clean and undistorted.`;
       }
     } else {
       // 🧹 모드 1: 완전 비우기 후 새로운 가구와 인테리어로 배치 (기본)

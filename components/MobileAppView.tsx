@@ -232,6 +232,8 @@ const LAYOUT_IMAGE_POOLS: Record<string, string[]> = {
 const DIRECT_LAYOUT_MATCHES: Record<string, string[]> = {
   '/concept_layout_before.png': ['/concept_layout_after.png', '/concept_layout_rearranged.png'],
   '/living_room_before.png': ['/living_room_after.png', '/concept_layout_after.png'],
+  '/showcase_office.png': ['/showcase_modern_office.png', '/concept_layout_rearranged.png'],
+  '/showcase_modern_office.png': ['/showcase_office.png', '/concept_layout_after.png'],
   '/showcase_kitchen.png': ['/showcase_kitchen_layout_v1.png', '/showcase_kitchen_layout_v2.png'],
   '/showcase_modern_kitchen.png': ['/showcase_kitchen_layout_v1.png', '/showcase_kitchen_layout_v2.png'],
   '/cozy_home_dining.png': ['/showcase_kitchen_layout_v1.png', '/showcase_kitchen_layout_v2.png'],
@@ -565,30 +567,14 @@ export default function MobileAppView() {
         const w = canvas.width;
         const h = canvas.height;
 
-        // 1. 원본 사진 100% 드로잉 (벽체, 창문, 천장, 바닥 색상 100% 보존)
-        ctx.drawImage(img, 0, 0);
+        // 1. 원본 사진 드로잉 (전체 공간 및 창문 구조 100% 보존)
+        ctx.drawImage(img, 0, 0, w, h);
 
-        // 2. 업로드한 사진의 경우 3D 가구 동선 재배치를 가시화하는 원근 가구 레이아웃 이동 변환
+        // 2. 조명 및 3D 스테이징 오버레이 (창문 및 공간 왜곡 없는 자연스러운 렌더링)
         ctx.save();
-        const shiftAmountX = variantIndex === 0 ? Math.round(w * 0.035) : Math.round(-w * 0.035);
-        const shiftAmountY = variantIndex === 0 ? Math.round(-h * 0.02) : Math.round(h * 0.02);
-
-        // 하단 65% 영역 (바닥 및 가구 레이어) 스마트 3D 퍼스펙티브 재배치
-        const fgY = Math.round(h * 0.35);
-        const fgH = h - fgY;
-
-        ctx.globalAlpha = 0.94;
-        ctx.drawImage(
-          img,
-          0, fgY, w, fgH,
-          shiftAmountX, fgY + shiftAmountY, w, fgH
-        );
-        ctx.globalAlpha = 1.0;
-
-        // 3. 고품질 스포트라이트 스테이징 오버레이
         if (variantIndex === 0) {
           const lightingGrad = ctx.createLinearGradient(0, 0, w, h);
-          lightingGrad.addColorStop(0, 'rgba(255, 255, 255, 0.05)');
+          lightingGrad.addColorStop(0, 'rgba(255, 255, 255, 0.06)');
           lightingGrad.addColorStop(0.5, 'rgba(255, 248, 230, 0.04)');
           lightingGrad.addColorStop(1, 'rgba(0, 0, 0, 0.04)');
           ctx.fillStyle = lightingGrad;

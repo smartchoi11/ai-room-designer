@@ -171,18 +171,22 @@ RULES:
       }
     } else if (effectiveMode === 'rearrange_layout' || effectiveMode === 'preserve_layout') {
       // 📐 3D 공간 입체 구조 분석 및 가구 배치 최적화 모드 (사용자 맞춤 프롬프트 반영)
-      baseInstruction = `You are a world-class Interior Spatial Architect and 3D Visualizer.
-TASK: Perform a noticeable 3D furniture repositioning and spatial layout redesign on this ${roomType.prompt}.
+      baseInstruction = `You are a world-class Interior Spatial Architect and 3D Furniture Layout Master.
+TASK: Perform a DRAMATIC, HIGHLY VISIBLE 3D furniture repositioning and spatial layout redesign on this ${roomType.prompt}.
 
-CRITICAL MANDATES FOR LAYOUT REARRANGEMENT:
-1. DRAMATIC MOVABLE FURNITURE REPOSITIONING: Visually move, re-orient, and relocate freestanding room furniture (dining table, chairs, island bar stools, lamps, potted plants, rugs, movable desks) into a fresh, open, highly functional spatial layout.
-2. STRICT WALL & WINDOW ARCHITECTURAL LOCK: Maintain 100% of all structural walls, ceiling lines, floor planes, built-in kitchen wall cabinets, stoves, and existing window frames. ABSOLUTELY DO NOT ADD NEW WINDOWS or remove existing windows. DO NOT replace solid interior walls, kitchen wall cabinets, or stoves with windows or outdoor glass doors. Keep the exact window count and window positions 100% identical to the input photo.
-3. PRESERVE STYLE IDENTITY: Keep the original design aesthetic, material quality, and color palette of the room.
-4. Photorealistic interior photography, Architectural Digest editorial quality, clean daylighting, 8k resolution.`;
+YOUR PRIMARY GOAL: Create a clear, noticeable, dramatic visual difference in furniture placement between the before and after photos!
+
+RULES FOR DRAMATIC LAYOUT REARRANGEMENT:
+1. DRAMATIC & NOTICEABLE FURNITURE MOVEMENT: Visually move, rotate, translate, and re-stage the primary movable furniture (dining table, chairs, island bar stools, floor lamps, potted plants, rugs, and decor items). For example:
+   - Rotate or relocate the dining table and chair set by 90 degrees into a fresh orientation or new spatial zone.
+   - Stage stylish Scandinavian bar stools along the island counter.
+   - Relocate floor lamps, plant accents, and decor items to create new depth and focal points.
+2. ARCHITECTURAL WALL & WINDOW INTEGRITY: Keep the existing structural walls, ceiling plane, floor plane, built-in kitchen wall cabinets, and existing window boundaries intact. DO NOT create new windows or erase existing windows. Keep solid interior walls as solid walls.
+3. Photorealistic interior photography, Architectural Digest editorial quality, clean daylighting, 8k resolution.`;
 
       if (typeof customPrompt === 'string' && customPrompt.trim()) {
         const trimmedCustom = customPrompt.trim().slice(0, 500);
-        baseInstruction += `\n\nUSER SPECIFIC 3D LAYOUT REQUIREMENTS: "${trimmedCustom}". Reposition freestanding furniture into a new functional layout while keeping window frames, solid walls, kitchen wall cabinets, and window positions 100% identical to the input photo without adding new windows.`;
+        baseInstruction += `\n\nUSER SPECIFIC 3D LAYOUT REQUIREMENTS: "${trimmedCustom}". Reposition furniture into a noticeably fresh functional layout while keeping window frames, solid walls, kitchen wall cabinets, and window positions intact without adding new windows.`;
       }
     } else {
       // 🧹 모드 1: 완전 비우기 후 새로운 가구와 인테리어로 배치 (기본)
@@ -203,10 +207,10 @@ RULES:
     // 다중 시안 생성을 위한 고유 뉘앙스 디렉티브 (대표 테마/스타일은 100% 유지하면서 각 시안마다 차별화된 미학 제공)
     const VARIATION_DIRECTIVES = (effectiveMode === 'rearrange_layout' || effectiveMode === 'preserve_layout')
       ? [
-          'VARIATION 1 (Open Central Flow Layout): Reposition freestanding movable furniture (tables, chairs, stools, island decor, lamps, plants) into an open conversational layout while preserving 100% of all structural walls, kitchen cabinets, countertops, and windows. ABSOLUTELY DO NOT add new windows or glass doors.',
-          'VARIATION 2 (Parallel Functional Layout): Re-align dining table set and island seating along clean parallel functional zones. ABSOLUTELY DO NOT add any new windows, glass doors, or replace kitchen wall cabinets/stoves with outdoor views.',
-          'VARIATION 3 (Balanced Radial Layout): Rotate and center the dining table and chairs for balanced seating flow. ABSOLUTELY DO NOT add new windows or remove wall cabinets.',
-          'VARIATION 4 (Airy Minimal Staging): Streamline seating and decorative accents for a spacious feel while locking 100% of wall structures, kitchen cabinets, and window positions.',
+          'VARIATION 1 (Perpendicular 90-Degree Rotated Layout): DRAMATICALLY REARRANGE THE FURNITURE. Rotate the main dining table and chairs by 90 degrees into a perpendicular orientation. Add modern wooden bar stools along the island counter. Relocate plant accents to the foreground.',
+          'VARIATION 2 (Open Parallel Zoning & Bar Stool Staging): DRAMATICALLY REARRANGE THE FURNITURE. Re-align the dining table and chairs into a parallel zone on the right. Stage 3 Scandinavian bar stools neatly under the island counter. Relocate decor and lighting.',
+          'VARIATION 3 (Radial Conversational Seating Layout): DRAMATICALLY REARRANGE THE FURNITURE. Center the dining table set in an open radial arrangement. Re-position plant accents and floor lamps to frame the space.',
+          'VARIATION 4 (Diagonal Dynamic Staging): DRAMATICALLY REARRANGE THE FURNITURE. Angle the seating and dining layout dynamically for open spatial flow and fresh visual perspective.',
         ]
       : [
           'VARIATION 1 (Classic Balance): Focus on quintessential style harmony, perfectly balanced proportion, and natural midday ambient daylight.',

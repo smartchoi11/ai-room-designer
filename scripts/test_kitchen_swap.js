@@ -12,7 +12,7 @@ async function testKitchenSwap() {
     styleId: 'modern',
     redesignMode: 'rearrange_layout',
     count: 2,
-    customPrompt: 'Perform a bold spatial location swap between the dining table set and the kitchen island counter. Move the dining table over to the left near the window view and relocate the island counter over to the right side where the dining table was located.',
+    customPrompt: 'SWAP POSITIONS ENTIRELY: Move the dining table & chairs set from the right side over to the left side in front of the large window, and move the kitchen island counter & bar stools over to the right side where the dining table set used to be. The dining table MUST now be on the left by the window, and the island counter MUST now be on the right. Keep all structural walls and existing windows intact.',
   };
 
   const response = await fetch('http://localhost:3002/api/generate', {

@@ -176,13 +176,13 @@ TASK: Perform a noticeable 3D furniture repositioning and spatial layout redesig
 
 CRITICAL MANDATES FOR LAYOUT REARRANGEMENT:
 1. DRAMATIC FURNITURE REPOSITIONING: Visually move, re-orient, and relocate the primary room furniture (desk, office chair, bookshelf, sofa, tables, lamps, plants) into a fresh, open, highly functional spatial layout. Change their placement, angle, and layout arrangement so the transformation is clearly visible.
-2. CLEAN WINDOWS & ARCHITECTURAL LOCK: Maintain 100% straight, clean structural walls, ceiling lines, floor planes, and window frames. DO NOT distort, warp, or artifact the window glass, window grids, or wall lines.
+2. CLEAN WINDOWS & ARCHITECTURAL LOCK: Maintain 100% straight, clean structural walls, ceiling lines, floor planes, and window frames. ABSOLUTELY DO NOT ADD NEW WINDOWS or remove existing windows. Keep the window count, window positions, window shapes, and wall boundaries 100% identical to the input photo.
 3. PRESERVE STYLE IDENTITY: Keep the original design aesthetic, material quality, and color palette of the room.
 4. Photorealistic interior photography, Architectural Digest editorial quality, clean daylighting, 8k resolution.`;
 
       if (typeof customPrompt === 'string' && customPrompt.trim()) {
         const trimmedCustom = customPrompt.trim().slice(0, 500);
-        baseInstruction += `\n\nUSER SPECIFIC 3D LAYOUT REQUIREMENTS: "${trimmedCustom}". Reposition furniture into a new functional layout while keeping window frames, walls, and style clean and undistorted.`;
+        baseInstruction += `\n\nUSER SPECIFIC 3D LAYOUT REQUIREMENTS: "${trimmedCustom}". Reposition furniture into a new functional layout while keeping window frames, walls, and window positions 100% identical to the input photo without adding new windows.`;
       }
     } else {
       // 🧹 모드 1: 완전 비우기 후 새로운 가구와 인테리어로 배치 (기본)
@@ -203,10 +203,10 @@ RULES:
     // 다중 시안 생성을 위한 고유 뉘앙스 디렉티브 (대표 테마/스타일은 100% 유지하면서 각 시안마다 차별화된 미학 제공)
     const VARIATION_DIRECTIVES = (effectiveMode === 'rearrange_layout' || effectiveMode === 'preserve_layout')
       ? [
-          'VARIATION 1 (Open Island & Bar Stools Layout): DRAMATICALLY REARRANGE THE ROOM. Move and rotate the main dining table/desk by 90 degrees. Add bar stools around the island/counter to turn it into a functional breakfast bar. Re-align seating into an open conversational layout while preserving structural walls.',
-          'VARIATION 2 (Round Scandinavian Dining & Lounge Chair Layout): DRAMATICALLY REARRANGE THE ROOM. Replace or reposition the dining table into a round Scandinavian dining table set on the right. Stage a cozy bouclé lounge reading chair with a glass side table by the window view.',
-          'VARIATION 3 (Parallel Functional Zoning Layout): DRAMATICALLY REARRANGE THE ROOM. Re-organize furniture along parallel functional zones: create a central seating zone, relocate plant accents to create focal depth, and style the island counter with fresh flowers and serving boards.',
-          'VARIATION 4 (Symmetrical Architectural Layout): DRAMATICALLY REARRANGE THE ROOM. Arrange seating and tables in a balanced symmetrical staging around the primary window view.',
+          'VARIATION 1 (Open Central Flow Layout): Reposition the primary desk and chair into an open central focal arrangement. ABSOLUTELY DO NOT add new windows, remove existing windows, or alter any wall structure.',
+          'VARIATION 2 (Angled Staging & Reading Corner): Angle the main desk diagonally and add a cozy lounge chair on the rug. ABSOLUTELY DO NOT add any new windows, doors, or modify existing wall architecture.',
+          'VARIATION 3 (Parallel Functional Zoning): Align desk, seating, and storage along parallel functional zones. ABSOLUTELY DO NOT add new windows or change wall/window structures.',
+          'VARIATION 4 (Symmetrical Balanced Layout): Re-stage furniture in a clean, balanced layout. ABSOLUTELY DO NOT add new windows or modify structural walls.',
         ]
       : [
           'VARIATION 1 (Classic Balance): Focus on quintessential style harmony, perfectly balanced proportion, and natural midday ambient daylight.',

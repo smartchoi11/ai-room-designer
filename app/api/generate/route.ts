@@ -170,23 +170,21 @@ RULES:
         baseInstruction += `\n\nUSER SPECIFIC REQUIREMENTS: "${trimmedCustom}". Seamlessly integrate these details while keeping existing furniture colors and layout intact.`;
       }
     } else if (effectiveMode === 'rearrange_layout' || effectiveMode === 'preserve_layout') {
-      // 📐 3D 공간 입체 구조 분석 및 가구 배치 최적화 모드 (사용자 맞춤 프롬프트 반영)
+      // 📐 3D 공간 입체 구조 분석 및 가구 배치 최적화 모드 (과감한 3D 가구 맞교체 & 구역 재배치)
       baseInstruction = `You are a world-class Interior Spatial Architect and 3D Furniture Layout Master.
-TASK: Perform a DRAMATIC, HIGHLY VISIBLE 3D furniture repositioning and spatial layout redesign on this ${roomType.prompt}.
+TASK: Perform a DRAMATIC, HIGH-IMPACT, BOLD 3D furniture repositioning, zone swapping, and spatial layout redesign on this ${roomType.prompt}.
 
-YOUR PRIMARY GOAL: Create a clear, noticeable, dramatic visual difference in furniture placement between the before and after photos!
+YOUR MANDATE: Create a bold, highly noticeable visual transformation in furniture placement and functional zoning between the before and after photos!
 
-RULES FOR DRAMATIC LAYOUT REARRANGEMENT:
-1. DRAMATIC & NOTICEABLE FURNITURE MOVEMENT: Visually move, rotate, translate, and re-stage the primary movable furniture (dining table, chairs, island bar stools, floor lamps, potted plants, rugs, and decor items). For example:
-   - Rotate or relocate the dining table and chair set by 90 degrees into a fresh orientation or new spatial zone.
-   - Stage stylish Scandinavian bar stools along the island counter.
-   - Relocate floor lamps, plant accents, and decor items to create new depth and focal points.
-2. ARCHITECTURAL WALL & WINDOW INTEGRITY: Keep the existing structural walls, ceiling plane, floor plane, built-in kitchen wall cabinets, and existing window boundaries intact. DO NOT create new windows or erase existing windows. Keep solid interior walls as solid walls.
-3. Photorealistic interior photography, Architectural Digest editorial quality, clean daylighting, 8k resolution.`;
+RULES FOR BOLD DRAMATIC LAYOUT REARRANGEMENT:
+1. BOLD FURNITURE POSITION SWAPPING & ROTATION: Visually exchange, swap, rotate by 90-180 degrees, and re-stage major movable furniture sets (e.g., completely swap the positions of dining table sets with island counters, move sofas to opposite walls, re-orient study desks towards open room centers, relocate beds, floor lamps, rugs, and potted plants).
+2. HIGH-IMPACT SPATIAL RE-ZONING: Perform a bold spatial zoning overhaul where main furniture pieces change their primary locations in the room, creating an immediately distinct Before/After visual comparison.
+3. ARCHITECTURAL WALL & WINDOW INTEGRITY: Keep existing structural walls, ceiling plane, floor plane, built-in kitchen wall cabinets, gas stove/sink fixtures, and existing window boundaries intact. DO NOT create new windows or erase existing windows. Keep solid interior walls as solid walls.
+4. Photorealistic interior photography, Architectural Digest editorial quality, clean daylighting, 8k resolution.`;
 
       if (typeof customPrompt === 'string' && customPrompt.trim()) {
         const trimmedCustom = customPrompt.trim().slice(0, 500);
-        baseInstruction += `\n\nUSER SPECIFIC 3D LAYOUT REQUIREMENTS: "${trimmedCustom}". Reposition furniture into a noticeably fresh functional layout while keeping window frames, solid walls, kitchen wall cabinets, and window positions intact without adding new windows.`;
+        baseInstruction += `\n\nUSER SPECIFIC BOLD 3D LAYOUT INSTRUCTION: "${trimmedCustom}". Perform a bold spatial position swap and dramatic furniture movement while strictly preserving structural walls, window glass frames, and kitchen wall cabinets intact without adding new windows.`;
       }
     } else {
       // 🧹 모드 1: 완전 비우기 후 새로운 가구와 인테리어로 배치 (기본)
@@ -207,10 +205,10 @@ RULES:
     // 다중 시안 생성을 위한 고유 뉘앙스 디렉티브 (대표 테마/스타일은 100% 유지하면서 각 시안마다 차별화된 미학 제공)
     const VARIATION_DIRECTIVES = (effectiveMode === 'rearrange_layout' || effectiveMode === 'preserve_layout')
       ? [
-          'VARIATION 1 (Bold Island & Dining Table Swap): DRAMATICALLY SWAP FURNITURE POSITIONS. Move the main dining table & chairs set over to the left side near the window view, and relocate the kitchen island counter & bar stools over to the right side where the dining table was located. Completely invert their spatial positions while preserving 100% of structural walls and windows.',
-          'VARIATION 2 (Perpendicular 90-Degree Rotated Layout): DRAMATICALLY REARRANGE THE FURNITURE. Rotate the main dining table and chairs by 90 degrees into a perpendicular orientation. Add modern wooden bar stools along the island counter. Relocate plant accents to the foreground.',
+          'VARIATION 1 (Bold 180-Degree Zone & Furniture Position Swap): DRAMATICALLY SWAP FURNITURE POSITIONS. Move main movable furniture sets (e.g. dining table set vs kitchen island counter / sofa vs TV accent wall) to completely swapped opposite sides of the room. Invert their spatial positions while preserving 100% of structural walls and windows.',
+          'VARIATION 2 (Perpendicular 90-Degree Rotated Layout & Bar Stools): DRAMATICALLY REARRANGE THE FURNITURE. Rotate the main dining table and chairs by 90 degrees into a perpendicular orientation. Add modern wooden bar stools along the island counter. Relocate plant accents to the foreground.',
           'VARIATION 3 (Open Parallel Zoning & Bar Stool Staging): DRAMATICALLY REARRANGE THE FURNITURE. Re-align the dining table and chairs into a parallel zone on the right. Stage 3 Scandinavian bar stools neatly under the island counter. Relocate decor and lighting.',
-          'VARIATION 4 (Diagonal Dynamic Staging): DRAMATICALLY REARRANGE THE FURNITURE. Angle the seating and dining layout dynamically for open spatial flow and fresh visual perspective.',
+          'VARIATION 4 (Diagonal Dynamic Staging & Angle Shift): DRAMATICALLY REARRANGE THE FURNITURE. Angle the seating and dining layout dynamically across the space for open visual flow and fresh perspective.',
         ]
       : [
           'VARIATION 1 (Classic Balance): Focus on quintessential style harmony, perfectly balanced proportion, and natural midday ambient daylight.',

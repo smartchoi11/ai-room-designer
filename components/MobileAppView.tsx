@@ -205,8 +205,8 @@ const STYLE_IMAGE_POOLS: Record<string, string[]> = {
 
 const LAYOUT_IMAGE_POOLS: Record<string, string[]> = {
   kitchen: [
-    '/showcase_kitchen_layout_v1.png',
-    '/showcase_kitchen_layout_v2.png',
+    '/kitchen_swap_result_1.png',
+    '/kitchen_swap_result_2.png',
     '/concept_kitchen_layout_rearranged.png',
   ],
   bedroom: [
@@ -234,9 +234,9 @@ const DIRECT_LAYOUT_MATCHES: Record<string, string[]> = {
   '/living_room_before.png': ['/living_room_after.png', '/showcase_modern_living.png'],
   '/showcase_office.png': ['/showcase_modern_office.png', '/showcase_office.png'],
   '/showcase_modern_office.png': ['/showcase_office.png', '/showcase_modern_office.png'],
-  '/showcase_kitchen.png': ['/showcase_kitchen_layout_v1.png', '/showcase_kitchen_layout_v2.png'],
-  '/showcase_modern_kitchen.png': ['/showcase_kitchen_layout_v1.png', '/showcase_kitchen_layout_v2.png'],
-  '/cozy_home_dining.png': ['/showcase_kitchen_layout_v1.png', '/concept_kitchen_layout_rearranged.png'],
+  '/showcase_kitchen.png': ['/kitchen_swap_result_1.png', '/kitchen_swap_result_2.png'],
+  '/showcase_modern_kitchen.png': ['/kitchen_swap_result_1.png', '/kitchen_swap_result_2.png'],
+  '/cozy_home_dining.png': ['/kitchen_swap_result_1.png', '/kitchen_swap_result_2.png'],
   '/kitchen_option_01.png': ['/showcase_kitchen_layout_v1.png', '/showcase_kitchen_layout_v2.png'],
   '/kitchen_option_02.png': ['/showcase_kitchen_layout_v1.png', '/showcase_kitchen_layout_v2.png'],
   '/exterior_showcase_before.png': ['/exterior_showcase_after.png', '/concept_exterior_01.png'],
@@ -756,8 +756,14 @@ export default function MobileAppView() {
     } else if (selectedTool.id === 'garden') {
       effectiveRedesignMode = 'preserve_layout';
       customPrompt = 'Strictly preserve the outdoor patio footprint, deck layout, and perimeter structure. Enrich and decorate the garden with colorful blooming flowers, lush leafy trees, a serene small stone water pond, organic landscaping, and ambient garden lighting.';
-    } else if (effectiveRedesignMode === 'preserve_layout') {
+    } else if (effectiveRedesignMode === 'preserve_layout' || validRoomId === 'kitchen') {
       customPrompt = 'SWAP POSITIONS ENTIRELY: Perform a bold 180-degree spatial position swap and dramatic furniture movement (e.g. swap dining table set with kitchen island counter, move sofa to opposite wall) while keeping 100% of structural walls, window glass frames, and kitchen wall cabinets intact without adding new windows.';
+      effectiveRedesignMode = 'rearrange_layout';
+    }
+
+    if (!customPrompt && redesignMode === 'structural') {
+      customPrompt = 'SWAP POSITIONS ENTIRELY: Perform a bold 180-degree spatial position swap and dramatic furniture movement while keeping structural walls intact.';
+      effectiveRedesignMode = 'rearrange_layout';
     }
 
     setIsLoading(true);

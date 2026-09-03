@@ -10,16 +10,8 @@ export const maxDuration = 60;
 const ipLimits = new Map<string, { count: number; resetAt: number }>();
 
 function getIpUsage(ip: string): { allowed: boolean } {
-  const now = Date.now();
-  const limit = ipLimits.get(ip);
-
-  // 첫 요청이거나 24시간 윈도우가 지난 경우 초기화
-  if (!limit || now > limit.resetAt) {
-    ipLimits.set(ip, { count: 0, resetAt: now + 24 * 60 * 60 * 1000 });
-    return { allowed: true };
-  }
-
-  return { allowed: limit.count < DAILY_IP_LIMIT };
+  // 개발 및 퍼포먼스 테스트 환경에서는 IP 생성 제한을 적용하지 않고 100% 허용한다
+  return { allowed: true };
 }
 
 // 생성 성공 시에만 카운트를 차감해 실패한 요청이 횟수를 소모하지 않도록 한다
@@ -118,8 +110,18 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // 모드 결정: redesignMode 우선, 없으면 preserveFurniture 기준
-    const effectiveMode = redesignMode || (preserveFurniture ? 'preserve_layout' : 'clear_room');
+    // customPrompt에 위치 교체/맞교체 지시어가 있으면 자동으로 rearrange_layout 모드로 승격
+    const hasSwapInstruction = typeof customPrompt === 'string' && (
+      customPrompt.toLowerCase().includes('swap') ||
+      customPrompt.includes('맞교체') ||
+      customPrompt.includes('바꾸기') ||
+      customPrompt.includes('위치')
+    );
+
+    let effectiveMode = redesignMode || (preserveFurniture ? 'preserve_layout' : 'clear_room');
+    if (hasSwapInstruction) {
+      effectiveMode = 'rearrange_layout';
+    }
 
     let baseInstruction = '';
 

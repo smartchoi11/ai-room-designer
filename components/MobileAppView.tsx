@@ -756,6 +756,8 @@ export default function MobileAppView() {
     } else if (selectedTool.id === 'garden') {
       effectiveRedesignMode = 'preserve_layout';
       customPrompt = 'Strictly preserve the outdoor patio footprint, deck layout, and perimeter structure. Enrich and decorate the garden with colorful blooming flowers, lush leafy trees, a serene small stone water pond, organic landscaping, and ambient garden lighting.';
+    } else if (effectiveRedesignMode === 'preserve_layout') {
+      customPrompt = 'SWAP POSITIONS ENTIRELY: Perform a bold 180-degree spatial position swap and dramatic furniture movement (e.g. swap dining table set with kitchen island counter, move sofa to opposite wall) while keeping 100% of structural walls, window glass frames, and kitchen wall cabinets intact without adding new windows.';
     }
 
     setIsLoading(true);

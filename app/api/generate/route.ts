@@ -227,7 +227,7 @@ RULES:
       let res;
       try {
         res = await ai.models.generateContent({
-          model: 'gemini-3.7-flash',
+          model: 'gemini-2.5-flash-image',
           contents: [
             {
               role: 'user',
@@ -235,11 +235,11 @@ RULES:
             },
           ],
         });
-      } catch (err37) {
+      } catch (err25Img) {
         try {
-          console.warn('Gemini 3.7 model call failed, falling back to gemini-3.1-flash-image-preview:', err37);
+          console.warn('Gemini 2.5 flash-image model call failed, trying gemini-3.1-flash-image:', err25Img);
           res = await ai.models.generateContent({
-            model: 'gemini-3.1-flash-image-preview',
+            model: 'gemini-3.1-flash-image',
             contents: [
               {
                 role: 'user',
@@ -247,10 +247,10 @@ RULES:
               },
             ],
           });
-        } catch (err31) {
-          console.warn('Gemini 3.1 model call failed, falling back to gemini-2.5-flash:', err31);
+        } catch (err31Img) {
+          console.warn('Gemini 3.1 flash-image model call failed, trying gemini-3-pro-image:', err31Img);
           res = await ai.models.generateContent({
-            model: 'gemini-2.5-flash',
+            model: 'gemini-3-pro-image',
             contents: [
               {
                 role: 'user',

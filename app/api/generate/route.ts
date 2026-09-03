@@ -175,14 +175,14 @@ RULES:
 TASK: Perform a noticeable 3D furniture repositioning and spatial layout redesign on this ${roomType.prompt}.
 
 CRITICAL MANDATES FOR LAYOUT REARRANGEMENT:
-1. DRAMATIC FURNITURE REPOSITIONING: Visually move, re-orient, and relocate the primary room furniture (desk, office chair, bookshelf, sofa, tables, lamps, plants) into a fresh, open, highly functional spatial layout. Change their placement, angle, and layout arrangement so the transformation is clearly visible.
-2. CLEAN WINDOWS & ARCHITECTURAL LOCK: Maintain 100% straight, clean structural walls, ceiling lines, floor planes, and window frames. ABSOLUTELY DO NOT ADD NEW WINDOWS or remove existing windows. Keep the window count, window positions, window shapes, and wall boundaries 100% identical to the input photo.
+1. DRAMATIC MOVABLE FURNITURE REPOSITIONING: Visually move, re-orient, and relocate freestanding room furniture (dining table, chairs, island bar stools, lamps, potted plants, rugs, movable desks) into a fresh, open, highly functional spatial layout.
+2. STRICT WALL & WINDOW ARCHITECTURAL LOCK: Maintain 100% of all structural walls, ceiling lines, floor planes, built-in kitchen wall cabinets, stoves, and existing window frames. ABSOLUTELY DO NOT ADD NEW WINDOWS or remove existing windows. DO NOT replace solid interior walls, kitchen wall cabinets, or stoves with windows or outdoor glass doors. Keep the exact window count and window positions 100% identical to the input photo.
 3. PRESERVE STYLE IDENTITY: Keep the original design aesthetic, material quality, and color palette of the room.
 4. Photorealistic interior photography, Architectural Digest editorial quality, clean daylighting, 8k resolution.`;
 
       if (typeof customPrompt === 'string' && customPrompt.trim()) {
         const trimmedCustom = customPrompt.trim().slice(0, 500);
-        baseInstruction += `\n\nUSER SPECIFIC 3D LAYOUT REQUIREMENTS: "${trimmedCustom}". Reposition furniture into a new functional layout while keeping window frames, walls, and window positions 100% identical to the input photo without adding new windows.`;
+        baseInstruction += `\n\nUSER SPECIFIC 3D LAYOUT REQUIREMENTS: "${trimmedCustom}". Reposition freestanding furniture into a new functional layout while keeping window frames, solid walls, kitchen wall cabinets, and window positions 100% identical to the input photo without adding new windows.`;
       }
     } else {
       // 🧹 모드 1: 완전 비우기 후 새로운 가구와 인테리어로 배치 (기본)
@@ -203,10 +203,10 @@ RULES:
     // 다중 시안 생성을 위한 고유 뉘앙스 디렉티브 (대표 테마/스타일은 100% 유지하면서 각 시안마다 차별화된 미학 제공)
     const VARIATION_DIRECTIVES = (effectiveMode === 'rearrange_layout' || effectiveMode === 'preserve_layout')
       ? [
-          'VARIATION 1 (Open Central Flow Layout): Reposition the primary desk and chair into an open central focal arrangement. ABSOLUTELY DO NOT add new windows, remove existing windows, or alter any wall structure.',
-          'VARIATION 2 (Angled Staging & Reading Corner): Angle the main desk diagonally and add a cozy lounge chair on the rug. ABSOLUTELY DO NOT add any new windows, doors, or modify existing wall architecture.',
-          'VARIATION 3 (Parallel Functional Zoning): Align desk, seating, and storage along parallel functional zones. ABSOLUTELY DO NOT add new windows or change wall/window structures.',
-          'VARIATION 4 (Symmetrical Balanced Layout): Re-stage furniture in a clean, balanced layout. ABSOLUTELY DO NOT add new windows or modify structural walls.',
+          'VARIATION 1 (Open Central Flow Layout): Reposition freestanding movable furniture (tables, chairs, stools, island decor, lamps, plants) into an open conversational layout while preserving 100% of all structural walls, kitchen cabinets, countertops, and windows. ABSOLUTELY DO NOT add new windows or glass doors.',
+          'VARIATION 2 (Parallel Functional Layout): Re-align dining table set and island seating along clean parallel functional zones. ABSOLUTELY DO NOT add any new windows, glass doors, or replace kitchen wall cabinets/stoves with outdoor views.',
+          'VARIATION 3 (Balanced Radial Layout): Rotate and center the dining table and chairs for balanced seating flow. ABSOLUTELY DO NOT add new windows or remove wall cabinets.',
+          'VARIATION 4 (Airy Minimal Staging): Streamline seating and decorative accents for a spacious feel while locking 100% of wall structures, kitchen cabinets, and window positions.',
         ]
       : [
           'VARIATION 1 (Classic Balance): Focus on quintessential style harmony, perfectly balanced proportion, and natural midday ambient daylight.',

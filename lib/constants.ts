@@ -288,4 +288,4 @@ export const STYLES: StyleOption[] = [
 ];
 
 export const FREE_GENERATIONS = 2;
-export const DAILY_IP_LIMIT = 10;
+export const DAILY_IP_LIMIT = 100;

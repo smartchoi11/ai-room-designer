@@ -207,9 +207,9 @@ RULES:
     // 다중 시안 생성을 위한 고유 뉘앙스 디렉티브 (대표 테마/스타일은 100% 유지하면서 각 시안마다 차별화된 미학 제공)
     const VARIATION_DIRECTIVES = (effectiveMode === 'rearrange_layout' || effectiveMode === 'preserve_layout')
       ? [
-          'VARIATION 1 (Perpendicular 90-Degree Rotated Layout): DRAMATICALLY REARRANGE THE FURNITURE. Rotate the main dining table and chairs by 90 degrees into a perpendicular orientation. Add modern wooden bar stools along the island counter. Relocate plant accents to the foreground.',
-          'VARIATION 2 (Open Parallel Zoning & Bar Stool Staging): DRAMATICALLY REARRANGE THE FURNITURE. Re-align the dining table and chairs into a parallel zone on the right. Stage 3 Scandinavian bar stools neatly under the island counter. Relocate decor and lighting.',
-          'VARIATION 3 (Radial Conversational Seating Layout): DRAMATICALLY REARRANGE THE FURNITURE. Center the dining table set in an open radial arrangement. Re-position plant accents and floor lamps to frame the space.',
+          'VARIATION 1 (Bold Island & Dining Table Swap): DRAMATICALLY SWAP FURNITURE POSITIONS. Move the main dining table & chairs set over to the left side near the window view, and relocate the kitchen island counter & bar stools over to the right side where the dining table was located. Completely invert their spatial positions while preserving 100% of structural walls and windows.',
+          'VARIATION 2 (Perpendicular 90-Degree Rotated Layout): DRAMATICALLY REARRANGE THE FURNITURE. Rotate the main dining table and chairs by 90 degrees into a perpendicular orientation. Add modern wooden bar stools along the island counter. Relocate plant accents to the foreground.',
+          'VARIATION 3 (Open Parallel Zoning & Bar Stool Staging): DRAMATICALLY REARRANGE THE FURNITURE. Re-align the dining table and chairs into a parallel zone on the right. Stage 3 Scandinavian bar stools neatly under the island counter. Relocate decor and lighting.',
           'VARIATION 4 (Diagonal Dynamic Staging): DRAMATICALLY REARRANGE THE FURNITURE. Angle the seating and dining layout dynamically for open spatial flow and fresh visual perspective.',
         ]
       : [

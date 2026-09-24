@@ -28,7 +28,7 @@ export const DICTIONARY = {
     },
     howItWorks: {
       badge: 'SIMPLE STEPS',
-      title: 'How ReRoomAI Works',
+      title: 'How RoomFit AI Works',
       subtitle: 'Transform your living space in 3 effortless steps.',
       step1Title: '1. Upload Photo',
       step1Desc: 'Upload a clear photo of your living room, bedroom, kitchen, or studio.',

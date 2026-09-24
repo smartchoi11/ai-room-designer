@@ -39,3 +39,9 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# binaries & temp test outputs
+cloudflared.exe
+test_out.png
+*.keystore
+*.jks

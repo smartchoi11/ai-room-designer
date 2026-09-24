@@ -31,7 +31,7 @@ export default function Header({ currentLang = 'kr', onLanguageChange }: HeaderP
       <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
         <a href="#top" className="flex items-baseline gap-2.5">
           <span className="font-display text-xl font-bold tracking-tight text-ink">
-            ReRoom<span className="text-clay">.</span>
+            RoomFit<span className="text-clay">.</span>
           </span>
           <span className="rounded-full border border-line-strong px-2 py-0.5 text-[9px] font-semibold uppercase tracking-[0.2em] text-ink-soft">
             🇰🇷 AI 스튜디오 (한국 전용)

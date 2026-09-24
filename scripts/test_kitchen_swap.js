@@ -1,42 +1,37 @@
 const fs = require('fs');
 const path = require('path');
 
-async function testKitchenSwap() {
-  console.log('Testing Kitchen Layout Rearrangement on showcase_kitchen.png...');
-  const kitchenPath = path.join(__dirname, '../public/showcase_kitchen.png');
-  const base64Image = fs.readFileSync(kitchenPath).toString('base64');
+async function testLiveApi() {
+  console.log('Testing live API http://localhost:3002/api/generate for smart edit position swap...');
+  const concept1Path = 'C:/Users/user/.gemini/antigravity/brain/af8746d7-d684-4f83-b90a-6e923a7d102e/scratch/live_kitchen_concept_1.png';
+  const base64Image = fs.readFileSync(concept1Path).toString('base64');
 
-  const payload = {
-    image: `data:image/png;base64,${base64Image}`,
-    roomTypeId: 'kitchen',
-    styleId: 'modern',
-    redesignMode: 'rearrange_layout',
-    count: 2,
-    customPrompt: 'SWAP POSITIONS ENTIRELY: Move the dining table & chairs set from the right side over to the left side in front of the large window, and move the kitchen island counter & bar stools over to the right side where the dining table set used to be. The dining table MUST now be on the left by the window, and the island counter MUST now be on the right. Keep all structural walls and existing windows intact.',
-  };
-
-  const response = await fetch('http://localhost:3002/api/generate', {
+  const res = await fetch('http://localhost:3002/api/generate', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(payload),
+    body: JSON.stringify({
+      image: `data:image/png;base64,${base64Image}`,
+      roomTypeId: 'kitchen',
+      styleId: 'modern',
+      count: 1,
+      mode: 'edit_existing',
+      customPrompt: 'Selective furniture relocation/swap: 아일랜드 식탁과 원형 식탁 위치를 바꿔줘. CRITICAL ZERO DUPLICATION: The moved furniture must vacate its original position and move to the new position. Absolutely DO NOT duplicate or create an extra set of furniture. There must remain only one set in the entire room.'
+    })
   });
 
-  console.log('API Status:', response.status);
-  const data = await response.json();
-  console.log('API Response keys:', Object.keys(data));
-
-  if (data.images && Array.isArray(data.images)) {
-    console.log('images length:', data.images.length);
-    data.images.forEach((img, idx) => {
-      const base64Data = typeof img === 'string' ? img.replace(/^data:image\/\w+;base64,/, '') : img;
-      const buffer = Buffer.from(base64Data, 'base64');
-      const outPath = path.join(__dirname, `../public/kitchen_swap_result_${idx + 1}.png`);
-      fs.writeFileSync(outPath, buffer);
-      console.log(`SAVED FILE: ${outPath} (${buffer.length} bytes)`);
-    });
+  console.log('Status:', res.status);
+  const data = await res.json();
+  if (data.images && data.images.length > 0) {
+    const outPath = `C:/Users/user/.gemini/antigravity/brain/af8746d7-d684-4f83-b90a-6e923a7d102e/scratch/live_smart_edit_swap.png`;
+    fs.writeFileSync(outPath, Buffer.from(data.images[0], 'base64'));
+    console.log(`Saved live_smart_edit_swap.png`);
+  } else if (data.image) {
+    const outPath = `C:/Users/user/.gemini/antigravity/brain/af8746d7-d684-4f83-b90a-6e923a7d102e/scratch/live_smart_edit_swap.png`;
+    fs.writeFileSync(outPath, Buffer.from(data.image, 'base64'));
+    console.log(`Saved live_smart_edit_swap.png`);
   } else {
-    console.log('FULL DATA:', JSON.stringify(data).slice(0, 300));
+    console.error('Error:', data);
   }
 }
 
-testKitchenSwap().catch(console.error);
+testLiveApi().catch(console.error);

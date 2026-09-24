@@ -1,94 +1,174 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import Header from '@/components/Header';
-import Footer from '@/components/Footer';
-import { Language } from '@/lib/dictionary';
 import Link from 'next/link';
+import { Language, SUPPORTED_LANGUAGES } from '@/lib/i18n';
 
-export default function PrivacyPage() {
+export default function PrivacyPolicyPage() {
   const [lang, setLang] = useState<Language>('en');
 
   useEffect(() => {
-    const saved = (localStorage.getItem('reroom_lang') as Language) || 'en';
-    setLang(saved);
-
-    const handleLang = (e: CustomEvent<Language>) => {
-      setLang(e.detail);
-    };
-
-    window.addEventListener('reroom:lang', handleLang as EventListener);
-    return () => window.removeEventListener('reroom:lang', handleLang as EventListener);
+    try {
+      const saved = localStorage.getItem('reroom_lang') as Language;
+      if (saved && (saved === 'en' || saved === 'ko' || saved === 'ja' || saved === 'es')) {
+        setLang(saved);
+      }
+    } catch (e) {}
   }, []);
 
   return (
-    <div className="min-h-screen bg-paper text-ink flex flex-col justify-between">
-      <Header />
+    <div className="min-h-screen bg-slate-950 text-slate-100 font-sans selection:bg-amber-500 selection:text-slate-950">
+      {/* Top Header */}
+      <header className="sticky top-0 z-40 border-b border-slate-800/80 bg-slate-950/90 px-4 py-3 backdrop-blur-md">
+        <div className="mx-auto max-w-3xl flex items-center justify-between">
+          <Link href="/" className="flex items-center gap-1.5 font-black text-lg text-white">
+            <span className="bg-gradient-to-r from-amber-300 via-orange-400 to-amber-200 bg-clip-text text-transparent">
+              RoomFit AI
+            </span>
+          </Link>
 
-      <main className="mx-auto max-w-4xl px-6 py-16 md:py-24">
-        <Link href="/" className="inline-flex items-center text-xs font-semibold text-clay hover:underline mb-8">
-          ← {lang === 'kr' ? '메인으로 돌아가기' : lang === 'ja' ? 'ホームに戻る' : 'Back to Home'}
-        </Link>
+          {/* Language Switcher */}
+          <div className="flex items-center gap-1">
+            {SUPPORTED_LANGUAGES.map((l) => (
+              <button
+                key={l.code}
+                onClick={() => setLang(l.code)}
+                className={`rounded-full px-2 py-0.5 text-xs font-bold transition-all cursor-pointer ${
+                  lang === l.code
+                    ? 'bg-amber-500/20 text-amber-300 border border-amber-500/40'
+                    : 'text-slate-400 hover:text-slate-200'
+                }`}
+              >
+                <span>{l.flag}</span> <span className="uppercase">{l.code}</span>
+              </button>
+            ))}
+          </div>
+        </div>
+      </header>
 
-        <h1 className="font-display text-3xl md:text-5xl font-extrabold tracking-tight text-ink mb-4">
-          {lang === 'kr' ? '개인정보 처리방침' : lang === 'ja' ? 'プライバシーポリシー' : 'Privacy Policy'}
-        </h1>
-        <p className="text-xs text-ink-faint mb-12">
-          {lang === 'kr' ? '최종 수정일: 2026년 8월 24일' : lang === 'ja' ? '最終更新日: 2026年8月24日' : 'Last Updated: August 24, 2026'}
-        </p>
+      {/* Main Content */}
+      <main className="mx-auto max-w-3xl px-4 py-10">
+        <div className="mb-8">
+          <Link href="/" className="inline-flex items-center text-xs font-bold text-amber-400 hover:underline mb-4">
+            ← {lang === 'ko' ? '메인 앱으로 돌아가기' : lang === 'ja' ? 'ホームに戻る' : lang === 'es' ? 'Volver al Inicio' : 'Back to App'}
+          </Link>
+          <h1 className="text-2xl sm:text-3xl font-black text-white tracking-tight">
+            {lang === 'ko' ? '개인정보처리방침' : lang === 'ja' ? 'プライバシーポリシー' : lang === 'es' ? 'Política de Privacidad' : 'Privacy Policy'}
+          </h1>
+          <p className="text-xs text-slate-400 mt-1">
+            {lang === 'ko'
+              ? '최종 개정일: 2026년 9월 25일 | 시행자: Hwanggeumson (황금손) / RoomFit AI'
+              : 'Last Updated: September 25, 2026 | Operator: Hwanggeumson (RoomFit AI)'}
+          </p>
+        </div>
 
-        <div className="space-y-10 text-sm leading-relaxed text-ink-soft">
-          {/* Section 1 */}
-          <section className="bg-paper-raised p-6 md:p-8 rounded-2xl border border-line">
-            <h2 className="text-lg font-bold text-ink mb-3">
-              {lang === 'kr' ? '1. 수집하는 개인정보 항목' : lang === 'ja' ? '1. 収集する個人情報' : '1. Information We Collect'}
+        <div className="space-y-6 text-sm text-slate-300 leading-relaxed">
+          {/* Overview */}
+          <section className="rounded-2xl border border-slate-800 bg-slate-900/70 p-5 shadow-sm">
+            <h2 className="text-base font-bold text-white mb-2">
+              {lang === 'ko' ? '1. 총칙 및 서비스 제공자 정보' : '1. Overview & Service Provider'}
             </h2>
             <p>
-              {lang === 'kr'
-                ? 'ReRoom AI는 최소한의 개인정보만을 수집합니다. 소셜 로그인 시 제공되는 이메일 주소, 업로드된 공간 이미지, AI 생성 히스토리가 서비스 제공을 위해 안전하게 수집 및 처리됩니다.'
-                : 'We collect minimal information necessary to deliver our service: account email address, uploaded room photos for processing, and generated interior history.'}
+              {lang === 'ko'
+                ? 'Hwanggeumson (이하 "회사")은 정보통신망 이용촉진 및 정보보호 등에 관한 법률 및 개인정보보호법에 따라 이용자의 개인정보를 보호하고 관련 고충을 신속하고 원활하게 처리할 수 있도록 다음과 같이 개인정보처리방침을 수립·공개합니다. 본 방침은 회사가 제공하는 RoomFit AI 모바일 애플리케이션 및 관련 제반 서비스에 적용됩니다.'
+                : 'Hwanggeumson ("Company", "we", "our") operates the RoomFit AI mobile application and web services. This Privacy Policy describes how we collect, use, process, and protect your information when you use our services.'}
             </p>
           </section>
 
-          {/* Section 2: Image & Data Security */}
-          <section className="bg-paper-raised p-6 md:p-8 rounded-2xl border border-line">
-            <h2 className="text-lg font-bold text-ink mb-3">
-              {lang === 'kr' ? '2. 업로드된 공간 사진 및 이미지 보안' : lang === 'ja' ? '2. 画像とデータのセキュリティ' : '2. Image & Room Data Security'}
+          {/* Data Collected */}
+          <section className="rounded-2xl border border-slate-800 bg-slate-900/70 p-5 shadow-sm">
+            <h2 className="text-base font-bold text-white mb-2">
+              {lang === 'ko' ? '2. 수집하는 정보 및 권한 (카메라 및 사진 접근)' : '2. Information We Collect & Device Permissions'}
             </h2>
-            <p className="mb-3">
-              {lang === 'kr'
-                ? '사용자가 업로드한 원본 공간 사진은 오직 3D 인테리어 시안 생성 목적으로만 일시적으로 사용되며, 외부 3인에게 공유되거나 무단으로 재활용되지 않습니다. 사용자는 언제든지 마이페이지에서 생성 기록과 이미지를 삭제하실 수 있습니다.'
-                : 'Uploaded room photos are strictly used to render 3D interior transformations via secure cloud infrastructure. We do not sell or share private user images with third parties.'}
+            <div className="space-y-3">
+              <p>
+                {lang === 'ko'
+                  ? '회사는 AI 인테리어 디자인 및 리모델링 시뮬레이션 서비스 제공을 위해 최소한의 정보만을 처리합니다:'
+                  : 'We collect and process minimal data necessary to deliver AI spatial interior transformation:'}
+              </p>
+              <ul className="list-disc list-inside space-y-1.5 text-xs text-slate-300 pl-2">
+                <li>
+                  <strong className="text-white">
+                    {lang === 'ko' ? '카메라 권한 (CAMERA):' : 'Camera Permission:'}
+                  </strong>{' '}
+                  {lang === 'ko'
+                    ? '이용자가 직접 촬영하여 방 또는 공간 사진을 AI 변환에 제공할 때만 일시적으로 사용됩니다.'
+                    : 'Used solely when you choose to take a photo of your room to generate AI designs.'}
+                </li>
+                <li>
+                  <strong className="text-white">
+                    {lang === 'ko' ? '사진 / 저장소 접근 (READ_MEDIA_IMAGES):' : 'Photos / Storage Permission:'}
+                  </strong>{' '}
+                  {lang === 'ko'
+                    ? '기기에 저장된 방 사진을 선택하여 업로드하거나 완성된 4K 결과물을 저장하기 위해 사용됩니다.'
+                    : 'Used to select existing room photos from your gallery or download generated 4K results.'}
+                </li>
+                <li>
+                  <strong className="text-white">
+                    {lang === 'ko' ? 'AI 렌더링 프롬프트 및 설정:' : 'Design Prompts & Room Selections:'}
+                  </strong>{' '}
+                  {lang === 'ko'
+                    ? '사용자가 선택한 공간 유형, 스타일, 가구 변경 텍스트.'
+                    : 'Style selections and custom text prompts entered for AI transformation.'}
+                </li>
+              </ul>
+            </div>
+          </section>
+
+          {/* AI Processing & Cloud Security */}
+          <section className="rounded-2xl border border-slate-800 bg-slate-900/70 p-5 shadow-sm">
+            <h2 className="text-base font-bold text-white mb-2">
+              {lang === 'ko' ? '3. AI 이미지 처리 및 데이터 보안 (제3자 제공)' : '3. AI Processing & Third-Party Services'}
+            </h2>
+            <p className="mb-2">
+              {lang === 'ko'
+                ? '이용자가 업로드한 공간 사진은 AI 렌더링을 위해 암호화된 HTTPS 통신을 거쳐 Google Cloud / Google AI (Gemini) 보안 API로 전송됩니다. 전송된 이미지는 오직 해당 디자인 시안을 생성하는 용도로만 일시적으로 처리되며, 구글이나 회사의 공개 광고 또는 외부 3자에게 절대 판매되거나 무단 유출되지 않습니다.'
+                : 'Uploaded photos are securely transmitted via encrypted HTTPS to Google Cloud / Google AI (Gemini) APIs strictly to perform architectural design generation. Private room photos are never sold, rented, or used for public advertisements.'}
             </p>
           </section>
 
-          {/* Section 3: Payment Data */}
-          <section className="bg-paper-raised p-6 md:p-8 rounded-2xl border border-line">
-            <h2 className="text-lg font-bold text-ink mb-3">
-              {lang === 'kr' ? '3. 결제 정보 보호 (PG사 전자결제)' : lang === 'ja' ? '3. 決済情報の保護' : '3. Payment Information Security'}
+          {/* Data Retention & Deletion */}
+          <section className="rounded-2xl border border-slate-800 bg-slate-900/70 p-5 shadow-sm">
+            <h2 className="text-base font-bold text-white mb-2">
+              {lang === 'ko' ? '4. 보유 기간 및 데이터 파기 (삭제 요청 권리)' : '4. Data Retention & Your Right to Deletion'}
             </h2>
-            <p>
-              {lang === 'kr'
-                ? 'ReRoom AI 서버는 고객님의 신용카드 번호나 CVC 등 민감한 결제 정보를 직접 저장하지 않습니다. 모든 카드 결제는 PCI-DSS 최고 수준 보안을 준수하는 전문 전자결제사(Lemon Squeezy / Stripe)를 통해 안전하게 암호화 처리됩니다.'
-                : 'We never store sensitive credit card numbers or security credentials on our servers. All transaction details are encrypted and securely handled by PCI-DSS compliant payment gateways (Lemon Squeezy / Stripe).'}
+            <p className="mb-2">
+              {lang === 'ko'
+                ? '이용자는 언제든지 앱 내 보관함에서 생성된 이미지 히스토리를 직접 삭제할 수 있습니다. 또한 아래 연락처로 데이터 삭제를 요청하시면 지체 없이 서버 및 관련 임시 파일 일체를 영구 파기합니다.'
+                : 'Users can delete generated image history directly within the application at any time. You may also request permanent deletion of any associated records by contacting us at the email below.'}
             </p>
           </section>
 
-          {/* Section 4: Contact */}
-          <section className="bg-paper-raised p-6 md:p-8 rounded-2xl border border-line">
-            <h2 className="text-lg font-bold text-ink mb-3">
-              {lang === 'kr' ? '4. 개인정보 보호 문의' : lang === 'ja' ? '4. お問い合わせ' : '4. Contact Information'}
+          {/* Contact Information */}
+          <section className="rounded-2xl border border-amber-500/30 bg-amber-950/20 p-5 shadow-sm">
+            <h2 className="text-base font-bold text-amber-300 mb-2">
+              {lang === 'ko' ? '5. 개인정보 보호책임자 및 문의처' : '5. Contact & Privacy Officer'}
             </h2>
-            <p>
-              {lang === 'kr'
-                ? '개인정보 보호 관련 문의사항이나 정보 삭제 요청은 공식 지원 이메일(privacy@reroom.ai)로 접수해 주시면 24시간 이내 신속히 처리해 드립니다.'
-                : 'For privacy concerns or data removal requests, please contact our Data Protection Team at privacy@reroom.ai.'}
-            </p>
+            <div className="space-y-1 text-xs text-slate-300">
+              <p>
+                <strong className="text-white">{lang === 'ko' ? '회사/개발사' : 'Company'}:</strong> Hwanggeumson (황금손) / RoomFit AI
+              </p>
+              <p>
+                <strong className="text-white">{lang === 'ko' ? '책임자' : 'Representative'}:</strong> Hyeongseok Choi (최형석)
+              </p>
+              <p>
+                <strong className="text-white">{lang === 'ko' ? '사업장 주소' : 'Address'}:</strong> 103-305, 10 Motgol-ro, Dongducheon-si, Gyeonggi-do, Republic of Korea
+              </p>
+              <p>
+                <strong className="text-white">{lang === 'ko' ? '공식 문의 이메일' : 'Email'}:</strong>{' '}
+                <a href="mailto:const11@naver.com" className="text-amber-400 underline">
+                  const11@naver.com
+                </a>
+              </p>
+            </div>
           </section>
         </div>
       </main>
 
-      <Footer />
+      {/* Footer */}
+      <footer className="border-t border-slate-900 bg-slate-950 px-4 py-6 text-center text-xs text-slate-500">
+        © 2026 Hwanggeumson · RoomFit AI. All rights reserved.
+      </footer>
     </div>
   );
 }

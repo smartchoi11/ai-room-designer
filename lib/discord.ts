@@ -20,11 +20,11 @@ export async function sendDiscordPaymentNotification(params: DiscordPaymentParam
   const now = new Date().toLocaleString('ko-KR', { timeZone: 'Asia/Seoul' });
 
   const embedPayload = {
-    username: 'ReRoomAI 결제 알림이',
+    username: 'RoomFit AI 결제 알림이',
     avatar_url: 'https://ai-room-smart-designer-choi.vercel.app/icon.svg',
     embeds: [
       {
-        title: '🎉 [ReRoomAI] 신규 결제가 완료되었습니다!',
+        title: '🎉 [RoomFit AI] 신규 결제가 완료되었습니다!',
         color: 0x2ecc71, // 상큼한 초록색
         fields: [
           {
@@ -49,7 +49,7 @@ export async function sendDiscordPaymentNotification(params: DiscordPaymentParam
           },
         ],
         footer: {
-          text: 'ReRoomAI Monetization Engine • 실시간 결제 푸시 시스템',
+          text: 'RoomFit AI Monetization Engine • 실시간 결제 푸시 시스템',
         },
         timestamp: new Date().toISOString(),
       },

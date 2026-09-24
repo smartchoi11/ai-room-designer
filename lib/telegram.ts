@@ -20,7 +20,7 @@ export async function sendTelegramPaymentNotification(params: PaymentNotificatio
 
   const now = new Date().toLocaleString('ko-KR', { timeZone: 'Asia/Seoul' });
 
-  const message = `🔔 <b>[ReRoomAI 결제 완료 알림]</b> 💳
+  const message = `🔔 <b>[RoomFit AI 결제 완료 알림]</b> 💳
 
 • <b>요금제</b>: ${params.planName}
 • <b>결제 금액</b>: ${params.amountFormatted}

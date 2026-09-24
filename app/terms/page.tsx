@@ -45,8 +45,8 @@ export default function TermsPage() {
             </h2>
             <p>
               {lang === 'kr'
-                ? 'ReRoom AI는 사용자가 업로드한 방 사진을 기반으로 다양한 3D 인테리어 컨셉을 초고화질로 렌더링하는 AI 인테리어 리디자인 SaaS 플랫폼입니다. 본 플랫폼을 이용하거나 계정을 생성함으로써 귀하는 본 이용약관 및 결제 조건에 동의하게 됩니다.'
-                : 'ReRoom AI is an AI-powered interior redesign SaaS platform that transforms room photos into high-resolution 3D design concepts. By using our website and services, you agree to these Terms of Service.'}
+                ? 'RoomFit AI는 사용자가 업로드한 방 사진을 기반으로 다양한 3D 인테리어 컨셉을 초고화질로 렌더링하는 AI 인테리어 리디자인 SaaS 플랫폼입니다. 본 플랫폼을 이용하거나 계정을 생성함으로써 귀하는 본 이용약관 및 결제 조건에 동의하게 됩니다.'
+                : 'RoomFit AI is an AI-powered interior redesign SaaS platform that transforms room photos into high-resolution 3D design concepts. By using our website and services, you agree to these Terms of Service.'}
             </p>
           </section>
 
@@ -57,8 +57,8 @@ export default function TermsPage() {
             </h2>
             <p className="mb-3">
               {lang === 'kr'
-                ? 'ReRoom AI는 월간/연간 구독 플랜 및 크레딧 충전 방식으로 서비스를 제공합니다. 결제는 글로벌 결제 파트너(Lemon Squeezy / Stripe)를 통해 안전하게 처리되며 해외 신용카드, Apple Pay, Google Pay를 지원합니다.'
-                : 'ReRoom AI offers subscription plans and credit-based generation tiers. Payments are securely processed via trusted Merchant of Record partners (Lemon Squeezy / Stripe), supporting major credit cards, Apple Pay, and Google Pay.'}
+                ? 'RoomFit AI는 월간/연간 구독 플랜 및 크레딧 충전 방식으로 서비스를 제공합니다. 결제는 글로벌 결제 파트너(Lemon Squeezy / Stripe)를 통해 안전하게 처리되며 해외 신용카드, Apple Pay, Google Pay를 지원합니다.'
+                : 'RoomFit AI offers subscription plans and credit-based generation tiers. Payments are securely processed via trusted Merchant of Record partners (Lemon Squeezy / Stripe), supporting major credit cards, Apple Pay, and Google Pay.'}
             </p>
             <ul className="list-disc list-inside space-y-1.5 text-xs text-ink-faint">
               <li>{lang === 'kr' ? '구독은 익월 자동 갱신되며, 언제든지 마이페이지에서 해지하실 수 있습니다.' : 'Subscriptions auto-renew unless cancelled at least 24 hours before the end of the billing period.'}</li>
@@ -88,8 +88,8 @@ export default function TermsPage() {
             </h2>
             <p>
               {lang === 'kr'
-                ? 'ReRoom AI 유료 플랜 사용자가 생성한 모든 3D 인테리어 결과물은 사용자의 상업적 이용(부동산 홍보, 인테리어 시공 마케팅 등)이 100% 허용되며, 모든 소유권은 사용자에게 귀속됩니다.'
-                : 'Paid plan users retain full commercial rights to all 3D interior transformation renders created through ReRoom AI for marketing, staging, and real estate presentations.'}
+                ? 'RoomFit AI 유료 플랜 사용자가 생성한 모든 3D 인테리어 결과물은 사용자의 상업적 이용(부동산 홍보, 인테리어 시공 마케팅 등)이 100% 허용되며, 모든 소유권은 사용자에게 귀속됩니다.'
+                : 'Paid plan users retain full commercial rights to all 3D interior transformation renders created through RoomFit AI for marketing, staging, and real estate presentations.'}
             </p>
           </section>
         </div>

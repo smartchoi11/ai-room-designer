@@ -364,24 +364,24 @@ export default function ShowcaseCarousel() {
           <h2 className="font-display mt-3 text-3xl font-extrabold tracking-tight text-ink md:text-5xl">
             {lang === 'en' ? (
               <>
-                Rooms that <span className="text-clay">ReRoomAI</span> created
+                Rooms that <span className="text-clay">RoomFit AI</span> created
               </>
             ) : lang === 'ja' ? (
               <>
-                <span className="text-clay">ReRoomAI</span>が創り出した理想の空間
+                <span className="text-clay">RoomFit AI</span>が創り出した理想の空間
               </>
             ) : (
               <>
-                <span className="text-clay">ReRoomAI</span>가 탄생시킨 공간 시안
+                <span className="text-clay">RoomFit AI</span>가 탄생시킨 공간 시안
               </>
             )}
           </h2>
           <p className="mt-3 text-sm text-ink-soft md:text-base max-w-xl mx-auto">
             {lang === 'en'
-              ? 'Explore actual interior transformation concepts rendered in seconds by ReRoomAI.'
+              ? 'Explore actual interior transformation concepts rendered in seconds by RoomFit AI.'
               : lang === 'ja'
-              ? 'ReRoomAIが数秒でレンダリングした実際のインテリア空間の変革デザインをご覧ください。'
-              : 'ReRoomAI가 수초 만에 생성한 실제 인테리어 공간 변환 시안들을 감상해보세요.'}
+              ? 'RoomFit AIが数秒でレンダリングした実際のインテリア空間の変革デザインをご覧ください。'
+              : 'RoomFit AI가 수초 만에 생성한 실제 인테리어 공간 변환 시안들을 감상해보세요.'}
           </p>
         </Reveal>
 

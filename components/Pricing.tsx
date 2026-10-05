@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import Reveal from './Reveal';
+import { loadTossPayments, ANONYMOUS } from '@tosspayments/tosspayments-sdk';
 
 export type KrPlan = {
   id: string;
@@ -89,8 +90,9 @@ export const KR_PLANS: KrPlan[] = [
 export default function Pricing() {
   const [selectedPlan, setSelectedPlan] = useState<KrPlan | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<'toss' | 'kakao' | 'naver' | 'card'>('toss');
+  const [selectedGateway, setSelectedGateway] = useState<'toss' | 'google_play'>('toss');
   const [isProcessing, setIsProcessing] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
 
   const handleSelectPlan = (plan: KrPlan) => {
     if (plan.id === 'free') {
@@ -102,39 +104,52 @@ export default function Pricing() {
     }
 
     setSelectedPlan(plan);
+    setErrorMessage('');
     setIsModalOpen(true);
   };
 
-  const handleDomesticCheckout = () => {
-    setIsProcessing(true);
-    setTimeout(() => {
-      setIsProcessing(false);
-      if (selectedPlan) {
-        if (selectedPlan.id === 'starter_pack') {
-          const current = Number(localStorage.getItem('reroom_free_generations') || '2');
-          localStorage.setItem('reroom_free_generations', String(current + 50));
-        } else if (selectedPlan.id === 'pro_pack') {
-          const current = Number(localStorage.getItem('reroom_free_generations') || '2');
-          localStorage.setItem('reroom_free_generations', String(current + 180));
-        } else {
-          localStorage.setItem('reroom_pro_subscribed', 'true');
-        }
+  const handleTossCheckout = async () => {
+    if (!selectedPlan) return;
 
-        // 텔레그램 결제 알림 트리거
-        fetch('/api/notify', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            planName: selectedPlan.name,
-            amountFormatted: selectedPlan.priceFormatted,
-            paymentMethod: selectedPaymentMethod.toUpperCase(),
-          }),
-        }).catch((err) => console.error('Telegram notification error:', err));
+    if (selectedGateway === 'google_play') {
+      setErrorMessage('구글 플레이 인앱결제(글로벌 결제)는 현재 판매자 계정 검토 준비 중입니다. 국내 간편결제(토스/카카오/카드)를 이용해 주세요!');
+      return;
+    }
 
-        alert(`[${selectedPlan.name}] ${selectedPaymentMethod.toUpperCase()} 결제가 완료되었습니다!\n크레딧이 성공적으로 추가되었습니다.`);
+    try {
+      setIsProcessing(true);
+      setErrorMessage('');
+
+      // 공식 토스페이먼츠 테스트 클라이언트 키 (환경변수 키 우선)
+      const clientKey = process.env.NEXT_PUBLIC_TOSS_CLIENT_KEY || 'test_ck_D5GePWvyJqK4WBaqkxl3OBryNqmE';
+      const tossPayments = await loadTossPayments(clientKey);
+      const payment = tossPayments.payment({ customerKey: ANONYMOUS });
+
+      const orderId = `roomfit_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
+      const origin = typeof window !== 'undefined' ? window.location.origin : 'https://ai-room-smart-designer-choi.vercel.app';
+
+      // 토스 결제창 띄우기 (신용카드, 카카오페이, 네이버페이, 토스페이 통합 지원)
+      await payment.requestPayment({
+        method: 'CARD',
+        amount: {
+          currency: 'KRW',
+          value: selectedPlan.priceKrw,
+        },
+        orderId,
+        orderName: `RoomFit AI ${selectedPlan.name}`,
+        successUrl: `${origin}/pricing/success?planId=${selectedPlan.id}`,
+        failUrl: `${origin}/pricing/fail`,
+        customerEmail: 'customer@roomfit.ai',
+        customerName: 'RoomFit AI 고객',
+      });
+    } catch (err: any) {
+      console.error('Toss Payments request error:', err);
+      // 사용자가 창을 닫은 경우 등
+      if (err.code !== 'USER_CANCEL') {
+        setErrorMessage(err.message || '결제창을 여는 도중 문제가 발생했습니다.');
       }
-      setIsModalOpen(false);
-    }, 1000);
+      setIsProcessing(false);
+    }
   };
 
   return (
@@ -142,13 +157,13 @@ export default function Pricing() {
       <div className="mx-auto max-w-6xl px-4 sm:px-6">
         <Reveal className="text-center">
           <span className="rounded-full bg-clay/10 px-3.5 py-1 text-[11px] font-bold uppercase tracking-[0.2em] text-clay">
-            🇰🇷 국내 전용 원화(KRW) 요금제
+            🇰🇷 국내외 결제 시스템 연동 완료
           </span>
           <h2 className="font-display mt-3 sm:mt-4 text-2xl sm:text-3xl font-bold tracking-tight text-ink md:text-5xl">
             합리적인 가격으로 인테리어를 완성하세요
           </h2>
           <p className="mx-auto mt-2 sm:mt-4 max-w-2xl text-xs sm:text-sm leading-relaxed text-ink-soft md:text-base">
-            투명하고 합리적인 원화(KRW) 요금 정책. 2회 무료 체험부터 간편결제 크레딧 충전, 월 무제한 멤버십까지 자유롭게 선택하세요.
+            토스페이, 카카오페이, 네이버페이, 신용카드 간편결제 지원. 2회 무료 체험부터 크레딧 충전, 월 멤버십까지 자유롭게 선택하세요.
           </p>
         </Reveal>
 
@@ -224,12 +239,24 @@ export default function Pricing() {
         </div>
 
         {/* 결제 수단 안내 뱃지 */}
-        <div className="mt-12 rounded-2xl border border-line bg-paper-raised p-6 text-center text-xs text-ink-soft">
-          💳 <strong>국내 간편결제 지원:</strong> <strong>토스페이, 카카오페이, 네이버페이, 국내 모든 신용/체크카드</strong> 결제 지원. (해외 카드 및 수수료 걱정 없음)
+        <div className="mt-12 rounded-2xl border border-line bg-paper-raised p-6 text-center text-xs text-ink-soft flex flex-wrap items-center justify-center gap-4">
+          <span className="flex items-center gap-1.5 font-bold text-ink">
+            🛡️ 토스페이먼츠 전자금융 안전결제
+          </span>
+          <span className="text-line-strong">|</span>
+          <span>카카오페이</span>
+          <span>·</span>
+          <span>토스페이</span>
+          <span>·</span>
+          <span>네이버페이</span>
+          <span>·</span>
+          <span>국내 모든 신용/체크카드</span>
+          <span className="text-line-strong">|</span>
+          <span className="text-clay font-medium">1초 원클릭 간편결제 지원</span>
         </div>
       </div>
 
-      {/* 국내 결제 모달 (Toss/Kakao/Naver Pay) */}
+      {/* 결제 수단 선택 모달 (Toss Payments / Google Play) */}
       {isModalOpen && selectedPlan && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-ink/60 p-4 backdrop-blur-sm animate-fade-in">
           <div className="relative w-full max-w-md rounded-3xl border border-line bg-paper-raised p-6 shadow-2xl md:p-8">
@@ -242,7 +269,7 @@ export default function Pricing() {
 
             <div>
               <span className="rounded-full bg-clay/10 px-3 py-1 text-[10px] font-bold text-clay uppercase tracking-wider">
-                국내 간편결제 (KRW)
+                주문 및 결제 확인
               </span>
               <h3 className="font-display mt-3 text-2xl font-bold text-ink">
                 {selectedPlan.name}
@@ -260,65 +287,77 @@ export default function Pricing() {
                 </div>
               </div>
 
-              {/* 결제 수단 선택 */}
-              <div className="mb-6">
-                <label className="mb-2 block text-xs font-bold text-ink">결제 수단 선택</label>
-                <div className="grid grid-cols-2 gap-2">
-                  <button
-                    type="button"
-                    onClick={() => setSelectedPaymentMethod('toss')}
-                    className={`rounded-xl border p-3 text-xs font-bold transition-all cursor-pointer ${
-                      selectedPaymentMethod === 'toss'
-                        ? 'border-blue-500 bg-blue-50 text-blue-600 shadow-sm'
-                        : 'border-line bg-paper text-ink-soft hover:border-line-strong'
-                    }`}
-                  >
-                    🔵 토스페이 (Toss)
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setSelectedPaymentMethod('kakao')}
-                    className={`rounded-xl border p-3 text-xs font-bold transition-all cursor-pointer ${
-                      selectedPaymentMethod === 'kakao'
-                        ? 'border-yellow-500 bg-yellow-50 text-yellow-800 shadow-sm'
-                        : 'border-line bg-paper text-ink-soft hover:border-line-strong'
-                    }`}
-                  >
-                    🟡 카카오페이 (Kakao)
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setSelectedPaymentMethod('naver')}
-                    className={`rounded-xl border p-3 text-xs font-bold transition-all cursor-pointer ${
-                      selectedPaymentMethod === 'naver'
-                        ? 'border-emerald-500 bg-emerald-50 text-emerald-700 shadow-sm'
-                        : 'border-line bg-paper text-ink-soft hover:border-line-strong'
-                    }`}
-                  >
-                    🟢 네이버페이 (Naver)
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setSelectedPaymentMethod('card')}
-                    className={`rounded-xl border p-3 text-xs font-bold transition-all cursor-pointer ${
-                      selectedPaymentMethod === 'card'
-                        ? 'border-clay bg-clay/10 text-clay shadow-sm'
-                        : 'border-line bg-paper text-ink-soft hover:border-line-strong'
-                    }`}
-                  >
-                    💳 일반 신용/체크카드
-                  </button>
-                </div>
+              {/* 결제 채널 선택 (토스 vs 구글플레이) */}
+              <div className="mb-6 space-y-2">
+                <label className="block text-xs font-bold text-ink">결제 방식 선택</label>
+                
+                <button
+                  type="button"
+                  onClick={() => { setSelectedGateway('toss'); setErrorMessage(''); }}
+                  className={`w-full text-left rounded-2xl border p-4 transition-all cursor-pointer flex items-center justify-between ${
+                    selectedGateway === 'toss'
+                      ? 'border-blue-500 bg-blue-50/80 text-blue-950 shadow-sm ring-2 ring-blue-500/20'
+                      : 'border-line bg-paper text-ink-soft hover:border-line-strong'
+                  }`}
+                >
+                  <div className="flex items-center gap-3">
+                    <span className="text-2xl">💳</span>
+                    <div>
+                      <div className="text-xs font-bold text-ink flex items-center gap-1.5">
+                        토스페이먼츠 간편결제
+                        <span className="rounded bg-blue-500 px-1.5 py-0.5 text-[9px] font-bold text-white">국내 추천</span>
+                      </div>
+                      <div className="text-[11px] text-ink-soft mt-0.5">
+                        카카오페이 · 토스페이 · 네이버페이 · 모든 카드
+                      </div>
+                    </div>
+                  </div>
+                  <input type="radio" checked={selectedGateway === 'toss'} readOnly className="accent-blue-600" />
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setSelectedGateway('google_play')}
+                  className={`w-full text-left rounded-2xl border p-4 transition-all cursor-pointer flex items-center justify-between ${
+                    selectedGateway === 'google_play'
+                      ? 'border-indigo-500 bg-indigo-50/80 text-indigo-950 shadow-sm ring-2 ring-indigo-500/20'
+                      : 'border-line bg-paper text-ink-soft hover:border-line-strong'
+                  }`}
+                >
+                  <div className="flex items-center gap-3">
+                    <span className="text-2xl">▶️</span>
+                    <div>
+                      <div className="text-xs font-bold text-ink flex items-center gap-1.5">
+                        Google Play 인앱결제
+                        <span className="rounded bg-indigo-500/20 px-1.5 py-0.5 text-[9px] font-bold text-indigo-600">Global 준비중</span>
+                      </div>
+                      <div className="text-[11px] text-ink-soft mt-0.5">
+                        외국인/해외 카드 · Google Play 잔액 결제
+                      </div>
+                    </div>
+                  </div>
+                  <input type="radio" checked={selectedGateway === 'google_play'} readOnly className="accent-indigo-600" />
+                </button>
               </div>
+
+              {errorMessage && (
+                <div className="mb-4 rounded-xl bg-amber-500/10 p-3 text-xs text-amber-700 border border-amber-500/30">
+                  {errorMessage}
+                </div>
+              )}
 
               <button
                 type="button"
-                onClick={handleDomesticCheckout}
+                onClick={handleTossCheckout}
                 disabled={isProcessing}
-                className="w-full cursor-pointer rounded-2xl bg-clay py-4 text-xs font-bold text-paper shadow-lift transition-all hover:bg-clay-deep active:scale-95"
+                className="w-full cursor-pointer rounded-2xl bg-clay py-4 text-xs font-bold text-paper shadow-lift transition-all hover:bg-clay-deep active:scale-95 disabled:opacity-50"
               >
-                {isProcessing ? '결제 요청 처리 중...' : `${selectedPlan.priceFormatted} 결제하기`}
+                {isProcessing ? '토스 결제창을 불러오는 중...' : `${selectedPlan.priceFormatted} 결제창 열기`}
               </button>
+
+              <p className="mt-3 text-center text-[10px] text-ink-faint">
+                토스페이먼츠의 안전한 암호화 결제창이 열립니다.
+              </p>
             </div>
           </div>
         </div>

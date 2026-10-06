@@ -3885,11 +3885,11 @@ STRICT IN-PLACE STYLING CONSTRAINTS (CRITICAL):
                       {translations.home.bannerTitle[lang]}
                     </span>
                     <span className="shrink-0 rounded-full bg-amber-500/20 px-1.5 py-0.5 text-[9px] font-bold text-amber-400 border border-amber-500/30 whitespace-nowrap">
-                      {lang === 'ko' ? '특가 혜택' : lang === 'ja' ? '特別オファー' : lang === 'es' ? 'Oferta' : 'Special Offer'}
+                      {lang === 'ko' ? '15일 한정 (~10.21)' : lang === 'ja' ? '15日間限定 (~10/21)' : lang === 'es' ? '15 días (~21 Oct)' : '15 Days (~Oct 21)'}
                     </span>
                   </div>
                   <p className="text-[10px] text-slate-300 mt-0.5 truncate">
-                    {lang === 'ko' ? '스타터 팩부터 프로 3개월 올패스까지' : lang === 'ja' ? 'スターターからプロ3ヶ月パスまで' : lang === 'es' ? 'De Starter a pase Pro 3 meses' : 'Starter pack to Pro 3-mo pass'}
+                    {lang === 'ko' ? '신규 가입 2회 무료 체험 & 한정 얼리버드 특가 혜택' : lang === 'ja' ? '新規2回無料体験＆限定アーリーバード特典' : lang === 'es' ? '2 pruebas gratis y oferta especial anticipada' : '2 free trials & early-bird launch special offer'}
                   </p>
                 </div>
               </div>

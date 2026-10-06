@@ -21,10 +21,10 @@ export const translations = {
   header: {
     brand: { en: 'RoomFit AI', ko: 'RoomFit AI', ja: 'RoomFit AI', es: 'RoomFit AI' },
     freeBadge: {
-      en: '🎁 2 Free Trials',
-      ko: '🎁 신규 2회 무료 지급',
-      ja: '🎁 新規2回無料付与',
-      es: '🎁 2 Pruebas Gratis',
+      en: '🎁 15-Day Promo (~Oct 21)',
+      ko: '🎁 15일 한정 프로모션 (~10.21)',
+      ja: '🎁 15日間限定 (~10/21)',
+      es: '🎁 Promo 15 días (~21 Oct)',
     },
     credits: { en: 'Credits', ko: '크레딧', ja: 'クレジット', es: 'Créditos' },
     langSelectTitle: {
@@ -42,10 +42,10 @@ export const translations = {
       es: '💎 Elige tu Plan de Membresía',
     },
     tryBeforeBuy: {
-      en: '2 free trials available before purchase',
-      ko: '결제 전 2회 무료 체험 가능',
-      ja: '購入前に2回無料でお試し可能',
-      es: 'Prueba 2 veces gratis antes de comprar',
+      en: '15-Day Launch Promo: 2 Free Trials (~Oct 21)',
+      ko: '출시 기념 15일 한정: 2회 무료 체험 (~10.21)',
+      ja: 'リリース記念15日間限定: 2回無料体験 (~10/21)',
+      es: 'Promo de lanzamiento 15 días: 2 pruebas gratis (~21 Oct)',
     },
     before: { en: 'BEFORE', ko: 'BEFORE', ja: 'BEFORE', es: 'BEFORE' },
     after: { en: 'AFTER', ko: 'AFTER', ja: 'AFTER', es: 'AFTER' },
@@ -181,10 +181,10 @@ export const translations = {
   },
   home: {
     bannerTitle: {
-      en: 'RoomFit AI Plans',
-      ko: 'RoomFit AI 멤버십',
-      ja: 'RoomFit AI プラン',
-      es: 'Planes RoomFit AI',
+      en: '🎉 15-Day Promo (~Oct 21)',
+      ko: '🎉 출시 기념 15일 프로모션 (~10.21)',
+      ja: '🎉 15日間限定プロモ (~10/21)',
+      es: '🎉 Promo 15 Días (~21 Oct)',
     },
     bannerBtn: {
       en: 'View Plans',

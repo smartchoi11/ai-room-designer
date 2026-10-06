@@ -331,6 +331,31 @@ export default function PricingModal({
         </div>
       </div>
 
+      {/* 🚀 서비스 프로모션 기간 명시 배너 (지금부터 15일간: 2026.10.06 ~ 2026.10.21) */}
+      <div className="mt-1 flex items-center justify-between rounded-xl border border-amber-400/40 bg-gradient-to-r from-amber-500/20 via-orange-500/15 to-amber-500/20 px-3 py-1.5 shadow-sm">
+        <div className="flex items-center gap-1.5 min-w-0">
+          <span className="text-xs">🎉</span>
+          <span className="text-[11px] font-black text-amber-300 truncate">
+            {lang === 'ko'
+              ? 'Google Play 출시 기념 15일 한정 프로모션'
+              : lang === 'ja'
+              ? 'Google Playリリース記念 15日間限定プロモ'
+              : lang === 'es'
+              ? 'Promo de 15 Días por Lanzamiento'
+              : 'Google Play Launch 15-Day Promotion'}
+          </span>
+        </div>
+        <span className="shrink-0 rounded-full bg-gradient-to-r from-amber-400 to-orange-400 px-2 py-0.5 text-[9.5px] font-black text-slate-950 shadow-sm">
+          {lang === 'ko'
+            ? '10.21까지'
+            : lang === 'ja'
+            ? '~10/21まで'
+            : lang === 'es'
+            ? 'Hasta 21 Oct'
+            : '~Oct 21'}
+        </span>
+      </div>
+
       {/* ─────────────────────────────────────────────────────────────
           2. [상단 영역]: 기능별 인터랙티브 비포/애프터 쇼케이스
          ───────────────────────────────────────────────────────────── */}

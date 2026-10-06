@@ -5,6 +5,8 @@ import { useSearchParams, useRouter } from 'next/navigation';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 
+import { recordPromoPurchase } from '@/lib/promoCredits';
+
 function SuccessContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -43,6 +45,9 @@ function SuccessContent() {
           if (planId === 'studio_agency') {
             localStorage.setItem('reroom_pro_subscribed', 'true');
           }
+
+          // ⏰ 프로모션 결제 내역 30일 유효기간 자동 등록 (30일 후 자동 0 크레딧 초기화)
+          recordPromoPurchase(planId || 'starter_pack', addedCredits);
 
           setPaymentDetails(data.payment);
           setStatus('success');
@@ -99,6 +104,10 @@ function SuccessContent() {
               <div className="flex justify-between">
                 <span>주문 번호:</span>
                 <span className="font-mono text-[10px] text-ink-muted">{paymentDetails.orderId}</span>
+              </div>
+              <div className="mt-2 border-t border-line/60 pt-2 flex justify-between text-[11px] text-amber-700 bg-amber-50/60 p-2 rounded-xl">
+                <span>⏰ 프로모션 유효기간:</span>
+                <span className="font-bold">결제일로부터 30일 (30일 후 자동 만료)</span>
               </div>
             </div>
           )}

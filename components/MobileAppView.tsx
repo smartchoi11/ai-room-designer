@@ -7,6 +7,7 @@ import PricingModal from './PricingModal';
 import { FREE_GENERATIONS } from '@/lib/constants';
 import { useLocalStorage } from '@/lib/useLocalStorage';
 import { Language, SUPPORTED_LANGUAGES, translations } from '@/lib/i18n';
+import { recordPromoPurchase, checkAndHandlePromoExpiry } from '@/lib/promoCredits';
 
 type AppTab = 'tools' | 'create' | 'discover' | 'profile';
 type WizardStep = 1 | 2 | 3 | 4 | 5; // 5 = Results Board
@@ -2122,7 +2123,17 @@ export default function MobileAppView() {
     if (isNaN(rawVal) || rawVal > 1000) {
       setFreeCountRaw('0');
     }
-  }, [freeCountRaw, setFreeCountRaw]);
+
+    // ⏰ 30일 프로모션 유효기간 자동 점검 (30일 경과 시 제로 0 크레딧 자동 소멸)
+    const promoStatus = checkAndHandlePromoExpiry();
+    if (promoStatus.isExpired) {
+      alert(
+        lang === 'ko'
+          ? '⏰ [알림] 프로모션 결제 내역의 30일 유효기간이 만료되어 잔여 크레딧 및 이용권이 초기화되었습니다.'
+          : '⏰ [Notice] The 30-day promotional validity has expired. Remaining credits have been reset to zero.'
+      );
+    }
+  }, [freeCountRaw, setFreeCountRaw, lang]);
 
   // 👑 사용자 유료 플랜 구독 상태 ('free' | 'starter' | 'pro')
   const [userPlan, setUserPlan] = useLocalStorage('reroom_user_plan', 'free');
@@ -7867,10 +7878,12 @@ STRICT IN-PLACE STYLING CONSTRAINTS (CRITICAL):
         if (plan.id === 'starter') {
           setFreeCountRaw(String(freeCount + 30));
           setUserPlan('starter');
+          recordPromoPurchase('starter', 30);
         } else {
           // 월간/연간 무제한 플랜
           setFreeCountRaw('999');
           setUserPlan('pro');
+          recordPromoPurchase(plan.id, 999);
         }
       }}
       onStartExperience={() => {

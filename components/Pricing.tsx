@@ -39,11 +39,11 @@ export const KR_PLANS: KrPlan[] = [
     tagline: '이사, 자취방 및 단품 인테리어 리모델링 프로젝트용 (1회성)',
     priceKrw: 9900,
     priceFormatted: '9,900원',
-    creditsText: '50 크레딧 1회 충전 (회당 198원 · 유효기간 없음)',
+    creditsText: '50 크레딧 1회 충전 (회당 198원 · 프로모션 30일 유효)',
     badge: '🔥 B2C 추천 1위',
     highlighted: true,
     features: [
-      '50회 인테리어 생성 크레딧 (평생 소장/유효기간 없음)',
+      '50회 인테리어 생성 크레딧 (프로모션 유효기간 30일)',
       '1회 요청 시 최대 4개 시안 동시 생성',
       '수정 히스토리 & Undo/Redo 지원',
       '4K 초고화질 원본 이미지 다운로드',
@@ -57,10 +57,10 @@ export const KR_PLANS: KrPlan[] = [
     tagline: '집 전체 리모델링, 인테리어 블로거 & 열정 유저용 (1회성)',
     priceKrw: 29000,
     priceFormatted: '29,000원',
-    creditsText: '180 크레딧 1회 충전 (회당 161원 · 유효기간 없음)',
+    creditsText: '180 크레딧 1회 충전 (회당 161원 · 프로모션 30일 유효)',
     badge: '👑 최고 가치',
     features: [
-      '180회 인테리어 생성 크레딧 (평생 소장/유효기간 없음)',
+      '180회 인테리어 생성 크레딧 (프로모션 유효기간 30일)',
       '스타터 팩 대비 3.6배 대용량 제공 (개당 161원 가성비)',
       '전체 20가지 인테리어 스타일 프리미엄 이용',
       '4K 초고화질 원본 다운로드 및 히스토리 보존',
@@ -257,6 +257,10 @@ export default function Pricing() {
           <span className="text-line-strong">|</span>
           <span className="text-clay font-medium">1초 원클릭 간편결제 지원</span>
         </div>
+
+        <p className="mt-4 text-center text-xs text-ink-muted leading-relaxed">
+          ※ Google Play 런칭 오픈 프로모션 기간 내 충전/결제된 모든 크레딧 및 이용권은 구매일로부터 <strong>30일간 유효</strong>하며, 30일 경과 시 미사용 잔여분은 자동으로 0으로 소멸됩니다.
+        </p>
       </div>
 
       {/* 결제 수단 선택 모달 (Toss Payments / Google Play) */}

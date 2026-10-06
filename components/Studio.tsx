@@ -164,6 +164,7 @@ import { useLocalStorage } from '@/lib/useLocalStorage';
 import { DICTIONARY, Language } from '@/lib/dictionary';
 import CompareSlider from './CompareSlider';
 import Reveal from './Reveal';
+import { checkAndHandlePromoExpiry } from '@/lib/promoCredits';
 
 const LOADING_STATUSES_KR = [
   '공간 구조 분석 중...',
@@ -349,6 +350,11 @@ export default function Studio() {
     String(FREE_GENERATIONS)
   );
   const freeCount = Number(freeCountRaw);
+
+  // ⏰ 30일 프로모션 유효기간 자동 점검 (30일 경과 시 제로 0 크레딧 자동 초기화)
+  useEffect(() => {
+    checkAndHandlePromoExpiry();
+  }, []);
 
   // 생성 상태 및 다중 시안
   const [isLoading, setIsLoading] = useState(false);

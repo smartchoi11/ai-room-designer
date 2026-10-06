@@ -43,7 +43,7 @@ export const NEW_APP_PLANS: PricingPlan[] = [
     periodText: 'One-time',
     creditsText: '30 Credits',
     tagline: 'One-time recharge for 1-2 rooms remodel',
-    features: ['30 Interior Generations', 'Permanent Validity', '4K High-Res Download'],
+    features: ['30 Interior Generations', '30-Day Promo Validity', '4K High-Res Download'],
   },
   {
     id: 'amateur',
@@ -615,6 +615,16 @@ export default function PricingModal({
           >
             {translations.pricing.ctaFree[lang]}
           </button>
+
+          <p className="text-center text-[9.5px] text-slate-400 mt-1 leading-tight">
+            {lang === 'ko'
+              ? '※ 프로모션 기간 내 결제 내역은 결제일로부터 30일간 유효하며, 30일 후 잔여분은 자동 소멸됩니다.'
+              : lang === 'ja'
+              ? '※ プロモーション期間中の購入分は30日間有効で、30日後に残高は自動消滅します。'
+              : lang === 'es'
+              ? '※ Válido por 30 días a partir de la compra durante la promoción.'
+              : '※ Promotional purchases are valid for 30 days from purchase date and expire thereafter.'}
+          </p>
         </div>
       </div>
 

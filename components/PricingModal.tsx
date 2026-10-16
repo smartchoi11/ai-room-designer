@@ -331,31 +331,6 @@ export default function PricingModal({
         </div>
       </div>
 
-      {/* 🚀 서비스 프로모션 기간 명시 배너 (10월 말까지 연장: ~2026.10.31) */}
-      <div className="mt-1 flex items-center justify-between rounded-xl border border-amber-400/40 bg-gradient-to-r from-amber-500/20 via-orange-500/15 to-amber-500/20 px-3 py-1.5 shadow-sm">
-        <div className="flex items-center gap-1.5 min-w-0">
-          <span className="text-xs">🎉</span>
-          <span className="text-[11px] font-black text-amber-300 truncate">
-            {lang === 'ko'
-              ? 'Google Play 출시 기념 10월 무료 프로모션'
-              : lang === 'ja'
-              ? 'Google Playリリース記念 10月無料プロモ'
-              : lang === 'es'
-              ? 'Promo Gratuita de Lanzamiento de Octubre'
-              : 'Google Play Launch October Free Promotion'}
-          </span>
-        </div>
-        <span className="shrink-0 rounded-full bg-gradient-to-r from-amber-400 to-orange-400 px-2 py-0.5 text-[9.5px] font-black text-slate-950 shadow-sm">
-          {lang === 'ko'
-            ? '10.31까지 무료'
-            : lang === 'ja'
-            ? '~10/31まで無料'
-            : lang === 'es'
-            ? 'Gratis hasta 31 Oct'
-            : 'Free until Oct 31'}
-        </span>
-      </div>
-
       {/* ─────────────────────────────────────────────────────────────
           2. [상단 영역]: 기능별 인터랙티브 비포/애프터 쇼케이스
          ───────────────────────────────────────────────────────────── */}
@@ -590,6 +565,42 @@ export default function PricingModal({
           </div>
           <span className="font-black text-amber-300 shrink-0 text-sm tracking-tight bg-amber-500/10 px-2.5 py-0.5 rounded-full border border-amber-500/20">
             {currentPlan.dollarPrice || currentPlan.priceText}
+          </span>
+        </div>
+
+        {/* 🎁 대표님 지정: 무료 프로모션 안내 배너 (프로 팩 시작하기 버튼 바로 위에 배치) */}
+        <div className="rounded-2xl border border-amber-400/50 bg-gradient-to-r from-amber-500/20 via-orange-500/15 to-amber-500/20 p-2.5 shadow-md flex items-center justify-between gap-2 select-none">
+          <div className="flex items-center gap-2 min-w-0">
+            <span className="text-base shrink-0">🎁</span>
+            <div className="flex flex-col text-left min-w-0">
+              <span className="text-[11px] sm:text-xs font-black text-amber-300 truncate">
+                {lang === 'ko'
+                  ? 'Google Play 출시 기념 오픈 무료 프로모션'
+                  : lang === 'ja'
+                  ? 'Google Playリリース記念無料プロモ'
+                  : lang === 'es'
+                  ? 'Promo Gratuita de Lanzamiento'
+                  : 'Launch Special Free Promotion'}
+              </span>
+              <span className="text-[9.5px] sm:text-[10px] font-semibold text-slate-200 truncate">
+                {lang === 'ko'
+                  ? '10월 31일까지 누구나 2회 무료 체험 가능!'
+                  : lang === 'ja'
+                  ? '10月31日まで誰でも2回無料でお試し可能！'
+                  : lang === 'es'
+                  ? '¡2 pruebas gratis hasta el 31 de octubre!'
+                  : '2 free trials for everyone until Oct 31!'}
+              </span>
+            </div>
+          </div>
+          <span className="shrink-0 rounded-full bg-gradient-to-r from-amber-400 to-orange-400 px-2 py-0.5 text-[9px] sm:text-[9.5px] font-black text-slate-950 shadow-sm whitespace-nowrap">
+            {lang === 'ko'
+              ? '10.31까지 무료'
+              : lang === 'ja'
+              ? '~10/31無料'
+              : lang === 'es'
+              ? 'Gratis ~31 Oct'
+              : 'Free ~Oct 31'}
           </span>
         </div>
 

@@ -584,23 +584,23 @@ export default function PricingModal({
               </span>
               <span className="text-[9.5px] sm:text-[10px] font-semibold text-slate-200 truncate">
                 {lang === 'ko'
-                  ? '10월 31일까지 누구나 2회 무료 체험 가능!'
+                  ? '10월 31일까지 누구나 10회 무료 체험 가능!'
                   : lang === 'ja'
-                  ? '10月31日まで誰でも2回無料でお試し可能！'
+                  ? '10月31日まで誰でも10回無料でお試し可能！'
                   : lang === 'es'
-                  ? '¡2 pruebas gratis hasta el 31 de octubre!'
-                  : '2 free trials for everyone until Oct 31!'}
+                  ? '¡10 pruebas gratis hasta el 31 de octubre!'
+                  : '10 free trials for everyone until Oct 31!'}
               </span>
             </div>
           </div>
           <span className="shrink-0 rounded-full bg-gradient-to-r from-amber-400 to-orange-400 px-2 py-0.5 text-[9px] sm:text-[9.5px] font-black text-slate-950 shadow-sm whitespace-nowrap">
             {lang === 'ko'
-              ? '10.31까지 무료'
+              ? '10.31까지 10회 무료'
               : lang === 'ja'
-              ? '~10/31無料'
+              ? '~10/31 10回無料'
               : lang === 'es'
-              ? 'Gratis ~31 Oct'
-              : 'Free ~Oct 31'}
+              ? '10 Gratis ~31 Oct'
+              : '10 Free ~Oct 31'}
           </span>
         </div>
 

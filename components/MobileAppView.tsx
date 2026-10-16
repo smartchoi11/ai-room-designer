@@ -3886,15 +3886,15 @@ STRICT IN-PLACE STYLING CONSTRAINTS (CRITICAL):
           <span className="text-xs">🎉</span>
           <span className="text-xs font-black text-slate-950">
             {lang === 'ko'
-              ? '10월 31일까지 무료로 이용 가능합니다!'
+              ? '10월 31일까지 10회 무료로 이용 가능합니다!'
               : lang === 'ja'
-              ? '10月31日まで無料でご利用いただけます！'
+              ? '10月31日まで10回無料でご利用いただけます！'
               : lang === 'es'
-              ? '¡Disponible gratis hasta el 31 de octubre!'
-              : 'Free to use until October 31!'}
+              ? '¡10 pruebas gratis hasta el 31 de octubre!'
+              : '10 free trials to use until October 31!'}
           </span>
           <span className="bg-slate-950 text-amber-300 px-2 py-0.5 rounded-full text-[10px] font-black border border-amber-400/30">
-            {lang === 'ko' ? '오픈 프로모션 2회 무료 제공' : lang === 'ja' ? '2回無料体験付与' : lang === 'es' ? '2 pruebas gratis' : '2 Free Trials'}
+            {lang === 'ko' ? '오픈 프로모션 10회 무료 제공' : lang === 'ja' ? '10回無料体験付与' : lang === 'es' ? '10 pruebas gratis' : '10 Free Trials'}
           </span>
         </div>
       </div>
@@ -3915,11 +3915,11 @@ STRICT IN-PLACE STYLING CONSTRAINTS (CRITICAL):
                       {translations.home.bannerTitle[lang]}
                     </span>
                     <span className="shrink-0 rounded-full bg-amber-500/20 px-1.5 py-0.5 text-[9px] font-bold text-amber-400 border border-amber-500/30 whitespace-nowrap">
-                      {lang === 'ko' ? '10.31까지 무료 이용' : lang === 'ja' ? '10/31まで無料利用' : lang === 'es' ? 'Gratis hasta 31 Oct' : 'Free until Oct 31'}
+                      {lang === 'ko' ? '10.31까지 10회 무료' : lang === 'ja' ? '10/31まで10回無料' : lang === 'es' ? '10 Gratis hasta 31 Oct' : '10 Free until Oct 31'}
                     </span>
                   </div>
                   <p className="text-[10px] text-slate-300 mt-0.5 truncate">
-                    {lang === 'ko' ? '🎉 10월 31일까지 누구나 2회 무료 체험 & 한정 얼리버드 혜택' : lang === 'ja' ? '🎉 10月31日まで2回無料体験＆限定特典' : lang === 'es' ? '🎉 2 pruebas gratis hasta el 31 de oct' : '🎉 2 free trials & launch benefits until Oct 31'}
+                    {lang === 'ko' ? '🎉 10월 31일까지 누구나 10회 무료 체험 & 한정 얼리버드 혜택' : lang === 'ja' ? '🎉 10月31日まで10回無料体験＆限定特典' : lang === 'es' ? '🎉 10 pruebas gratis hasta el 31 de oct' : '🎉 10 free trials & launch benefits until Oct 31'}
                   </p>
                 </div>
               </div>
@@ -7892,7 +7892,11 @@ STRICT IN-PLACE STYLING CONSTRAINTS (CRITICAL):
     <PricingModal
       isOpen={isPricingModalOpen}
       onClose={() => setIsPricingModalOpen(false)}
-      onClaimFreeCredits={() => setFreeCountRaw(String(Math.min(2, freeCount + 2)))}
+      onClaimFreeCredits={() => {
+        const newCount = Math.max(freeCount, 10);
+        setFreeCountRaw(String(newCount));
+        recordPromoPurchase('launch_promo_10', 10);
+      }}
       onPurchasePlan={(plan) => {
         if (plan.id === 'starter') {
           setFreeCountRaw(String(freeCount + 30));

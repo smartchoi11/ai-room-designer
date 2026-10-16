@@ -94,10 +94,10 @@ export const translations = {
       es: 'Iniciar {name} ({price})',
     },
     ctaFree: {
-      en: 'Start immediately with 2 free trials ➔',
-      ko: '신규 무료 2회 체험으로 바로 시작하기 ➔',
-      ja: '新規2回無料体験ですぐ始める ➔',
-      es: 'Comenzar de inmediato con 2 pruebas gratis ➔',
+      en: 'Start with 10 free trials (Oct 31 promo) ➔',
+      ko: '10월 31일 한정 10회 무료 체험으로 시작하기 ➔',
+      ja: '10月31日限定 10回無料体験で始める ➔',
+      es: 'Comenzar con 10 pruebas gratis (Promo 31 Oct) ➔',
     },
     showcaseFeatures: [
       {

@@ -24,9 +24,9 @@ export const KR_PLANS: KrPlan[] = [
     tagline: 'AI 인테리어 변환을 부담없이 체험해보세요',
     priceKrw: 0,
     priceFormatted: '무료',
-    creditsText: '기본 무료 2회 제공',
+    creditsText: '기본 2회 제공 (10.31까지 10회 특별 제공)',
     features: [
-      '무료 AI 인테리어 디자인 2회',
+      '무료 AI 인테리어 디자인 10회 (10.31 프로모션 특별 혜택)',
       '20가지 프리미엄 스타일 전체 이용',
       '3단계 공간 변환 모드 지원',
       '신용카드/결제 정보 등록 없이 즉시 시작',
@@ -159,14 +159,14 @@ export default function Pricing() {
           <div className="inline-flex items-center gap-2 rounded-full bg-clay/10 px-4 py-1.5 text-[11px] font-bold text-clay uppercase tracking-[0.15em] border border-clay/20 shadow-sm">
             <span>🎉 Google Play 정식 출시 기념 오픈 프로모션</span>
             <span className="rounded-full bg-clay px-2 py-0.5 text-[10px] text-paper">
-              10월 31일까지 무료 이용 가능
+              10월 31일까지 10회 무료 이용 가능
             </span>
           </div>
           <h2 className="font-display mt-3 sm:mt-4 text-2xl sm:text-3xl font-bold tracking-tight text-ink md:text-5xl">
             합리적인 가격으로 인테리어를 완성하세요
           </h2>
           <p className="mx-auto mt-2 sm:mt-4 max-w-2xl text-xs sm:text-sm leading-relaxed text-ink-soft md:text-base">
-            토스페이, 카카오페이, 네이버페이, 신용카드 간편결제 지원. 10월 31일까지 신규 가입 2회 무료 체험 및 한정 얼리버드 충전 혜택을 제공합니다.
+            토스페이, 카카오페이, 네이버페이, 신용카드 간편결제 지원. 10월 31일까지 런칭 기념 10회 무료 체험(기본 2회 + 8회 특별 보너스) 및 한정 얼리버드 충전 혜택을 제공합니다.
           </p>
         </Reveal>
 

@@ -31,7 +31,7 @@ export default function Header({ currentLang = 'kr', onLanguageChange }: HeaderP
       {/* 📢 10월 31일까지 무료 이용 가능 안내 최상단 공지 바 */}
       <div className="bg-gradient-to-r from-clay via-amber-600 to-clay text-paper py-1.5 px-4 text-center text-xs font-bold shadow-sm">
         <div className="mx-auto flex max-w-6xl items-center justify-center gap-2">
-          <span>🎉 Google Play 런칭 프로모션: <strong>10월 31일까지 무료로 이용 가능합니다!</strong> (신규 가입 2회 무료 제공)</span>
+          <span>🎉 Google Play 런칭 프로모션: <strong>10월 31일까지 10회 무료 체험 특별 제공!</strong> (정식 출시 기념 한정 혜택)</span>
         </div>
       </div>
       <header className="sticky top-0 z-40 border-b border-line bg-paper/85 backdrop-blur-md">

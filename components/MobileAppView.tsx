@@ -3880,6 +3880,25 @@ STRICT IN-PLACE STYLING CONSTRAINTS (CRITICAL):
         </div>
       </header>
 
+      {/* 📢 10월 31일까지 무료 이용 가능 안내 최상단 공지 띠배너 (처음 화면 노출) */}
+      <div className="bg-gradient-to-r from-amber-500 via-orange-500 to-amber-500 py-2 px-3 text-center shadow-md border-b border-amber-400/40 animate-fade-in">
+        <div className="flex items-center justify-center gap-1.5 flex-wrap">
+          <span className="text-xs">🎉</span>
+          <span className="text-xs font-black text-slate-950">
+            {lang === 'ko'
+              ? '10월 31일까지 무료로 이용 가능합니다!'
+              : lang === 'ja'
+              ? '10月31日まで無料でご利用いただけます！'
+              : lang === 'es'
+              ? '¡Disponible gratis hasta el 31 de octubre!'
+              : 'Free to use until October 31!'}
+          </span>
+          <span className="bg-slate-950 text-amber-300 px-2 py-0.5 rounded-full text-[10px] font-black border border-amber-400/30">
+            {lang === 'ko' ? '오픈 프로모션 2회 무료 제공' : lang === 'ja' ? '2回無料体験付与' : lang === 'es' ? '2 pruebas gratis' : '2 Free Trials'}
+          </span>
+        </div>
+      </div>
+
       {/* ── 탭 1: Tools (도구 홈 피드) ── */}
       {activeTab === 'tools' && (
         <div className="flex flex-col gap-4 p-4 animate-fade-in">
@@ -3896,11 +3915,11 @@ STRICT IN-PLACE STYLING CONSTRAINTS (CRITICAL):
                       {translations.home.bannerTitle[lang]}
                     </span>
                     <span className="shrink-0 rounded-full bg-amber-500/20 px-1.5 py-0.5 text-[9px] font-bold text-amber-400 border border-amber-500/30 whitespace-nowrap">
-                      {lang === 'ko' ? '15일 한정 (~10.21)' : lang === 'ja' ? '15日間限定 (~10/21)' : lang === 'es' ? '15 días (~21 Oct)' : '15 Days (~Oct 21)'}
+                      {lang === 'ko' ? '10.31까지 무료 이용' : lang === 'ja' ? '10/31まで無料利用' : lang === 'es' ? 'Gratis hasta 31 Oct' : 'Free until Oct 31'}
                     </span>
                   </div>
                   <p className="text-[10px] text-slate-300 mt-0.5 truncate">
-                    {lang === 'ko' ? '신규 가입 2회 무료 체험 & 한정 얼리버드 특가 혜택' : lang === 'ja' ? '新規2回無料体験＆限定アーリーバード特典' : lang === 'es' ? '2 pruebas gratis y oferta especial anticipada' : '2 free trials & early-bird launch special offer'}
+                    {lang === 'ko' ? '🎉 10월 31일까지 누구나 2회 무료 체험 & 한정 얼리버드 혜택' : lang === 'ja' ? '🎉 10月31日まで2回無料体験＆限定特典' : lang === 'es' ? '🎉 2 pruebas gratis hasta el 31 de oct' : '🎉 2 free trials & launch benefits until Oct 31'}
                   </p>
                 </div>
               </div>

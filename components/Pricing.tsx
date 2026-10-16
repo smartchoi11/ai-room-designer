@@ -159,14 +159,14 @@ export default function Pricing() {
           <div className="inline-flex items-center gap-2 rounded-full bg-clay/10 px-4 py-1.5 text-[11px] font-bold text-clay uppercase tracking-[0.15em] border border-clay/20 shadow-sm">
             <span>🎉 Google Play 정식 출시 기념 오픈 프로모션</span>
             <span className="rounded-full bg-clay px-2 py-0.5 text-[10px] text-paper">
-              15일간 한정 (~2026.10.21)
+              10월 31일까지 무료 이용 가능
             </span>
           </div>
           <h2 className="font-display mt-3 sm:mt-4 text-2xl sm:text-3xl font-bold tracking-tight text-ink md:text-5xl">
             합리적인 가격으로 인테리어를 완성하세요
           </h2>
           <p className="mx-auto mt-2 sm:mt-4 max-w-2xl text-xs sm:text-sm leading-relaxed text-ink-soft md:text-base">
-            토스페이, 카카오페이, 네이버페이, 신용카드 간편결제 지원. 10월 21일까지 신규 가입 2회 무료 체험 및 한정 얼리버드 충전 혜택을 제공합니다.
+            토스페이, 카카오페이, 네이버페이, 신용카드 간편결제 지원. 10월 31일까지 신규 가입 2회 무료 체험 및 한정 얼리버드 충전 혜택을 제공합니다.
           </p>
         </Reveal>
 

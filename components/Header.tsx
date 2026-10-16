@@ -27,8 +27,15 @@ export default function Header({ currentLang = 'kr', onLanguageChange }: HeaderP
   const t = DICTIONARY['kr'].nav;
 
   return (
-    <header className="sticky top-0 z-40 border-b border-line bg-paper/85 backdrop-blur-md">
-      <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
+    <>
+      {/* 📢 10월 31일까지 무료 이용 가능 안내 최상단 공지 바 */}
+      <div className="bg-gradient-to-r from-clay via-amber-600 to-clay text-paper py-1.5 px-4 text-center text-xs font-bold shadow-sm">
+        <div className="mx-auto flex max-w-6xl items-center justify-center gap-2">
+          <span>🎉 Google Play 런칭 프로모션: <strong>10월 31일까지 무료로 이용 가능합니다!</strong> (신규 가입 2회 무료 제공)</span>
+        </div>
+      </div>
+      <header className="sticky top-0 z-40 border-b border-line bg-paper/85 backdrop-blur-md">
+        <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
         <a href="#top" className="flex items-baseline gap-2.5">
           <span className="font-display text-xl font-bold tracking-tight text-ink">
             RoomFit<span className="text-clay">.</span>
@@ -58,5 +65,6 @@ export default function Header({ currentLang = 'kr', onLanguageChange }: HeaderP
         </nav>
       </div>
     </header>
+    </>
   );
 }

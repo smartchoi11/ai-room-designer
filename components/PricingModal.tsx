@@ -331,28 +331,28 @@ export default function PricingModal({
         </div>
       </div>
 
-      {/* 🚀 서비스 프로모션 기간 명시 배너 (지금부터 15일간: 2026.10.06 ~ 2026.10.21) */}
+      {/* 🚀 서비스 프로모션 기간 명시 배너 (10월 말까지 연장: ~2026.10.31) */}
       <div className="mt-1 flex items-center justify-between rounded-xl border border-amber-400/40 bg-gradient-to-r from-amber-500/20 via-orange-500/15 to-amber-500/20 px-3 py-1.5 shadow-sm">
         <div className="flex items-center gap-1.5 min-w-0">
           <span className="text-xs">🎉</span>
           <span className="text-[11px] font-black text-amber-300 truncate">
             {lang === 'ko'
-              ? 'Google Play 출시 기념 15일 한정 프로모션'
+              ? 'Google Play 출시 기념 10월 무료 프로모션'
               : lang === 'ja'
-              ? 'Google Playリリース記念 15日間限定プロモ'
+              ? 'Google Playリリース記念 10月無料プロモ'
               : lang === 'es'
-              ? 'Promo de 15 Días por Lanzamiento'
-              : 'Google Play Launch 15-Day Promotion'}
+              ? 'Promo Gratuita de Lanzamiento de Octubre'
+              : 'Google Play Launch October Free Promotion'}
           </span>
         </div>
         <span className="shrink-0 rounded-full bg-gradient-to-r from-amber-400 to-orange-400 px-2 py-0.5 text-[9.5px] font-black text-slate-950 shadow-sm">
           {lang === 'ko'
-            ? '10.21까지'
+            ? '10.31까지 무료'
             : lang === 'ja'
-            ? '~10/21まで'
+            ? '~10/31まで無料'
             : lang === 'es'
-            ? 'Hasta 21 Oct'
-            : '~Oct 21'}
+            ? 'Gratis hasta 31 Oct'
+            : 'Free until Oct 31'}
         </span>
       </div>
 

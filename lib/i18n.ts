@@ -21,10 +21,10 @@ export const translations = {
   header: {
     brand: { en: 'RoomFit AI', ko: 'RoomFit AI', ja: 'RoomFit AI', es: 'RoomFit AI' },
     freeBadge: {
-      en: '🎁 15-Day Promo (~Oct 21)',
-      ko: '🎁 15일 한정 프로모션 (~10.21)',
-      ja: '🎁 15日間限定 (~10/21)',
-      es: '🎁 Promo 15 días (~21 Oct)',
+      en: '🎁 Free until Oct 31',
+      ko: '🎁 10.31까지 무료 이용',
+      ja: '🎁 10/31まで無料利用',
+      es: '🎁 Gratis hasta 31 Oct',
     },
     credits: { en: 'Credits', ko: '크레딧', ja: 'クレジット', es: 'Créditos' },
     langSelectTitle: {
@@ -42,10 +42,10 @@ export const translations = {
       es: '💎 Elige tu Plan de Membresía',
     },
     tryBeforeBuy: {
-      en: '15-Day Launch Promo: 2 Free Trials (~Oct 21)',
-      ko: '출시 기념 15일 한정: 2회 무료 체험 (~10.21)',
-      ja: 'リリース記念15日間限定: 2回無料体験 (~10/21)',
-      es: 'Promo de lanzamiento 15 días: 2 pruebas gratis (~21 Oct)',
+      en: 'Free trial available until Oct 31',
+      ko: '10월 31일까지 무료 이용 가능',
+      ja: '10月31日まで無料利用可能',
+      es: 'Disponible gratis hasta el 31 de octubre',
     },
     before: { en: 'BEFORE', ko: 'BEFORE', ja: 'BEFORE', es: 'BEFORE' },
     after: { en: 'AFTER', ko: 'AFTER', ja: 'AFTER', es: 'AFTER' },
@@ -181,10 +181,10 @@ export const translations = {
   },
   home: {
     bannerTitle: {
-      en: '🎉 15-Day Promo (~Oct 21)',
-      ko: '🎉 출시 기념 15일 프로모션 (~10.21)',
-      ja: '🎉 15日間限定プロモ (~10/21)',
-      es: '🎉 Promo 15 Días (~21 Oct)',
+      en: '🎉 Free Promo (~Oct 31)',
+      ko: '🎉 오픈 무료 프로모션 (~10.31)',
+      ja: '🎉 無料プロモーション (~10/31)',
+      es: '🎉 Promo Gratis (~31 Oct)',
     },
     bannerBtn: {
       en: 'View Plans',

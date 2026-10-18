@@ -209,6 +209,8 @@ const inferRoomType = (imageUri: string, fallback: string = 'living_room'): stri
   if (lower.includes('bathroom') || lower.includes('bath') || lower.includes('toilet') || lower.includes('욕실') || lower.includes('화장실')) return 'bathroom';
   if (lower.includes('bedroom') || lower.includes('bed')) return 'bedroom';
   if (lower.includes('kitchen') || lower.includes('dining')) return 'kitchen';
+  if (lower.includes('party') || lower.includes('파티')) return 'party_room';
+  if (lower.includes('play') || lower.includes('kid') || lower.includes('키즈') || lower.includes('놀이')) return 'party_room';
   if (lower.includes('exterior')) return 'exterior_house';
   if (lower.includes('garden')) return 'garden_patio';
   if (lower.includes('office') || lower.includes('study')) return 'study';
@@ -3389,7 +3391,7 @@ const createSmartLayoutOptimizedVariant = (imgSrc: string, variantIndex: number,
 
     // 공간 ID 및 스타일 ID 안전 검증 (파티룸 도구일 때는 party_room, 건물 외관 도구일 때는 exterior_house, 정원 도구일 때는 garden_patio 고정, 클린업·페인트·가구교체일 때는 이미지 자동 추론)
     const validRoomId = selectedTool.id === 'party_room'
-      ? (selectedRoom && selectedRoom !== 'party_room' ? selectedRoom : inferredRoom)
+      ? 'party_room'
       : selectedTool.id === 'exterior'
       ? 'exterior_house'
       : selectedTool.id === 'garden'
@@ -3661,24 +3663,44 @@ TASK: Design an original bespoke designer furniture piece by first fabricating t
     } else if (selectedTool.id === 'party_room') {
       effectiveRedesignMode = 'party_styling';
       const chosenPartyEvent = PARTY_STYLE_OPTIONS.find((p) => p.id === validStyleId) || PARTY_STYLE_OPTIONS[0];
-      customPrompt = `[PROFESSIONAL IN-PLACE EVENT & PARTY ROOM DECORATION]
+      const isChristmasEvent = chosenPartyEvent.id === 'party_christmas';
+
+      if (isChristmasEvent) {
+        customPrompt = `[PROFESSIONAL CHRISTMAS & YEAR-END HOLIDAY CELEBRATION STYLING]
+EVENT THEME: 크리스마스 & 연말 파티 (Christmas & Year-End Holiday Celebration)
+THEME DETAILS: ${chosenPartyEvent.desc}
+
+MANDATORY CHRISTMAS CELEBRATION DIRECTIVES (CRITICAL):
+1. MANDATORY GRAND CHRISTMAS TREE (대형 크리스마스 트리 필수 배치):
+   - A magnificent, tall evergreen Christmas tree (lush natural pine/fir) adorned with warm sparkling golden fairy lights, red and gold ornaments/baubles, delicate snow frosting, and a glowing star topper MUST BE PROUDLY DISPLAYED in a prominent open floor area, entryway, or central focal spot.
+   - Neatly place stacks of beautifully wrapped holiday present boxes with crimson red, emerald green, and gold satin ribbons around the base of the tree.
+2. VIBRANT FESTIVE COLOR PRESERVATION & ZERO MONOCHROME (절대 칙칙한 회색/차콜로 변색 금지):
+   - Rich holiday colors: vibrant evergreen pine green, festive crimson red, sparkling champagne gold, warm amber glow.
+   - 100% PRESERVE all original vibrant and cheerful colors of existing structures, play equipment, gym apparatus, or furnishings! Absolutely DO NOT desaturate or turn them into gloomy monochrome, dark gray, charcoal, or greige!
+3. ADAPTIVE HOLIDAY CELEBRATION DECOR (주거 공간 및 대형 상업/놀이시설/홀 완벽 대응):
+   - Draping lush pine garlands with red bows, pinecones, and warm fairy lights along ceiling beams, steel trusses, structural pillars, railings, or perimeter walls.
+   - Cascading curtain fairy string lights and delicate hanging star lights.
+   - Warm festive holiday ambient glow that transforms the room into a magical Christmas celebration venue.
+4. 100% ARCHITECTURAL & PERSPECTIVE LOCK:
+   - Retain camera viewpoint, walls, ceilings, and structural boundaries 1:1.
+Ultra-photorealistic holiday celebration interior photography, Architectural Digest Christmas edition, 8k resolution.`;
+      } else {
+        customPrompt = `[PROFESSIONAL IN-PLACE EVENT & PARTY ROOM DECORATION]
 PARTY EVENT THEME: ${chosenPartyEvent.label} (${chosenPartyEvent.enName})
 THEME DETAILS: ${chosenPartyEvent.desc}
 
 STRICT IN-PLACE STYLING CONSTRAINTS (CRITICAL):
-1. 100% ZERO FURNITURE REMOVAL & ZERO LAYOUT SHIFT:
-   - 100% PRESERVE all existing core furniture (bed, headboard, nightstands, sofa, coffee table, media unit, chairs, cabinets, shelves) in their EXACT current physical positions, orientations, and models.
-   - Absolutely DO NOT remove the existing furniture. DO NOT replace the bed or sofa with an unrelated cocktail bar, kitchen island, or foreign furniture.
-   - Keep the original room type and purpose intact (if it is a bedroom, it MUST remain a bedroom with the exact same bed; if a living room, it remains a living room).
-2. IN-PLACE FESTIVE CELEBRATION DECOR ONLY:
-   - Lavishly decorate ON TOP OF and AROUND the existing furniture:
-     * Behind the existing bed or sofa, mount an eye-catching balloon garland arch, celebration backdrop, or glowing party banner/neon sign matching ${chosenPartyEvent.label}.
-     * On existing flat surfaces (nightstand, coffee table, desk, side table), arrange celebration party props: tiered cake or dessert stands, delicate champagne flutes, glassware, festive tableware, floral vases, and warm glowing candles.
-     * Cascading warm fairy string lights along curtains, headboards, or solid walls.
-     * Floating helium balloons near the ceiling, party throw pillows, wrapped gift boxes with ribbons, and celebratory accents.
+1. 100% ZERO DESTRUCTIVE REMOVAL & PRESERVATION:
+   - 100% PRESERVE all existing core structures, furniture, and equipment in their current physical positions and models.
+   - Retain authentic colors of existing items. Absolutely DO NOT desaturate into dark monochrome or gloomy gray!
+2. IN-PLACE FESTIVE CELEBRATION DECOR:
+   - In open floor areas or feature walls, mount an eye-catching balloon arch garland, celebration backdrop, or glowing party banner/neon sign matching ${chosenPartyEvent.label}.
+   - On flat surfaces or celebration stations, arrange party celebration props: celebration cake or dessert stands, delicate champagne flutes, festive tableware, floral vases, and warm glowing candles.
+   - Cascading warm fairy string lights and floating helium balloons near the ceiling.
 3. 100% ARCHITECTURAL & PERSPECTIVE LOCK:
    - Keep walls, windows, floor, door frames, and camera viewpoint completely unchanged.
-   - Ultra-photorealistic lifestyle interior photography, Architectural Digest party edition, vibrant celebration atmosphere, 8k resolution.`;
+Ultra-photorealistic lifestyle interior photography, Architectural Digest party edition, vibrant celebration atmosphere, 8k resolution.`;
+      }
     }
 
     // 🤖 RoomFit AI 에이전트를 통해 사용자가 직접 입력한 인테리어 방향 반영!

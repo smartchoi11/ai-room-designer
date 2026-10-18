@@ -48,6 +48,10 @@ export const ROOM_TYPES: RoomType[] = [
   
   // 🌿 정원 & 야외 (Outdoor)
   { id: "garden_patio", category: "outdoor", label: "정원 & 테라스", labelEn: "Garden & Terrace", labelJa: "庭・テラス", prompt: "outdoor garden, patio, landscaping and seating area" },
+
+  // 🎉 파티 & 상업 공간 (Party & Commercial)
+  { id: "party_room", category: "interior", label: "파티룸 / 이벤트홀", labelEn: "Party Room & Event Hall", labelJa: "パーティールーム", prompt: "celebration party room, event space, entertainment hall, indoor play center, or versatile celebration venue" },
+  { id: "kids_cafe", category: "interior", label: "키즈카페 / 실내놀이터", labelEn: "Kids Play Zone & Cafe", labelJa: "キッズカフェ・遊び場", prompt: "indoor children's play center, playroom, gym, trampoline and recreation area" },
 ];
 
 export const STYLES: StyleOption[] = [
@@ -499,15 +503,9 @@ export const GARDEN_STYLES: StyleOption[] = [
   },
 ];
 
-export interface PartyEventType {
-  id: string;
+export interface PartyEventType extends StyleOption {
   icon: string;
-  label: string;
-  labelEn: string;
-  labelJa: string;
   badge: string;
-  desc: string;
-  prompt: string;
 }
 
 export const PARTY_EVENT_TYPES: PartyEventType[] = [
@@ -519,7 +517,10 @@ export const PARTY_EVENT_TYPES: PartyEventType[] = [
     labelJa: "バースデーパーティー",
     badge: "가장 인기",
     desc: "풍선 아치 가랜드, 'Happy Birthday' 네온 레터링, 케이크 파티 테이블",
-    prompt: "festive Birthday Party celebration styling: colorful balloon arch garland, glowing warm LED 'Happy Birthday' neon sign on the feature wall, tiered celebration cake on a decorated dessert table, champagne bucket, warm fairy lights, stylish celebration photobooth area",
+    descEn: "Balloon arch garland, 'Happy Birthday' neon sign, celebratory cake & champagne",
+    descJa: "バルーンアーチ、HAPPY BIRTHDAYネオン、ケーキ＆シャンパン演出",
+    swatch: ["#ff758c", "#ff7eb3", "#ffd700"],
+    prompt: "festive Birthday Party celebration styling: colorful pastel and metallic balloon arch garland, glowing warm LED 'Happy Birthday' neon sign on the feature wall, tiered celebration cake on a decorated dessert table, champagne bucket, warm fairy lights, stylish celebration photobooth area",
   },
   {
     id: "party_valentine",
@@ -529,6 +530,9 @@ export const PARTY_EVENT_TYPES: PartyEventType[] = [
     labelJa: "バレンタインデー",
     badge: "로맨틱",
     desc: "핑크 & 레드 하트 풍선, 로맨틱 캔들로드, 초콜릿 & 와인 세팅",
+    descEn: "Pink & red heart balloons, candlelit walkway, wine & chocolate",
+    descJa: "ハートバルーン、キャンドルロード、高級ワイン＆チョコレート",
+    swatch: ["#ff4081", "#e91e63", "#ffffff"],
     prompt: "romantic Valentine's Day and White Day celebration room: heart-shaped red and blush pink balloons, romantic glowing candlelit walkway, exquisite chocolate and wine dessert table, red velvet accents, soft dim ambient fairy lights",
   },
   {
@@ -539,6 +543,9 @@ export const PARTY_EVENT_TYPES: PartyEventType[] = [
     labelJa: "イースター＆春の集い",
     badge: "화사한 봄",
     desc: "파스텔 에그 오너먼트, 화사한 봄꽃 플라워 화병, 피크닉 감성",
+    descEn: "Pastel egg ornaments, fresh spring tulips in vases, cheerful picnic vibe",
+    descJa: "パステルエッグ飾り、春のチューリップ花瓶、ピクニック気分",
+    swatch: ["#fff9c4", "#c8e6c9", "#ffccbc"],
     prompt: "vibrant Easter and Spring festive party room: pastel colored egg decorations, lush fresh spring flower centerpieces with tulips and daffodils, light linen tablecloth with pastel tableware, sunny cheerful festive atmosphere",
   },
   {
@@ -549,6 +556,9 @@ export const PARTY_EVENT_TYPES: PartyEventType[] = [
     labelJa: "プロポーズイベント",
     badge: "평생의 순간",
     desc: "'Marry Me' 대형 발광 레터링, 붉은 장미 꽃잎 로드, 샴페인 & 다이아몬드 무드",
+    descEn: "'MARRY ME' marquee sign, red rose petal aisle, romantic candles",
+    descJa: "MARRY ME大型ネオン、赤バラの花びらロード、ロマンチックキャンドル",
+    swatch: ["#d32f2f", "#ffd700", "#ffffff"],
     prompt: "breathtaking romantic Marriage Proposal event styling: illuminated giant glowing LED 'MARRY ME' marquee letters, lush red rose petal walkway surrounded by hundreds of safe warm LED candles, celebratory champagne stand, fairy curtain lights, unforgettable luxury proposal atmosphere",
   },
   {
@@ -559,6 +569,9 @@ export const PARTY_EVENT_TYPES: PartyEventType[] = [
     labelJa: "結婚記念日・アニバーサリー",
     badge: "럭셔리 무드",
     desc: "은은한 캔들라이트 롱 테이블, 추억의 액자 갤러리월, 프리미엄 와인 바",
+    descEn: "Candlelit dining table, photo memory gallery wall, luxury wine bar",
+    descJa: "キャンドルライトのロングテーブル、想い出のフォトウォール、ワインバー",
+    swatch: ["#d4af37", "#1a237e", "#f5f5f5"],
     prompt: "elegant Wedding Anniversary celebration room: intimate candlelit dining table set with fine crystal glasses and gold cutlery, stylish photo gallery wall with warm mini spotlights, champagne chiller on a sleek bar cart, soft acoustic jazz lounge ambiance",
   },
   {
@@ -568,8 +581,11 @@ export const PARTY_EVENT_TYPES: PartyEventType[] = [
     labelEn: "Christmas & Year-End",
     labelJa: "クリスマス＆忘年会",
     badge: "시즌 BEST",
-    desc: "반짝이는 대형 트리, 벽난로 페어리 전구, 홀리데이 만찬 테이블",
-    prompt: "enchanting Christmas and Year-End holiday party room: grand tall evergreen Christmas tree adorned with gold baubles and sparkling warm fairy lights, pine garland mantelpiece, festive banquet dining table with red runner and pinecone centerpieces, warm inviting holiday celebration",
+    desc: "반짝이는 대형 트리, 페어리 전구 조명, 홀리데이 선물박스",
+    descEn: "Glowing grand Christmas tree, fairy lights, holiday gift boxes",
+    descJa: "輝く大型クリスマスツリー、フェアリーライト、ホリデープレゼント箱",
+    swatch: ["#0f3b1e", "#b22222", "#ffd700"],
+    prompt: "spectacular and magical Christmas and Year-End holiday celebration: magnificent tall evergreen Christmas tree adorned with gold baubles and sparkling warm fairy lights, glowing star topper, lush pine garlands, festive holiday gift boxes, warm inviting holiday celebration atmosphere, rich emerald green and crimson red holiday tones",
   },
   {
     id: "party_halloween",
@@ -579,6 +595,9 @@ export const PARTY_EVENT_TYPES: PartyEventType[] = [
     labelJa: "ハロウィンパーティー",
     badge: "이색 파티",
     desc: "잭오랜턴 호박 조명, 미스터리 퍼플/오렌지 무드등, 위트있는 파티 데코",
+    descEn: "Carved pumpkins, mystery purple & amber mood lights, fun Halloween decor",
+    descJa: "ジャック・オー・ランタン、紫＆オレンジのムード照明、ハロウィンデコ",
+    swatch: ["#ff6f00", "#4a148c", "#212121"],
     prompt: "stylish and fun Halloween Bash party room: warm glowing carved Jack-o'-lantern pumpkins, mysterious ambient violet and orange neon accent lighting, chic velvet black and orange party table setting, subtle decorative cobwebs and festive bat silhouettes",
   },
   {
@@ -589,6 +608,9 @@ export const PARTY_EVENT_TYPES: PartyEventType[] = [
     labelJa: "ブライダル＆ベビーシャワー",
     badge: "인스타 핫플",
     desc: "화이트 실크 플라워 아치, 파스텔 레이스 테이블, 감성 포토존",
+    descEn: "White silk floral arch, pastel lace table runner, photobooth backdrop",
+    descJa: "ホワイトシルクフラワーアーチ、パステルレーステーブル、映えフォトブース",
+    swatch: ["#fce4ec", "#f8bbd0", "#ffffff"],
     prompt: "dreamy Bridal Shower and Baby Shower party room: elegant white and blush silk flower arch backdrop, long dining table with delicate lace runner, tiered dessert stands with macaroons and pastries, crystal glassware, fairy curtain lighting, picture-perfect celebration aesthetic",
   },
 ];
@@ -604,6 +626,17 @@ export const PARTY_STYLES: StyleOption[] = [
     descJa: "バルーンガーランド、ネオンサイン、ケーキ＆シャンパンテーブル",
     swatch: ["#ff758c", "#ff7eb3", "#ffd700"],
     prompt: "festive Birthday Party celebration styling: pastel and metallic balloon arch garland, glowing warm LED 'Happy Birthday' neon sign on the feature wall, tiered celebration cake on a decorated dessert table, champagne bucket, warm fairy lights, stylish celebration photobooth area",
+  },
+  {
+    id: "party_christmas",
+    label: "크리스마스 & 연말 파티",
+    labelEn: "Christmas & Year-End",
+    labelJa: "クリスマス＆忘年会",
+    desc: "반짝이는 대형 트리, 페어리 전구 조명, 홀리데이 선물박스",
+    descEn: "Glowing grand Christmas tree, fairy lights, holiday gift boxes",
+    descJa: "輝く大型クリスマスツリー、フェアリーライト、ホリデープレゼント箱",
+    swatch: ["#0f3b1e", "#b22222", "#ffd700"],
+    prompt: "spectacular and magical Christmas and Year-End holiday celebration: magnificent tall evergreen Christmas tree adorned with gold baubles and sparkling warm fairy lights, glowing star topper, lush pine garlands, festive holiday gift boxes, warm inviting holiday celebration atmosphere, rich emerald green and crimson red holiday tones",
   },
   {
     id: "party_bridal",
@@ -662,7 +695,7 @@ export const PARTY_STYLES: StyleOption[] = [
   },
 ];
 
-export const ALL_STYLES = [...STYLES, ...EXTERIOR_STYLES, ...GARDEN_STYLES, ...PARTY_STYLES];
+export const ALL_STYLES = [...STYLES, ...EXTERIOR_STYLES, ...GARDEN_STYLES, ...PARTY_STYLES, ...PARTY_EVENT_TYPES];
 
 export const FREE_GENERATIONS = 0;
 export const DAILY_IP_LIMIT = 9999;

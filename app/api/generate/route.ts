@@ -280,7 +280,8 @@ ${furnitureSection}
     }
 
     const roomType = ROOM_TYPES.find((r) => r.id === roomTypeId) || ROOM_TYPES[0];
-    const style = ALL_STYLES.find((s) => s.id === styleId) || STYLES.find((s) => s.id === styleId) || STYLES[0];
+    const effectiveStyleId = styleId === 'party_holiday' ? 'party_christmas' : styleId;
+    const style = ALL_STYLES.find((s) => s.id === effectiveStyleId) || ALL_STYLES.find((s) => s.id === styleId) || STYLES.find((s) => s.id === styleId) || STYLES[0];
 
     const requestedCount = 1; // 모든 프로젝트 결과물은 단일 1개 고품질 시안으로 생성
 
@@ -823,30 +824,72 @@ STRICT ROOM INTEGRITY & PRESERVATION:
       }
     } else if (isPartyRoom) {
       // 🎉 모드: 파티룸 & 이벤트 공간 전용 스타일링 (기존 공간 및 가구 100% 보존 + 테마 데코레이션 인플레이스)
-      baseInstruction = `You are a world-class celebratory event stylist and luxury interior staging master.
-TASK: Lavishly decorate and transform this exact existing room into an unforgettable, photogenic celebration space themed specifically around "${style.label}" (${style.prompt}).
+      const isChristmas = (
+        styleId === 'party_christmas' ||
+        styleId === 'party_holiday' ||
+        (typeof styleId === 'string' && styleId.includes('christmas')) ||
+        promptStr.includes('christmas') ||
+        promptStr.includes('xmas') ||
+        promptStr.includes('크리스마스') ||
+        promptStr.includes('성탄절') ||
+        promptStr.includes('연말')
+      );
+
+      if (isChristmas) {
+        baseInstruction = `You are a world-class celebratory holiday event staging architect and master Christmas decorator.
+TASK: Transform this space into a breathtaking, warm, magical CHRISTMAS & YEAR-END WONDERLAND (크리스마스 & 연말 축제 공간)!
+
+======================================================================
+MANDATORY CHRISTMAS STAGING & COLOR PROTECTION RULES (CRITICAL)
+======================================================================
+1. MANDATORY GRAND CHRISTMAS TREE (대형 크리스마스 트리 필수 설치):
+   - A magnificent, tall, lush evergreen pine/fir Christmas tree MUST BE PROUDLY DISPLAYED in a prominent open floor area, entryway, corner, or central focal spot.
+   - The tree MUST be lavishly decorated with warm golden sparkling fairy string lights, shimmering metallic red and gold baubles/ornaments, pinecones, delicate frosted snow tips, and a radiant glowing golden star topper.
+   - Neatly place an assortment of beautifully wrapped holiday gift boxes tied with satin crimson red and emerald green ribbons under and around the tree.
+
+2. VIBRANT FESTIVE HOLIDAY COLOR PALETTE & ZERO MONOCHROME DESATURATION (절대 칙칙한 회색/차콜로 변색 금지):
+   - CRITICAL REQUIREMENT: Infuse rich, warm, festive celebration colors: deep pine evergreen greens, warm holiday crimson reds, glowing champagne gold, and warm amber illumination!
+   - ABSOLUTE COLOR PRESERVATION OF EXISTING EQUIPMENT: If the input photo contains play structures, bouncy castles, gym apparatus, colorful mats, furniture, or equipment, DO NOT desaturate, drain, or repaint them into dark gloomy gray, charcoal, greige, or monochrome black! Retain their cheerful, authentic form and colors while harmoniously dressing the space with festive Christmas garlands, lights, and decorations.
+
+3. ADAPTIVE HOLIDAY CELEBRATION DECOR (주거 공간 및 대형 상업/놀이시설/홀 완벽 대응):
+   - If the room is a large open commercial hall, kids cafe, gym, school, or event venue:
+     * String lush green pine garlands with red ribbons, pinecones, and warm glowing fairy lights across ceiling beams, steel trusses, structural pillars, railings, or perimeter walls.
+     * Hang cascading warm fairy light curtains or delicate glowing snowflake/star pendant lights from high ceilings.
+     * Add festive red and gold balloon clusters or celebration banners in open upper spaces.
+   - If the room is a residential living room or bedroom:
+     * 100% PRESERVE core furniture (sofa, bed, table) in their exact positions.
+     * Layer holiday knit throw blankets, red/green plaid accent pillows, and warm fairy lights along headboards or curtains.
+
+4. 100% ARCHITECTURAL ENVELOPE LOCK:
+   - Retain perimeter walls, windows, structural ceiling height, and floor layout 1:1.
+   - Camera perspective, viewing angle, and eye-level must remain 100% identical.
+   - Ultra-photorealistic architectural interior photography, Architectural Digest holiday celebration edition, warm enchanting ambient glow, 8k resolution.`;
+      } else {
+        baseInstruction = `You are a world-class celebratory event stylist and luxury interior staging master.
+TASK: Lavishly decorate and transform this exact existing space into an unforgettable, photogenic celebration space themed specifically around "${style.label}" (${style.prompt}).
 
 CRITICAL MANDATORY RULES:
-1. 100% ZERO FURNITURE REMOVAL & ZERO ROOM TYPE DRIFT:
-   - 100% PRESERVE all existing core furniture (beds, bedframes, headboards, nightstands, sofas, coffee tables, media credenzas, chairs, shelves) in their EXACT same physical positions, shapes, and orientations.
-   - Absolutely DO NOT remove or replace existing furniture with unrelated items (e.g. if the room is a bedroom with a bed, it MUST REMAIN A BEDROOM WITH THE EXACT SAME BED; do NOT turn it into a kitchen island, bar counter, or foreign dining room).
-   - Maintain the room's physical shell: walls, flooring, ceiling height, doors, windows, and daylight 100% identical to the original photo.
+1. 100% ZERO DESTRUCTIVE REMOVAL & ZERO STRUCTURAL DRIFT:
+   - 100% PRESERVE all existing core structures and primary items in their exact positions.
+   - Maintain the architectural shell: walls, flooring, ceiling height, doors, windows, and structural beams 100% identical to the original photo.
+   - ABSOLUTE COLOR PRESERVATION: Retain the authentic, cheerful colors of existing equipment, furnishings, and walls. Absolutely DO NOT drain the space into gloomy monochrome, charcoal, or dark greige!
 
-2. IN-PLACE FESTIVE PARTY STYLING & DECOR ACCENTS ONLY:
-   - Lavishly layer festive celebration decor ON TOP OF and AROUND the existing furniture:
-     * Behind the existing bed or sofa, mount an eye-catching party backdrop, balloon garland arch, or themed wall decor/neon sign matching ${style.label}.
-     * On existing flat surfaces (nightstands, coffee tables, desks, or dressers), arrange party celebration props: celebration cake or dessert stands, delicate champagne flutes, glassware, festive tableware, floral arrangements, and warm glowing candles.
-     * Draping or cascading warm fairy string lights along curtains, headboards, or walls to establish a cozy, magical evening atmosphere.
-     * Accent party pillows, wrapped gift boxes with ribbons, and floating helium balloons near the ceiling.
+2. IN-PLACE FESTIVE CELEBRATION DECOR & THEMATIC STYLING:
+   - Layer celebratory event decor ON TOP OF and AROUND the existing space:
+     * In open floor areas or feature walls, mount an eye-catching balloon arch garland, celebration photowall backdrop, or glowing themed neon marquee sign matching "${style.label}".
+     * On flat surfaces or celebration stations, arrange party props: celebration cake or dessert stands, delicate champagne flutes, festive tableware, floral vases, and warm glowing candles.
+     * Draping or cascading warm fairy string lights along walls, pillars, railings, or ceiling trusses.
+     * Floating helium balloons near the ceiling, party throw accents, and wrapped celebration gift boxes.
 
-3. COHESIVE ATMOSPHERIC LIGHTING:
-   - Enhance the room with magical ambient party glow: twinkling fairy lights, warm candle flames, and festive ambient mood lighting while preserving natural window daylight and original wall colors.
+3. COHESIVE ATMOSPHERIC CELEBRATION LIGHTING:
+   - Enhance the room with magical ambient celebratory glow: twinkling fairy lights, warm party illumination, and vibrant festive atmosphere.
 
 4. High-end lifestyle celebration photography, Architectural Digest party feature, vibrant luxury festive mood, 8k resolution.`;
+      }
 
       if (typeof customPrompt === 'string' && customPrompt.trim()) {
         const trimmedCustom = customPrompt.trim().slice(0, 1500);
-        baseInstruction += `\n\nUSER SPECIFIC PARTY REQUIREMENTS: "${trimmedCustom}". Seamlessly integrate these celebration details into the party room styling without moving or replacing core furniture.`;
+        baseInstruction += `\n\nUSER SPECIFIC PARTY REQUIREMENTS:\n${trimmedCustom}\nSeamlessly integrate these celebration details into the party room styling without altering core structures.`;
       }
     } else if (isBathroom) {
       // 🛁 모드: 욕실 전용 고급 리모델링 & 홈스테이징 (침대/소파/가구 절대 침범 금지, 욕조/샤워부스/세면대/변기 100% 보존/현대화)
@@ -927,8 +970,8 @@ CRITICAL MANDATORY RULES:
         'DESIGN VARIATION 2 (Luxury Glam Metallic Gold & Midnight VIP Party): Style with high-fashion metallic chrome gold, silver and midnight obsidian floating helium balloons, shimmering metallic fringe tinsel backdrop curtain, glowing marquee birthday lights, disco mirror ball light reflections across the floor, modern tiered gold-leaf birthday cake, sleek martini cocktail coupe glassware, and luxury wrapped gift boxes with oversized ribbons.'
       ],
       party_christmas: [
-        'DESIGN VARIATION 1 (Classic Warm Evergreen & Red/Gold Baubles): Grand lush green Christmas tree adorned with warm golden fairy lights, red and gold ornaments, pine garland along the curtains, wrapped holiday gift boxes under the tree, warm cozy celebration.',
-        'DESIGN VARIATION 2 (Frosted Winter Wonderland & Cozy Fireside): Frosted snowy flocked Christmas tree with champagne-gold baubles, festive red plaid runner on the coffee table, hot cocoa mugs with marshmallows and gingerbread cookies, deep red and forest green knit throw pillows, and cozy glowing fireplace on screen.'
+        'DESIGN VARIATION 1 (Classic Warm Evergreen & Red/Gold Baubles): Magnificent tall lush evergreen Christmas tree adorned with warm golden fairy lights, red and gold ornaments, radiant glowing star topper, lush pine garlands along walls, beams and pillars, stacks of wrapped holiday gift boxes under the tree, warm cozy celebration glow. Retain all original vibrant equipment colors without desaturating into dark gray.',
+        'DESIGN VARIATION 2 (Frosted Winter Wonderland & Champagne Gold): Frosted snowy flocked Christmas tree with champagne-gold and crimson baubles, glowing warm fairy light curtain, pinecone centerpieces, festive red ribbons, and warm inviting holiday illumination.'
       ],
       party_proposal: [
         'DESIGN VARIATION 1 (Romantic Candlelit Rose Road & MARRY ME Marquee): Breathtaking illuminated "MARRY ME" warm marquee letters, romantic rose petal pathway with hundreds of glowing glass hurricane candles, floating heart balloons and chilled champagne.',
@@ -995,8 +1038,10 @@ CRITICAL MANDATORY RULES:
         finalInstruction = baseInstruction;
         // 🎉 2장 이상 선택 시 각 시안별로 완전히 차별화된 디자인 테마 부여!
         const partyKey = (typeof styleId === 'string' && styleId.startsWith('party_'))
-          ? styleId
-          : Object.keys(PARTY_THEME_VARIATIONS).find((k) => promptStr.toLowerCase().includes(k.replace('party_', '')) || promptStr.toLowerCase().includes(k)) || 'party_birthday';
+          ? (styleId === 'party_holiday' ? 'party_christmas' : styleId)
+          : (promptStr.includes('christmas') || promptStr.includes('크리스마스') || promptStr.includes('xmas') || promptStr.includes('연말'))
+          ? 'party_christmas'
+          : Object.keys(PARTY_THEME_VARIATIONS).find((k) => promptStr.toLowerCase().includes(k.replace('party_', '')) || promptStr.toLowerCase().includes(k)) || 'party_christmas';
         const variations = PARTY_THEME_VARIATIONS[partyKey] || PARTY_VARIATION_DIRECTIVES;
         if (variations && variations.length > 0) {
           finalInstruction += `\n\n${variations[index % variations.length]}`;

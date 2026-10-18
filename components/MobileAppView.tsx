@@ -188,6 +188,13 @@ const DETECTED_FURNITURE_PRESETS: Record<string, { id: string; label: string; en
     { id: 'chairs', label: '바 체어', enName: 'Bar Stools / High Chairs', icon: '🪑' },
     { id: 'lighting', label: '팬던트 식탁 조명', enName: 'Pendant Hanging Light', icon: '💡' },
   ],
+  bathroom: [
+    { id: 'bathtub', label: '욕조 / 샤워부스', enName: 'Bathtub / Shower Booth', icon: '🛁' },
+    { id: 'vanity', label: '세면대 / 수납장', enName: 'Bathroom Vanity & Sink', icon: '🪞' },
+    { id: 'toilet', label: '양변기', enName: 'Toilet', icon: '🚽' },
+    { id: 'fixtures', label: '수전 / 샤워기', enName: 'Faucets & Shower Fixtures', icon: '🚿' },
+    { id: 'mirror', label: '욕실 거울 / 조명', enName: 'Mirror Cabinet & LED Lighting', icon: '💡' },
+  ],
   general: [
     { id: 'furniture', label: '가구 전반', enName: 'Main Furniture (Bed/Sofa)', icon: '🛋️' },
     { id: 'sub_furniture', label: '보조 테이블/의자', enName: 'Secondary Table / Accent Chairs', icon: '🪑' },
@@ -199,9 +206,9 @@ const DETECTED_FURNITURE_PRESETS: Record<string, { id: string; label: string; en
 const inferRoomType = (imageUri: string, fallback: string = 'living_room'): string => {
   if (!imageUri) return fallback;
   const lower = imageUri.toLowerCase();
+  if (lower.includes('bathroom') || lower.includes('bath') || lower.includes('toilet') || lower.includes('욕실') || lower.includes('화장실')) return 'bathroom';
   if (lower.includes('bedroom') || lower.includes('bed')) return 'bedroom';
   if (lower.includes('kitchen') || lower.includes('dining')) return 'kitchen';
-  if (lower.includes('bathroom')) return 'bathroom';
   if (lower.includes('exterior')) return 'exterior_house';
   if (lower.includes('garden')) return 'garden_patio';
   if (lower.includes('office') || lower.includes('study')) return 'study';
@@ -3143,7 +3150,7 @@ const createSmartLayoutOptimizedVariant = (imgSrc: string, variantIndex: number,
             const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.85);
             setUploadedImage(compressedDataUrl);
             if (selectedTool.id === 'layout' || selectedTool.id === 'cleanup' || selectedTool.id === 'paint') {
-              const roomKey = inferRoomType(compressedDataUrl, 'bedroom');
+              const roomKey = inferRoomType(compressedDataUrl, selectedRoom || 'living_room');
               setSelectedRoom(roomKey);
               if (selectedTool.id === 'layout') {
                 const presets = DETECTED_FURNITURE_PRESETS[roomKey] || DETECTED_FURNITURE_PRESETS['general'];
@@ -3183,7 +3190,7 @@ const createSmartLayoutOptimizedVariant = (imgSrc: string, variantIndex: number,
   const selectExamplePhoto = (src: string) => {
     setUploadedImage(src);
     if (selectedTool.id === 'layout' || selectedTool.id === 'cleanup' || selectedTool.id === 'paint') {
-      const roomKey = inferRoomType(src, 'bedroom');
+      const roomKey = inferRoomType(src, selectedRoom || 'living_room');
       setSelectedRoom(roomKey);
       if (selectedTool.id === 'layout') {
         const presets = DETECTED_FURNITURE_PRESETS[roomKey] || DETECTED_FURNITURE_PRESETS['general'];
@@ -3412,25 +3419,44 @@ const createSmartLayoutOptimizedVariant = (imgSrc: string, variantIndex: number,
     } else if (selectedTool.id === 'layout') {
       effectiveRedesignMode = 'rearrange_layout';
       const roomKey = selectedRoom || 'living_room';
-      const presetItems = DETECTED_FURNITURE_PRESETS[roomKey] || DETECTED_FURNITURE_PRESETS['bedroom'];
+      const presetItems = DETECTED_FURNITURE_PRESETS[roomKey] || DETECTED_FURNITURE_PRESETS['general'];
       const targetItemsKo = selectedLayoutItemIds.length > 0
         ? selectedLayoutItemIds.map((id) => {
             const found = presetItems.find((p) => p.id === id);
             return found ? `${found.label}(${found.enName})` : id;
           }).join(', ')
-        : '모든 주요 가구(All primary furniture)';
+        : (roomKey === 'bathroom' ? '욕실 위생도기 및 타일(Sanitary fixtures & tiles)' : '모든 주요 가구(All primary furniture)');
 
-      if (preserveLayoutFurniture) {
+      if (roomKey === 'bathroom') {
+        customPrompt = `[BATHROOM SANITARY ARCHITECTURAL RENOVATION & FIXTURE LAYOUT]
+CORE TASK: Renovate, modernize, and refine this bathroom space while STRICTLY preserving the sanitary room purpose.
+ROOM DIMENSIONS: Exactly ${roomWidth.toFixed(1)}m (width) x ${roomLength.toFixed(1)}m (length).
+
+1. ABSOLUTE ZERO BED / ZERO LIVING FURNITURE RULE (CRITICAL):
+- This is strictly a BATHROOM. Absolutely NEVER add a bed, headboard, nightstand, sofa, desk, or dining table!
+- 100% PRESERVE all core sanitary fixtures: BATHTUB (or walk-in glass shower enclosure), VANITY SINK, MIRROR CABINET, and TOILET in their exact functional locations.
+- Do NOT convert the bathtub into a bed! The bathtub MUST remain an authentic, sparkling clean, modern bathtub or glass shower.
+
+2. LUXURY TILES & SANITARY FIXTURE MODERNIZATION:
+- Modernize wall and floor tiles with clean large-format porcelain, marble veining, or warm micro-cement.
+- Upgrade vanity sink, faucets, and thermostatic shower fixtures with sleek matte black or brushed nickel hardware.
+- Install a modern LED backlit mirror cabinet providing warm ambient lighting.
+
+3. 100% PERSPECTIVE & PLUMBING LOCK:
+- Retain exact walls, door swing clearance, and plumbing layout 1:1.
+Photorealistic architectural interior photography, Architectural Digest luxury bathroom editorial, 8k resolution.`;
+      } else if (preserveLayoutFurniture) {
+        const isBedRoomType = roomKey === 'bedroom' || roomKey === 'kids_room';
         customPrompt = `[SPATIAL LAYOUT REDESIGN & ERGONOMIC COMPOSITION CREATION]
 CORE TASK: Redesign the spatial composition by reorganizing and rearranging the given furniture (${targetItemsKo}) within this exact room.
 ROOM DIMENSIONS: Exactly ${roomWidth.toFixed(1)}m (width) x ${roomLength.toFixed(1)}m (length).
 
 1. REDESIGN SPATIAL COMPOSITION VIA REALISTIC ERGONOMIC RELOCATION:
 - The positions of the primary furniture (${targetItemsKo}) MUST visibly change between before and after! Do not leave furniture in their original spots.
-- MATHEMATICAL WALL LENGTH RULE (CRITICAL): The combined length of furniture along any single wall CANNOT exceed that wall's physical dimension (${roomWidth.toFixed(1)}m or ${roomLength.toFixed(1)}m).
+${isBedRoomType ? `- MATHEMATICAL WALL LENGTH RULE (CRITICAL): The combined length of furniture along any single wall CANNOT exceed that wall's physical dimension (${roomWidth.toFixed(1)}m or ${roomLength.toFixed(1)}m).
   * If two beds (e.g. kids room or twin beds) are in this room: DO NOT place them in a straight line end-to-end along a wall shorter than 4.1m (such as the ${roomLength.toFixed(1)}m wall). Placing two 2.0m beds end-to-end along a ${roomLength.toFixed(1)}m wall is mathematically and physically impossible and unnaturally distorts furniture.
   * INSTEAD, strictly arrange dual beds in PARALLEL (11-shape with 50-60cm walkway between them) or in an L-SHAPED CORNER configuration, keeping window access and curtains completely clear and unobstructed.
-- Window clearance: Keep at least 40-50cm of breathing room in front of windows. Never shove bed headboards or frames flush against windows.
+- Window clearance: Keep at least 40-50cm of breathing room in front of windows. Never shove bed headboards or frames flush against windows.` : ''}
 - Actively SWAP or INTERCHANGE furniture positions to establish a refreshed, optimal spatial composition.
 - Former spots occupied by moved furniture must be completely cleared, vacated, and restored with matching flooring/walls.
 
@@ -3447,7 +3473,7 @@ ROOM DIMENSIONS: Exactly ${roomWidth.toFixed(1)}m (width) x ${roomLength.toFixed
       } else {
         customPrompt = `[SPATIAL LAYOUT OPTIMIZATION & CIRCULATION REDESIGN]
 - Reorganize spatial composition in this ${roomWidth.toFixed(1)}m x ${roomLength.toFixed(1)}m room.
-- If two beds exist, arrange them parallel (11-shape) or in an L-shape rather than a straight line on a short wall. Keep windows completely clear.
+${(roomKey === 'bedroom' || roomKey === 'kids_room') ? '- If two beds exist, arrange them parallel (11-shape) or in an L-shape rather than a straight line on a short wall. Keep windows completely clear.' : ''}
 - High-end architectural interior photography, Architectural Digest editorial quality, 8k resolution.`;
       }
     } else if (selectedTool.id === 'cleanup') {

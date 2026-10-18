@@ -230,9 +230,21 @@ export async function POST(req: NextRequest) {
         ? `- PROPORTIONALLY SIZED KEY FURNITURE:\n${furnitureLines.join('\n')}`
         : '- FURNITURE: Minimalist open floor space without bulky furniture blocks.';
 
-      const maxWallLength = Math.max(w, l);
+      const requestedRoomId = (typeof roomTypeId === 'string' ? roomTypeId : '').toLowerCase();
+      const isTargetBathroom = requestedRoomId === 'bathroom' || requestedRoomId.includes('bath') || requestedRoomId.includes('toilet');
 
-      dimensionPromptChunk = `[REAL-WORLD SPATIAL DIMENSIONS & HUMAN-SCALE CLEARANCE CONSTRAINTS]
+      if (isTargetBathroom) {
+        dimensionPromptChunk = `[REAL-WORLD BATHROOM DIMENSIONS & SANITARY CLEARANCE CONSTRAINTS]
+- EXACT PHYSICAL ROOM ENCLOSURE: Strictly ${w}m (width) by ${l}m (length) [Total Floor Area: ${areaM2} m² / approx. ${pyeong} pyeong], standard ceiling height.
+- STRICT BATHROOM SANITARY RULES (CRITICAL):
+  * This space is strictly a BATHROOM. Absolutely NEVER add a bed, headboard, nightstand, sofa, desk, or dining table!
+  * Maintain sanitary fixtures: Bathtub (or walk-in glass shower), bathroom vanity basin, mirror cabinet, and toilet.
+  * Plumbing and drainage alignment: Ensure clear ergonomic access between the entrance, vanity sink, toilet, and bathtub/shower.
+  * Tile and surface modernization: Luxury porcelain or marble wall & floor tiles with natural light reflection.`;
+      } else {
+        const maxWallLength = Math.max(w, l);
+
+        dimensionPromptChunk = `[REAL-WORLD SPATIAL DIMENSIONS & HUMAN-SCALE CLEARANCE CONSTRAINTS]
 - EXACT PHYSICAL ROOM ENCLOSURE: Strictly ${w}m (width) by ${l}m (length) [Total Floor Area: ${areaM2} m² / approx. ${pyeong} pyeong], standard 2.4m ceiling height.
 ${furnitureSection}
 - MATHEMATICAL WALL LENGTH & MULTI-BED COLLISION CONSTRAINTS (CRITICAL):
@@ -252,6 +264,7 @@ ${furnitureSection}
   * DO NOT render an artificially elongated or massive mansion room.
   * DO NOT shrink furniture into miniature dollhouse scale.
   * Sizing and clearance must strictly reflect real-world human scale within this ${w}m x ${l}m space envelope.`;
+      }
     }
 
     let customPrompt = typeof rawCustomPrompt === 'string' ? rawCustomPrompt : '';
@@ -397,11 +410,50 @@ ${furnitureSection}
       effectiveMode = 'rearrange_layout';
     }
 
-    const isKidsRoom = !isExterior && !isGarden && (roomId === 'kids_room' || roomId.includes('kid') || promptStr.includes('kids') || promptStr.includes('아이들방') || promptStr.includes('어린이') || promptStr.includes('아이방'));
-    const isBedroom = !isKidsRoom && !isExterior && !isGarden && (roomId === 'bedroom' || promptStr.includes('bed') || promptStr.includes('침대') || promptStr.includes('침실'));
-    const isKitchen = !isExterior && !isGarden && (roomId === 'kitchen' || promptStr.includes('kitchen') || promptStr.includes('dining') || promptStr.includes('island') || promptStr.includes('주방') || promptStr.includes('식탁') || promptStr.includes('아일랜드'));
-    const isLivingRoom = !isExterior && !isGarden && (roomId === 'living_room' || promptStr.includes('living') || promptStr.includes('sofa') || promptStr.includes('couch') || promptStr.includes('거실') || promptStr.includes('소파'));
-    const isStudy = !isExterior && !isGarden && (roomId === 'study' || roomId === 'home_office' || promptStr.includes('study') || promptStr.includes('office') || promptStr.includes('desk') || promptStr.includes('서재') || promptStr.includes('책상') || promptStr.includes('오피스'));
+    const isBathroom = !isExterior && !isGarden && (
+      roomId === 'bathroom' ||
+      roomId.includes('bath') ||
+      roomId.includes('toilet') ||
+      roomId.includes('restroom') ||
+      (roomType.prompt && roomType.prompt.toLowerCase().includes('bathroom')) ||
+      promptStr.includes('bathroom') ||
+      promptStr.includes('욕실') ||
+      promptStr.includes('화장실')
+    );
+
+    const isKidsRoom = !isBathroom && !isExterior && !isGarden && (roomId === 'kids_room' || roomId.includes('kid') || (!roomId && (promptStr.includes('kids') || promptStr.includes('아이들방') || promptStr.includes('어린이') || promptStr.includes('아이방'))));
+    const isBedroom = !isBathroom && !isKidsRoom && !isExterior && !isGarden && (roomId === 'bedroom' || (!roomId && (promptStr.includes('bedroom') || promptStr.includes('침실'))));
+    const isKitchen = !isBathroom && !isKidsRoom && !isExterior && !isGarden && (roomId === 'kitchen' || (!roomId && (promptStr.includes('kitchen') || promptStr.includes('dining') || promptStr.includes('island') || promptStr.includes('주방') || promptStr.includes('식탁') || promptStr.includes('아일랜드'))));
+    const isLivingRoom = !isBathroom && !isKidsRoom && !isExterior && !isGarden && (roomId === 'living_room' || (!roomId && (promptStr.includes('living') || promptStr.includes('sofa') || promptStr.includes('couch') || promptStr.includes('거실') || promptStr.includes('소파'))));
+    const isStudy = !isBathroom && !isKidsRoom && !isExterior && !isGarden && (roomId === 'study' || roomId === 'home_office' || (!roomId && (promptStr.includes('study') || promptStr.includes('office') || promptStr.includes('desk') || promptStr.includes('서재') || promptStr.includes('책상') || promptStr.includes('오피스'))));
+
+    const BATHROOM_LAYOUT_PROMPTS = [
+      `A realistic 3D architectural renovation and layout refinement of this bathroom (욕실):
+1. STRICT SANITARY ROOM INTEGRITY & ABSOLUTE ZERO BED/LIVING FURNITURE RULE (CRITICAL):
+   - This space is strictly a BATHROOM. Absolutely NEVER place, render, or add a bed, headboard, nightstand, sofa, dining table, desk, or wardrobe!
+   - 100% PRESERVE all core sanitary fixtures: BATHTUB (or walk-in glass shower enclosure), VANITY SINK, MIRROR CABINET, and TOILET in their exact functional locations.
+   - Do NOT replace or convert the bathtub into a bed! The bathtub MUST remain an authentic, clean, modern bathtub or glass walk-in shower!
+2. LUXURY ARCHITECTURAL BATHROOM RENOVATION:
+   - Modernize and elevate bathroom finishes: large-format matte porcelain or marble wall & floor tiles with tight grout lines.
+   - Upgrade vanity with sleek modern vessel sink, under-mount storage, and minimalist matte black or brushed nickel faucet hardware.
+   - Upgrade bathtub with clean seamless apron panel, modern thermostatic handheld shower mixer, and recessed shampoo niche.
+   - Ambient backlit LED mirror cabinet providing flattering, glare-free warm diffuse lighting.
+3. 100% SPATIAL & DRAINAGE INTEGRITY:
+   - Maintain original plumbing and drainage boundaries, door swing clearance, and camera perspective 1:1.
+Photorealistic architectural interior photography, Architectural Digest luxury bathroom edition, 8k resolution.`,
+
+      `A realistic 3D architectural renovation and layout refinement of this bathroom (욕실):
+1. STRICT SANITARY ROOM INTEGRITY (CRITICAL):
+   - This space is strictly a BATHROOM. NEVER add beds, sofas, or living room furniture.
+   - Maintain the bathtub, vanity basin, mirror, and toilet in their authentic positions.
+2. MODERN HOTEL-SPA BATHROOM REDESIGN:
+   - Transform into a serene boutique hotel spa aesthetic: warm greige micro-cement or stone-look tiles, frameless clear glass splash screen on the bathtub.
+   - Minimalist floating vanity with integrated storage, contemporary concealed plumbing fixtures, and plush clean rolled towels in open niche.
+   - Soft recessed ceiling spotlights and warm cove lighting along the mirror ledge.
+3. PRESERVE STRUCTURAL WALLS & PERSPECTIVE:
+   - Retain 100% of room walls, door position, floor gradient, and camera viewpoint.
+Photorealistic architectural interior photography, Architectural Digest spa bathroom, 8k resolution.`
+    ];
 
     const BEDROOM_LAYOUT_PROMPTS = [
       `A realistic 3D furniture layout and ergonomic circulation optimization of this bedroom:
@@ -539,7 +591,9 @@ Photorealistic architectural interior photography, 8k resolution.`
     ];
 
     let activeLayoutPrompts = UNIVERSAL_LAYOUT_PROMPTS;
-    if (isKidsRoom) {
+    if (isBathroom) {
+      activeLayoutPrompts = BATHROOM_LAYOUT_PROMPTS;
+    } else if (isKidsRoom) {
       activeLayoutPrompts = KIDS_ROOM_LAYOUT_PROMPTS;
     } else if (isBedroom) {
       activeLayoutPrompts = BEDROOM_LAYOUT_PROMPTS;
@@ -577,7 +631,8 @@ User Request: "${userReq}"
 Based on the actual objects and spatial layout visible in the provided photo, compile this request into 2-3 concise, imperative, crystal-clear English directives for the image generation model:
 CRITICAL CONSTRAINTS:
 - DO NOT invent, assume, or add removals/additions that the user did NOT request! (e.g. If the user did not ask to remove rugs, lamps, or shelves, KEEP THEM).
-- BED DIRECTION & LAYOUT (e.g., 같은 방향, 나란히, 11자, parallel, 침대방향, 쌍둥이): Instruct to place TWO MATCHING SINGLE BEDS PARALLEL TO EACH OTHER side-by-side (twin beds parallel layout), both extending perpendicularly from the back window wall forward into the room with a walkway between them, completely eliminating the L-shaped bed arrangement.
+- BED DIRECTION & LAYOUT (e.g., 같은 방향, 나란히, 11자, parallel, 침대방향, 쌍둥이): Only when modifying a bedroom, instruct to place TWO MATCHING SINGLE BEDS PARALLEL TO EACH OTHER side-by-side (twin beds parallel layout), both extending perpendicularly from the back window wall forward into the room with a walkway between them, completely eliminating the L-shaped bed arrangement.
+- BATHROOM SANITARY RULE: If the photo is visually a BATHROOM (containing bathtub, shower, sink, or toilet), NEVER add any bed, headboard, sofa, or living/dining furniture. Keep sanitary fixtures, bathtub, sink, mirror, and toilet intact.
 - ITEM REPLACEMENT (e.g., rug, sofa, chair, lighting, desk): Visually identify only the item mentioned and instruct to replace it in-place with the requested new design, pattern, color, and material.
 - PRESERVATION: Strictly preserve all other non-mentioned furniture, storage units, rugs, lamps, wall decor, windows, walls, and flooring.
 
@@ -792,6 +847,29 @@ CRITICAL MANDATORY RULES:
       if (typeof customPrompt === 'string' && customPrompt.trim()) {
         const trimmedCustom = customPrompt.trim().slice(0, 1500);
         baseInstruction += `\n\nUSER SPECIFIC PARTY REQUIREMENTS: "${trimmedCustom}". Seamlessly integrate these celebration details into the party room styling without moving or replacing core furniture.`;
+      }
+    } else if (isBathroom) {
+      // 🛁 모드: 욕실 전용 고급 리모델링 & 홈스테이징 (침대/소파/가구 절대 침범 금지, 욕조/샤워부스/세면대/변기 100% 보존/현대화)
+      baseInstruction = `You are a world-class luxury bathroom architect and interior specialist.
+TASK: Redesign, modernize, and virtually style this BATHROOM (욕실) in the unmistakable style of "${style.label}" (${style.prompt}).
+
+CRITICAL BATHROOM SANITARY RULES (ABSOLUTE TOP PRIORITY):
+1. ZERO UNRELATED FURNITURE & ZERO BED/SOFA RULE (CRITICAL):
+   - This space is strictly a BATHROOM. Absolutely NEVER place, render, or add a bed, headboard, nightstand, sofa, dining table, desk, or living room/bedroom furniture!
+   - 100% PRESERVE all existing sanitary fixtures: BATHTUB, SHOWER BOOTH/SCREEN, VANITY BASIN & CABINET, MIRROR, and TOILET in their exact functional locations.
+   - Do NOT replace or convert the bathtub into a bed! The bathtub MUST remain an authentic, sparkling clean, modern bathtub or glass walk-in shower!
+2. LUXURY TILES & BATHROOM FINISHES:
+   - Modernize the wall and floor tiles in the requested "${style.label}" style (e.g. large format Italian porcelain tiles, soft terrazzo, natural marble veining, or warm micro-cement).
+   - Upgrade the vanity cabinet with clean under-sink storage, sleek modern basin, and designer faucet fixtures (matte black, brushed brass, or chrome).
+   - Install a modern LED backlit mirror cabinet providing warm, flattering ambient lighting.
+   - Keep plush neatly folded or rolled white towels, designer shampoo/body wash dispensers, and subtle aromatherapy diffuser.
+3. 100% PERSPECTIVE & DRAINAGE PRESERVATION:
+   - Maintain the exact camera viewpoint, walls, ceiling, door position, and plumbing layout.
+Photorealistic architectural interior photography, Architectural Digest luxury bathroom editorial, 8k resolution.`;
+
+      if (typeof customPrompt === 'string' && customPrompt.trim()) {
+        const trimmedCustom = customPrompt.trim().slice(0, 500);
+        baseInstruction += `\n\nUSER SPECIFIC REQUIREMENTS: "${trimmedCustom}". Seamlessly integrate these requested items, colors, or materials while strictly maintaining all sanitary bathroom fixtures and zero beds.`;
       }
     } else {
       // 🧹 모드 1: 실내 공간 구조 100% 보존 + 방 크기 1:1 유지 + 선택한 스타일에 맞춘 가구/소품 홈스테이징

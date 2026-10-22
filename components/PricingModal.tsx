@@ -265,43 +265,23 @@ export default function PricingModal({
     if (onStartExperience) onStartExperience();
   };
 
-  // 실제 결제 진행 (토스페이먼츠 공식 결제창 연동)
-  const handleContinue = async () => {
+  // 🍋 실제 결제 진행 (레몬스퀴지 Lemon Squeezy 글로벌 안전 결제창 연동)
+  const handleContinue = () => {
     if (isProcessingPayment) return;
     try {
       setIsProcessingPayment(true);
-      const clientKey = process.env.NEXT_PUBLIC_TOSS_CLIENT_KEY || 'test_ck_D5GePWvyJqK4WBaqkxl3OBryNqmE';
-      const tossPayments = await loadTossPayments(clientKey);
-      const payment = tossPayments.payment({ customerKey: ANONYMOUS });
+      const checkoutUrl =
+        currentPlan.lemonCheckoutUrl ||
+        'https://airoomdesigner.lemonsqueezy.com/checkout/buy/c69ce40f-635c-4d36-b078-0993f9c2b30d';
 
-      const orderId = `roomfit_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
-      const origin = typeof window !== 'undefined' ? window.location.origin : 'https://ai-room-smart-designer-choi.vercel.app';
-
-      // 토스 공식 결제창 호출 (신용카드, 카카오페이, 네이버페이, 토스페이 통합 지원)
-      await payment.requestPayment({
-        method: 'CARD',
-        amount: {
-          currency: 'KRW',
-          value: currentPlan.priceKrw || 27900,
-        },
-        orderId,
-        orderName: `RoomFit AI ${currentPlanName}`,
-        successUrl: `${origin}/pricing/success?planId=${currentPlan.id}&amount=${currentPlan.priceKrw || 27900}`,
-        failUrl: `${origin}/pricing/fail`,
-        customerEmail: 'customer@roomfit.ai',
-        customerName: 'RoomFit AI 고객',
-      });
-    } catch (err: any) {
-      console.error('Toss Payments error:', err);
-      if (err.code !== 'USER_CANCEL') {
-        if (currentPlan.lemonCheckoutUrl && lang !== 'ko') {
-          window.open(currentPlan.lemonCheckoutUrl, '_blank');
-        } else {
-          alert(lang === 'ko' ? '결제창을 여는 도중 문제가 발생했습니다. 잠시 후 다시 시도해 주세요.' : 'Checkout error. Please try again.');
-        }
+      if (typeof window !== 'undefined') {
+        window.open(checkoutUrl, '_blank');
       }
+    } catch (err: any) {
+      console.error('Lemon Squeezy error:', err);
+      alert(lang === 'ko' ? '결제창을 여는 도중 문제가 발생했습니다. 잠시 후 다시 시도해 주세요.' : 'Checkout error. Please try again.');
     } finally {
-      setIsProcessingPayment(false);
+      setTimeout(() => setIsProcessingPayment(false), 800);
     }
   };
 
@@ -630,6 +610,16 @@ export default function PricingModal({
               </span>
             )}
           </button>
+
+          {/* 결제 파트너 보안 안내 뱃지 */}
+          <div className="flex items-center justify-center gap-1.5 text-[10.5px] font-semibold text-slate-500 pt-0.5">
+            <span>🔒</span>
+            <span>
+              {lang === 'ko'
+                ? '신용카드 · Apple Pay · Google Pay 지원 (Lemon Squeezy 안전 결제)'
+                : 'Credit Card · Apple Pay · Google Pay (Lemon Squeezy)'}
+            </span>
+          </div>
 
           {/* 푸터 이용약관 및 자동갱신 안내 링크 (참조 이미지 하단과 동일) */}
           <div className="flex items-center justify-center gap-3 text-[11px] font-medium text-slate-400 pt-1">

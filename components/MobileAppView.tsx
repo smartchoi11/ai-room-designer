@@ -1893,14 +1893,18 @@ function AnimatedToolPreview({
   beforeImage,
   afterImage,
   title,
+  desc,
   badge,
   steps,
+  ctaText,
 }: {
   beforeImage: string;
   afterImage: string;
   title: string;
+  desc?: string;
   badge?: string;
   steps?: ToolStep[];
+  ctaText?: string;
 }) {
   // 1. 다단계(소파 3단계) 완벽 동기화 좌우 왕복 스캔 상태
   const [multiScan, setMultiScan] = useState<MultiStepScanState>({
@@ -1992,13 +1996,12 @@ function AnimatedToolPreview({
 
     // direction === 'right': 스캔 바가 0%에서 100%로 전진. 스캔 바 왼쪽(뒤)으로 새 이미지가 열림.
     // direction === 'left': 스캔 바가 100%에서 0%로 후진. 스캔 바 오른쪽(뒤)으로 새 이미지가 열림.
-    // 스캔 바가 지나가기 전(앞쪽 영역)은 절대로 바뀌지 않고 기존 소파 이미지가 100% 유지됨.
     const clipStyle = multiScan.direction === 'right'
       ? `inset(0 ${Math.max(0, 100 - multiScan.pos)}% 0 0)`
       : `inset(0 0 0 ${Math.min(100, multiScan.pos)}%)`;
 
     return (
-      <div className="relative aspect-[16/9] w-full overflow-hidden rounded-2xl bg-slate-950 shadow-inner select-none pointer-events-none">
+      <div className="relative aspect-[4/3] sm:aspect-[16/10] w-full overflow-hidden rounded-3xl bg-slate-950 shadow-inner select-none pointer-events-none">
         {/* 1. 기본 바탕 이미지 (현재까지 완성된 소파 이미지) */}
         <Image
           src={baseImg}
@@ -2030,13 +2033,49 @@ function AnimatedToolPreview({
           <div className="absolute top-2 -left-1 h-2.5 w-2.5 rounded-full bg-amber-300 shadow-[0_0_8px_rgba(251,191,36,1)]" />
           <div className="absolute bottom-4 -left-1 h-2.5 w-2.5 rounded-full bg-amber-300 shadow-[0_0_8px_rgba(251,191,36,1)]" />
         </div>
+
+        {/* 신규/인기 뱃지 (상단 좌측) */}
+        {badge && (
+          <span className="absolute left-3.5 top-3.5 z-30 rounded-full bg-gradient-to-r from-amber-400 to-orange-400 px-2.5 py-0.5 text-[9.5px] font-black uppercase tracking-wider text-slate-950 shadow-md">
+            {badge}
+          </span>
+        )}
+
+        {/* 다단계 스텝 표시 (상단 우측) */}
+        <div className="absolute top-3.5 right-3.5 z-30 flex items-center gap-1">
+          <span className="rounded-full bg-slate-950/75 px-2.5 py-0.5 text-[9.5px] font-black text-amber-300 backdrop-blur-md border border-white/10 shadow-sm">
+            {steps[multiScan.activeStep]?.badge || 'AI 변환'}
+          </span>
+        </div>
+
+        {/* 🌟 짙은 그라데이션 오버레이: 텍스트 및 버튼 가독성 극대화 */}
+        <div className="absolute inset-x-0 bottom-0 h-28 sm:h-32 bg-gradient-to-t from-black/90 via-black/45 to-transparent z-20 pointer-events-none" />
+
+        {/* 🌟 이미지 내부 하단 텍스트 및 Try Now 버튼 */}
+        <div className="absolute inset-x-0 bottom-0 z-30 flex items-end justify-between p-4 sm:p-5 gap-3 pointer-events-none">
+          <div className="min-w-0 flex-1 pr-2">
+            <h3 className="text-base sm:text-lg font-black text-white tracking-tight leading-snug drop-shadow-md truncate">
+              {title}
+            </h3>
+            {desc && (
+              <p className="text-xs sm:text-[13px] text-white/80 font-medium mt-1 line-clamp-1 drop-shadow">
+                {desc}
+              </p>
+            )}
+          </div>
+          <div className="shrink-0 pointer-events-auto">
+            <span className="inline-flex items-center justify-center rounded-full backdrop-blur-md bg-white/20 hover:bg-white/30 border border-white/30 px-3.5 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-sm font-bold text-white shadow-lg shadow-black/20 transition-transform group-hover:scale-105 active:scale-95 whitespace-nowrap">
+              {ctaText || 'Try Now'}
+            </span>
+          </div>
+        </div>
       </div>
     );
   }
 
   // 기본 2단계 슬라이더 모드
   return (
-    <div className="relative aspect-[16/9] w-full overflow-hidden rounded-2xl bg-slate-950 shadow-inner select-none pointer-events-none">
+    <div className="relative aspect-[4/3] sm:aspect-[16/10] w-full overflow-hidden rounded-3xl bg-slate-950 shadow-inner select-none pointer-events-none">
       {/* 1. 비포 베이스 이미지 (바닥) */}
       <Image src={beforeImage} alt={`${title} Before`} fill className="object-cover" priority />
 
@@ -2054,22 +2093,44 @@ function AnimatedToolPreview({
         style={{ left: `${sliderPos}%` }}
       />
 
-      {/* 신규/인기 뱃지 */}
+      {/* 신규/인기 뱃지 (상단 좌측) */}
       {badge && (
-        <span className="absolute left-3 top-3 z-30 rounded-full bg-amber-500 px-2.5 py-0.5 text-[10px] font-black uppercase tracking-wider text-slate-950 shadow-md">
+        <span className="absolute left-3.5 top-3.5 z-30 rounded-full bg-gradient-to-r from-amber-400 to-orange-400 px-2.5 py-0.5 text-[9.5px] font-black uppercase tracking-wider text-slate-950 shadow-md">
           {badge}
         </span>
       )}
 
-      {/* BEFORE / AFTER 라벨 표시 */}
-      <div className="absolute bottom-2.5 left-3 z-30 flex items-center gap-1.5">
-        <span className="rounded-full bg-slate-950/85 px-2 py-0.5 text-[9px] font-black text-slate-300 backdrop-blur-sm border border-slate-800">
+      {/* BEFORE / AFTER 라벨 표시 (상단 우측) */}
+      <div className="absolute top-3.5 right-3.5 z-30 flex items-center gap-1">
+        <span className="rounded-full bg-slate-950/75 px-2 py-0.5 text-[9px] font-black text-slate-300 backdrop-blur-md border border-white/10 shadow-sm">
           BEFORE
         </span>
-        <span className="text-[10px] text-amber-400 font-bold">➔</span>
-        <span className="rounded-full bg-amber-400 px-2 py-0.5 text-[9px] font-black text-slate-950 shadow-sm">
+        <span className="text-[9px] text-amber-400 font-bold">➔</span>
+        <span className="rounded-full bg-gradient-to-r from-amber-400 to-orange-400 px-2 py-0.5 text-[9px] font-black text-slate-950 shadow-sm">
           AFTER
         </span>
+      </div>
+
+      {/* 🌟 짙은 그라데이션 오버레이: 텍스트 및 버튼 가독성 극대화 */}
+      <div className="absolute inset-x-0 bottom-0 h-28 sm:h-32 bg-gradient-to-t from-black/90 via-black/45 to-transparent z-20 pointer-events-none" />
+
+      {/* 🌟 이미지 내부 하단 텍스트 및 Try Now 버튼 */}
+      <div className="absolute inset-x-0 bottom-0 z-30 flex items-end justify-between p-4 sm:p-5 gap-3 pointer-events-none">
+        <div className="min-w-0 flex-1 pr-2">
+          <h3 className="text-base sm:text-lg font-black text-white tracking-tight leading-snug drop-shadow-md truncate">
+            {title}
+          </h3>
+          {desc && (
+            <p className="text-xs sm:text-[13px] text-white/80 font-medium mt-1 line-clamp-1 drop-shadow">
+              {desc}
+            </p>
+          )}
+        </div>
+        <div className="shrink-0 pointer-events-auto">
+          <span className="inline-flex items-center justify-center rounded-full backdrop-blur-md bg-white/20 hover:bg-white/30 border border-white/30 px-3.5 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-sm font-bold text-white shadow-lg shadow-black/20 transition-transform group-hover:scale-105 active:scale-95 whitespace-nowrap">
+            {ctaText || 'Try Now'}
+          </span>
+        </div>
       </div>
     </div>
   );
@@ -4000,27 +4061,17 @@ Ultra-photorealistic lifestyle interior photography, Architectural Digest party 
                       startWizard(tool);
                     }
                   }}
-                  className="w-full text-left group relative cursor-pointer overflow-hidden rounded-3xl border border-slate-800 bg-slate-900/90 p-4 shadow-xl transition-all duration-300 hover:border-slate-700 hover:shadow-2xl active:scale-[0.98] touch-manipulation"
+                  className="w-full text-left group relative cursor-pointer overflow-hidden rounded-3xl border border-slate-800/80 bg-slate-950 shadow-xl transition-all duration-300 hover:border-amber-400/40 hover:shadow-2xl active:scale-[0.98] touch-manipulation"
                 >
                   <AnimatedToolPreview
                     beforeImage={tool.beforeImage}
                     afterImage={tool.afterImage}
                     title={displayTitle}
+                    desc={displayDesc}
                     badge={tool.badge}
                     steps={tool.steps}
+                    ctaText={lang === 'ko' ? '체험하기' : lang === 'ja' ? '体験する' : lang === 'es' ? 'Probar' : 'Try Now'}
                   />
-
-                  <div className="mt-3 flex items-center justify-between">
-                    <div>
-                      <h3 className="text-base font-bold text-white group-hover:text-amber-400 transition-colors">
-                        {displayTitle}
-                      </h3>
-                      <p className="text-xs text-slate-400 mt-0.5 line-clamp-1">{displayDesc}</p>
-                    </div>
-                    <span className="shrink-0 rounded-full bg-white px-4 py-2 text-xs font-black text-slate-950 shadow-md transition-transform group-hover:scale-105 active:scale-95">
-                      {lang === 'ko' ? '시작하기 ➔' : lang === 'ja' ? '試す ➔' : lang === 'es' ? 'Probar ➔' : 'Try It!'}
-                    </span>
-                  </div>
                 </div>
               );
             })}

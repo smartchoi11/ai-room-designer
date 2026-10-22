@@ -233,14 +233,17 @@ export default function PricingModal({
 
   const [isProcessingPayment, setIsProcessingPayment] = useState(false);
 
-  // 무료 체험 시작 (10회 지급)
+  // 무료 체험 시작 (10회 지급 및 즉시 첫 생성 마법사로 진행)
   const handleTryFree = () => {
-    if (onClaimFreeCredits) onClaimFreeCredits();
-    if (lang === 'ko') {
-      alert('🎉 [오픈 기념 10회 무료 체험]이 정상 지급되었습니다!\n결제 없이 바로 원하는 인테리어를 만들어보세요.');
+    try {
+      if (onClaimFreeCredits) onClaimFreeCredits();
+    } catch (e) {
+      console.error('Error claiming free credits:', e);
     }
     onClose();
-    if (onStartExperience) onStartExperience();
+    if (onStartExperience) {
+      onStartExperience();
+    }
   };
 
   // 실제 결제 진행 (토스페이먼츠 카드/간편결제 연동)
@@ -557,12 +560,18 @@ export default function PricingModal({
           </span>
         </div>
 
-        {/* 🎁 눈에 확 띄는 오픈 기념 10크레딧 무료 체험 배너 (클릭 시 즉시 무료 체험) */}
+        {/* 🎁 눈에 확 띄는 오픈 기념 10크레딧 무료 체험 배너 (클릭 시 즉시 10크레딧 지급 및 마법사 시작) */}
         <div
           onClick={handleTryFree}
           role="button"
           tabIndex={0}
-          className="rounded-2xl border-2 border-amber-400/90 bg-gradient-to-r from-amber-500/25 via-amber-500/15 to-orange-500/20 p-2.5 sm:p-3 shadow-lg shadow-amber-500/10 flex items-center justify-between gap-2.5 cursor-pointer hover:brightness-110 active:scale-[0.98] transition-all select-none group"
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              e.preventDefault();
+              handleTryFree();
+            }
+          }}
+          className="rounded-2xl border-2 border-amber-400/90 bg-gradient-to-r from-amber-500/25 via-amber-500/15 to-orange-500/20 p-2.5 sm:p-3 shadow-lg shadow-amber-500/10 flex items-center justify-between gap-2.5 cursor-pointer hover:brightness-110 active:scale-[0.98] transition-all select-none group touch-manipulation"
         >
           <div className="flex items-center gap-2.5 min-w-0">
             <div className="h-9 w-9 sm:h-10 sm:w-10 shrink-0 rounded-xl bg-gradient-to-br from-amber-400 to-orange-400 text-slate-950 flex items-center justify-center text-xl font-black shadow-md group-hover:scale-105 transition-transform">
@@ -594,9 +603,16 @@ export default function PricingModal({
               </span>
             </div>
           </div>
-          <span className="shrink-0 rounded-xl bg-gradient-to-r from-amber-400 to-orange-400 px-3 py-1.5 text-xs font-black text-slate-950 shadow-md group-hover:shadow-amber-400/50 transition-all whitespace-nowrap">
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              handleTryFree();
+            }}
+            className="shrink-0 rounded-xl bg-gradient-to-r from-amber-400 to-orange-400 px-3 py-1.5 text-xs font-black text-slate-950 shadow-md group-hover:shadow-amber-400/50 transition-all whitespace-nowrap active:scale-95 cursor-pointer touch-manipulation"
+          >
             {lang === 'ko' ? '10회 받기 ➔' : lang === 'ja' ? '無料で取得 ➔' : 'Claim ➔'}
-          </span>
+          </button>
         </div>
 
         {/* 하단 메인 결제 버튼 & 무료 체험 버튼 */}

@@ -4227,6 +4227,18 @@ Ultra-photorealistic lifestyle interior photography, Architectural Digest party 
                 </h3>
                 <p className="text-xs text-slate-400 mt-0.5">{translations.wizard.step1Sub[lang]}</p>
 
+                {freeCount > 0 && (
+                  <div className="mt-3 flex items-center justify-between rounded-xl border border-amber-400/40 bg-gradient-to-r from-amber-500/20 to-orange-500/15 px-3 py-2 text-xs font-bold text-amber-300 shadow-sm animate-fade-in">
+                    <span className="flex items-center gap-1.5">
+                      <span>🎁</span>
+                      <span>{lang === 'ko' ? `오픈 기념 ${freeCount}회 무료 생성 가능!` : `${freeCount} free generations available!`}</span>
+                    </span>
+                    <span className="rounded-full bg-amber-400 px-2 py-0.5 text-[10px] font-black text-slate-950">
+                      {lang === 'ko' ? '무료' : 'FREE'}
+                    </span>
+                  </div>
+                )}
+
                 {/* 메인 사진 업로드 영역 (휴대폰 사진첩/갤러리 및 카메라 지원, 드래그&드롭 지원) */}
                 <div className="mt-4">
                   {!uploadedImage ? (
@@ -7941,9 +7953,13 @@ Ultra-photorealistic lifestyle interior photography, Architectural Digest party 
       isOpen={isPricingModalOpen}
       onClose={() => setIsPricingModalOpen(false)}
       onClaimFreeCredits={() => {
-        const newCount = Math.max(freeCount, 10);
-        setFreeCountRaw(String(newCount));
-        recordPromoPurchase('launch_promo_10', 10);
+        try {
+          const newCount = Math.max(freeCount, 10);
+          setFreeCountRaw(String(newCount));
+          recordPromoPurchase('launch_promo_10', 10);
+        } catch (e) {
+          console.error('Error claiming free credits:', e);
+        }
       }}
       onPurchasePlan={(plan) => {
         if (plan.id === 'starter') {
@@ -7959,7 +7975,7 @@ Ultra-photorealistic lifestyle interior photography, Architectural Digest party 
       }}
       onStartExperience={() => {
         setIsPricingModalOpen(false);
-        setActiveTab('tools');
+        startWizard(TOOL_CARDS[0]);
       }}
       freeCreditsCount={freeCount}
       lang={lang}

@@ -3928,21 +3928,21 @@ Ultra-photorealistic lifestyle interior photography, Architectural Digest party 
         </div>
       </header>
 
-      {/* 📢 10월 31일까지 무료 이용 가능 안내 최상단 공지 띠배너 (처음 화면 노출) */}
-      <div className="bg-gradient-to-r from-amber-500 via-orange-500 to-amber-500 py-2 px-3 text-center shadow-md border-b border-amber-400/40 animate-fade-in">
-        <div className="flex items-center justify-center gap-1.5 flex-wrap">
-          <span className="text-xs">🎉</span>
-          <span className="text-xs font-black text-slate-950">
+      {/* 📢 10월 31일까지 무료 이용 가능 안내 최상단 공지 띠배너 (모던 프리미엄) */}
+      <div className="bg-[#111827]/80 backdrop-blur-md py-2 px-3 text-center border-b border-white/[0.08] animate-fade-in">
+        <div className="flex items-center justify-center gap-2 flex-wrap">
+          <span className="text-amber-400 text-xs">✦</span>
+          <span className="text-xs font-medium text-slate-200">
             {lang === 'ko'
-              ? '10월 31일까지 10회 무료로 이용 가능합니다!'
+              ? '10월 31일까지 10회 무료로 이용 가능합니다'
               : lang === 'ja'
-              ? '10月31日まで10回無料でご利用いただけます！'
+              ? '10月31日まで10回無料でご利用いただけます'
               : lang === 'es'
-              ? '¡10 pruebas gratis hasta el 31 de octubre!'
-              : '10 free trials to use until October 31!'}
+              ? '10 pruebas gratis hasta el 31 de octubre'
+              : '10 free trials available until October 31'}
           </span>
-          <span className="bg-slate-950 text-amber-300 px-2 py-0.5 rounded-full text-[10px] font-black border border-amber-400/30">
-            {lang === 'ko' ? '오픈 프로모션 10회 무료 제공' : lang === 'ja' ? '10回無料体験付与' : lang === 'es' ? '10 pruebas gratis' : '10 Free Trials'}
+          <span className="bg-amber-400/10 text-amber-300 px-2 py-0.5 rounded-full text-[10px] font-semibold border border-amber-400/20">
+            {lang === 'ko' ? '오픈 프로모션' : lang === 'ja' ? '限定プロモ' : lang === 'es' ? 'Promo Especial' : 'Special Promo'}
           </span>
         </div>
       </div>
@@ -3950,31 +3950,31 @@ Ultra-photorealistic lifestyle interior photography, Architectural Digest party 
       {/* ── 탭 1: Tools (도구 홈 피드) ── */}
       {activeTab === 'tools' && (
         <div className="flex flex-col gap-4 p-4 animate-fade-in">
-          {/* 💳 모바일 홈 요금제 & 멤버십 안내 카드 */}
-          <div className="relative overflow-hidden rounded-2xl border border-amber-500/30 bg-gradient-to-br from-amber-950/40 via-slate-900 to-slate-900 p-3.5 shadow-xl">
-            <div className="flex items-center justify-between gap-2.5">
-              <div className="flex items-center gap-2.5 min-w-0 flex-1">
-                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-amber-400 to-orange-500 text-lg font-black text-slate-950 shadow-md">
-                  💎
+          {/* 💳 모바일 홈 요금제 & 멤버십 안내 카드 (미니멀 럭셔리) */}
+          <div className="relative overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-r from-slate-900/90 to-slate-800/80 backdrop-blur-xl p-3.5 shadow-lg">
+            <div className="flex items-center justify-between gap-3">
+              <div className="flex items-center gap-3 min-w-0 flex-1">
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-amber-400/10 border border-amber-400/20 text-amber-400 text-lg font-bold">
+                  ✦
                 </div>
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center gap-1.5 flex-wrap">
-                    <span className="text-xs font-black text-amber-300 whitespace-nowrap">
+                    <span className="text-xs font-bold text-white whitespace-nowrap">
                       {translations.home.bannerTitle[lang]}
                     </span>
-                    <span className="shrink-0 rounded-full bg-amber-500/20 px-1.5 py-0.5 text-[9px] font-bold text-amber-400 border border-amber-500/30 whitespace-nowrap">
-                      {lang === 'ko' ? '10.31까지 10회 무료' : lang === 'ja' ? '10/31まで10回無料' : lang === 'es' ? '10 Gratis hasta 31 Oct' : '10 Free until Oct 31'}
+                    <span className="shrink-0 rounded-full bg-amber-400/10 px-2 py-0.5 text-[9px] font-semibold text-amber-300 border border-amber-400/20 whitespace-nowrap">
+                      {lang === 'ko' ? '10회 무료' : lang === 'ja' ? '10回無料' : lang === 'es' ? '10 Gratis' : '10 Free'}
                     </span>
                   </div>
-                  <p className="text-[10px] text-slate-300 mt-0.5 truncate">
-                    {lang === 'ko' ? '🎉 10월 31일까지 누구나 10회 무료 체험 & 한정 얼리버드 혜택' : lang === 'ja' ? '🎉 10月31日まで10回無料体験＆限定特典' : lang === 'es' ? '🎉 10 pruebas gratis hasta el 31 de oct' : '🎉 10 free trials & launch benefits until Oct 31'}
+                  <p className="text-[10px] text-slate-400 mt-0.5 truncate">
+                    {lang === 'ko' ? '10월 31일까지 누구나 10회 무료 체험 & 특별 혜택' : lang === 'ja' ? '10月31日まで誰でも10回無料体験＆特別特典' : lang === 'es' ? '10 pruebas gratis hasta el 31 de oct' : '10 free trials & special benefits until Oct 31'}
                   </p>
                 </div>
               </div>
               <button
                 type="button"
                 onClick={() => setIsPricingModalOpen(true)}
-                className="shrink-0 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 px-3 py-1.5 text-xs font-black text-slate-950 shadow-md hover:brightness-110 active:scale-95 transition-all cursor-pointer touch-manipulation whitespace-nowrap"
+                className="shrink-0 rounded-xl bg-amber-400 hover:bg-amber-300 px-3.5 py-2 text-xs font-bold text-slate-950 shadow-md active:scale-95 transition-all cursor-pointer touch-manipulation whitespace-nowrap"
               >
                 {translations.home.bannerBtn[lang]}
               </button>

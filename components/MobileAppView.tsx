@@ -4011,35 +4011,28 @@ Ultra-photorealistic lifestyle interior photography, Architectural Digest party 
       {/* ── 탭 1: Tools (도구 홈 피드) ── */}
       {activeTab === 'tools' && (
         <div className="flex flex-col gap-4 p-4 animate-fade-in">
-          {/* 💳 모바일 홈 요금제 & 멤버십 안내 카드 */}
-          <div className="relative overflow-hidden rounded-2xl border border-amber-500/30 bg-gradient-to-br from-amber-950/40 via-slate-900 to-slate-900 p-3.5 shadow-xl">
-            <div className="flex items-center justify-between gap-2.5">
-              <div className="flex items-center gap-2.5 min-w-0 flex-1">
-                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-amber-400 to-orange-500 text-lg font-black text-slate-950 shadow-md">
-                  💎
-                </div>
-                <div className="min-w-0 flex-1">
-                  <div className="flex items-center gap-1.5 flex-wrap">
-                    <span className="text-xs font-black text-amber-300 whitespace-nowrap">
-                      {translations.home.bannerTitle[lang]}
-                    </span>
-                    <span className="shrink-0 rounded-full bg-amber-500/20 px-1.5 py-0.5 text-[9px] font-bold text-amber-400 border border-amber-500/30 whitespace-nowrap">
-                      {lang === 'ko' ? '10.31까지 10회 무료' : lang === 'ja' ? '10/31まで10回無料' : lang === 'es' ? '10 Gratis hasta 31 Oct' : '10 Free until Oct 31'}
-                    </span>
-                  </div>
-                  <p className="text-[10px] text-slate-300 mt-0.5 truncate">
-                    {lang === 'ko' ? '🎉 10월 31일까지 누구나 10회 무료 체험 & 한정 얼리버드 혜택' : lang === 'ja' ? '🎉 10月31日まで10回無料体験＆限定特典' : lang === 'es' ? '🎉 10 pruebas gratis hasta el 31 de oct' : '🎉 10 free trials & launch benefits until Oct 31'}
-                  </p>
-                </div>
+          {/* 💳 모바일 홈 요금제 안내 카드 (중복 프로모션 삭제, 깔끔한 요금제 안내 유지) */}
+          <div className="relative overflow-hidden rounded-2xl border border-amber-500/30 bg-gradient-to-r from-slate-900 via-amber-950/20 to-slate-900 p-3 shadow-lg flex items-center justify-between gap-3">
+            <div className="flex items-center gap-2.5 min-w-0">
+              <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-amber-400 to-orange-500 text-sm font-black text-slate-950 shadow-md">
+                💎
               </div>
-              <button
-                type="button"
-                onClick={() => setIsPricingModalOpen(true)}
-                className="shrink-0 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 px-3 py-1.5 text-xs font-black text-slate-950 shadow-md hover:brightness-110 active:scale-95 transition-all cursor-pointer touch-manipulation whitespace-nowrap"
-              >
-                {translations.home.bannerBtn[lang]}
-              </button>
+              <div className="min-w-0">
+                <span className="text-xs sm:text-sm font-black text-white block truncate">
+                  {lang === 'ko' ? '멤버십 요금제 안내' : lang === 'ja' ? '料金プラン案内' : lang === 'es' ? 'Planes de Precios' : 'Pricing Plans'}
+                </span>
+                <span className="text-[10px] text-slate-400 font-medium block truncate">
+                  {lang === 'ko' ? '스타터 · 아마추어 · 프로 혜택 확인' : lang === 'ja' ? 'スターター・アマチュア・プロ' : lang === 'es' ? 'Starter · Amateur · Pro' : 'Starter · Amateur · Pro'}
+                </span>
+              </div>
             </div>
+            <button
+              type="button"
+              onClick={() => setIsPricingModalOpen(true)}
+              className="shrink-0 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 px-3.5 py-1.5 text-xs font-black text-slate-950 shadow-md hover:brightness-110 active:scale-95 transition-all cursor-pointer touch-manipulation whitespace-nowrap"
+            >
+              {lang === 'ko' ? '요금제 보기' : lang === 'ja' ? 'プランを見る' : lang === 'es' ? 'Ver Planes' : 'View Plans'}
+            </button>
           </div>
 
           {/* 피드 카드 목록 (7대 도구 바로 노출) */}

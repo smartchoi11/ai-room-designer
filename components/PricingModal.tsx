@@ -432,195 +432,198 @@ export default function PricingModal({
           </div>
         </div>
 
-        {/* 타이틀 & 서브타이틀 */}
-        <div className="flex flex-col gap-0.5 text-left px-0.5">
-          <div className="flex items-center gap-2">
-            <span className="rounded-md bg-amber-400/10 px-2 py-0.5 text-[10px] sm:text-xs font-mono font-black text-amber-400 border border-amber-400/20">
-              {currentFeature.stepNum} / 07
-            </span>
-            <h2 className="text-base sm:text-lg font-black tracking-tight text-white truncate">
-              {currentTitle}
-            </h2>
-          </div>
-          <p className="text-[11px] sm:text-xs text-slate-400 font-medium leading-relaxed line-clamp-1">
-            {currentSubtitle}
-          </p>
-        </div>
+      {/* ─────────────────────────────────────────────────────────────
+          2. [비주얼 쇼케이스 & 요금제 통합 프레임]:
+             빨간색 영역 전체를 이미지로 채우고, 하단 딤 처리 위에 요금제 배치
+         ───────────────────────────────────────────────────────────── */}
+      <div className="relative w-full overflow-hidden rounded-3xl border border-slate-800/90 bg-slate-950 shadow-2xl select-none group min-h-[385px] sm:min-h-[415px] flex flex-col justify-between my-2">
+        {/* 🖼️ 배경: 비포 원본 이미지 */}
+        <Image
+          src={currentFeature.beforeImg}
+          alt={`${currentFeature.title} Before`}
+          fill
+          className="object-cover"
+          priority
+        />
 
-        {/* 7-Segment 스토리 인디케이터 (슬릭 & 미니멀) */}
-        <div className="grid grid-cols-7 gap-1 px-0.5">
-          {SHOWCASE_FEATURES.map((feat, idx) => {
-            const isCompleted = idx < currentIdx;
-            const isCurrent = idx === currentIdx;
-            return (
-              <div
-                key={feat.id}
-                onClick={() => setCurrentIdx(idx)}
-                className="h-1 rounded-full bg-slate-800/80 overflow-hidden cursor-pointer touch-manipulation hover:bg-slate-700 transition-all"
-              >
-                <div
-                  className={`h-full transition-all duration-100 ${
-                    isCompleted
-                      ? 'w-full bg-amber-400'
-                      : isCurrent
-                      ? 'bg-amber-400 shadow-[0_0_6px_rgba(251,191,36,0.8)]'
-                      : 'w-0'
-                  }`}
-                  style={{
-                    width: isCurrent ? `${progressPercent}%` : isCompleted ? '100%' : '0%',
-                  }}
-                />
-              </div>
-            );
-          })}
-        </div>
-
-        {/* 실시간 스캐닝 비디오 프레임 */}
-        <div className="relative aspect-[16/9] w-full overflow-hidden rounded-2xl border border-slate-800/80 bg-slate-900 shadow-xl select-none group">
-          {/* 비포 원본 이미지 */}
+        {/* 🖼️ 배경: 애프터 변환 이미지 (스캔 와이프) */}
+        <div
+          className="absolute inset-0 z-10"
+          style={{ clipPath: `inset(0 ${Math.max(0, 100 - scanPos)}% 0 0)` }}
+        >
           <Image
-            src={currentFeature.beforeImg}
-            alt={`${currentFeature.title} Before`}
+            src={currentFeature.afterImg}
+            alt={`${currentFeature.title} After`}
             fill
             className="object-cover"
             priority
           />
+        </div>
 
-          {/* 애프터 변환 이미지 */}
-          <div
-            className="absolute inset-0 z-10"
-            style={{ clipPath: `inset(0 ${Math.max(0, 100 - scanPos)}% 0 0)` }}
-          >
-            <Image
-              src={currentFeature.afterImg}
-              alt={`${currentFeature.title} After`}
-              fill
-              className="object-cover"
-              priority
-            />
+        {/* ⚡ 스캔 레이저 바 */}
+        <div
+          className="absolute inset-y-0 z-20 w-0.5 bg-gradient-to-b from-amber-300 via-amber-400 to-orange-400 shadow-[0_0_10px_rgba(251,191,36,0.9)] pointer-events-none"
+          style={{ left: `${scanPos}%` }}
+        >
+          <div className="absolute top-2 -left-1 h-2 w-2 rounded-full bg-amber-300 shadow-[0_0_6px_rgba(251,191,36,1)]" />
+          <div className="absolute bottom-16 -left-1 h-2 w-2 rounded-full bg-amber-300 shadow-[0_0_6px_rgba(251,191,36,1)]" />
+        </div>
+
+        {/* 좌우 수동 이동 화살표 (이미지 중앙부 플로팅) */}
+        <button
+          type="button"
+          onClick={handlePrevFeature}
+          className="absolute left-2.5 top-[38%] -translate-y-1/2 z-30 flex h-7 w-7 items-center justify-center rounded-full bg-slate-950/70 text-slate-300 hover:text-white backdrop-blur-md border border-white/10 active:scale-95 transition-all text-sm font-bold cursor-pointer"
+          aria-label="Previous"
+        >
+          ‹
+        </button>
+        <button
+          type="button"
+          onClick={handleNextFeature}
+          className="absolute right-2.5 top-[38%] -translate-y-1/2 z-30 flex h-7 w-7 items-center justify-center rounded-full bg-slate-950/70 text-slate-300 hover:text-white backdrop-blur-md border border-white/10 active:scale-95 transition-all text-sm font-bold cursor-pointer"
+          aria-label="Next"
+        >
+          ›
+        </button>
+
+        {/* 🌟 상단 오버레이 그라데이션 & 기능 타이틀/인디케이터 */}
+        <div className="relative z-30 flex flex-col gap-1.5 p-3.5 pb-8 bg-gradient-to-b from-black/85 via-black/45 to-transparent">
+          {/* 7-Segment 스토리 인디케이터 */}
+          <div className="grid grid-cols-7 gap-1">
+            {SHOWCASE_FEATURES.map((feat, idx) => {
+              const isCompleted = idx < currentIdx;
+              const isCurrent = idx === currentIdx;
+              return (
+                <div
+                  key={feat.id}
+                  onClick={() => setCurrentIdx(idx)}
+                  className="h-1 rounded-full bg-white/20 overflow-hidden cursor-pointer touch-manipulation hover:bg-white/30 transition-all"
+                >
+                  <div
+                    className={`h-full transition-all duration-100 ${
+                      isCompleted
+                        ? 'w-full bg-amber-400'
+                        : isCurrent
+                        ? 'bg-amber-400 shadow-[0_0_6px_rgba(251,191,36,0.9)]'
+                        : 'w-0'
+                    }`}
+                    style={{
+                      width: isCurrent ? `${progressPercent}%` : isCompleted ? '100%' : '0%',
+                    }}
+                  />
+                </div>
+              );
+            })}
           </div>
 
-          {/* 스캔 레이저 바 */}
-          <div
-            className="absolute inset-y-0 z-20 w-0.5 bg-gradient-to-b from-amber-300 via-amber-400 to-orange-400 shadow-[0_0_10px_rgba(251,191,36,0.9)] pointer-events-none"
-            style={{ left: `${scanPos}%` }}
-          >
-            <div className="absolute top-2 -left-1 h-2 w-2 rounded-full bg-amber-300 shadow-[0_0_6px_rgba(251,191,36,1)]" />
-            <div className="absolute bottom-4 -left-1 h-2 w-2 rounded-full bg-amber-300 shadow-[0_0_6px_rgba(251,191,36,1)]" />
+          {/* 타이틀 및 BEFORE ➔ AFTER 뱃지 */}
+          <div className="flex items-center justify-between pt-0.5">
+            <div className="flex items-center gap-2 min-w-0">
+              <span className="rounded-md bg-amber-400/25 px-2 py-0.5 text-[10px] sm:text-xs font-mono font-black text-amber-300 border border-amber-400/30 backdrop-blur-md shadow-sm">
+                {currentFeature.stepNum} / 07
+              </span>
+              <h2 className="text-sm sm:text-base font-black tracking-tight text-white truncate drop-shadow-md">
+                {currentTitle}
+              </h2>
+            </div>
+            <div className="flex items-center gap-1 shrink-0 pointer-events-none">
+              <span className="rounded-full bg-slate-950/80 px-2 py-0.5 text-[8.5px] font-black text-slate-300 backdrop-blur-md border border-white/10">
+                {translations.pricing.before[lang]}
+              </span>
+              <span className="text-[9px] text-amber-400 font-bold">➔</span>
+              <span className="rounded-full bg-gradient-to-r from-amber-400 to-orange-400 px-2 py-0.5 text-[8.5px] font-black text-slate-950 shadow-sm">
+                {translations.pricing.after[lang]}
+              </span>
+            </div>
           </div>
+          <p className="text-[10.5px] sm:text-[11px] text-slate-200/90 font-medium leading-relaxed line-clamp-1 drop-shadow">
+            {currentSubtitle}
+          </p>
+        </div>
 
-          {/* 좌우 수동 이동 화살표 */}
-          <button
-            type="button"
-            onClick={handlePrevFeature}
-            className="absolute left-2.5 top-1/2 -translate-y-1/2 z-30 flex h-7 w-7 items-center justify-center rounded-full bg-slate-950/60 text-slate-300 hover:text-white backdrop-blur-md border border-white/10 active:scale-95 transition-all text-sm font-bold cursor-pointer"
-            aria-label="Previous"
-          >
-            ‹
-          </button>
-          <button
-            type="button"
-            onClick={handleNextFeature}
-            className="absolute right-2.5 top-1/2 -translate-y-1/2 z-30 flex h-7 w-7 items-center justify-center rounded-full bg-slate-950/60 text-slate-300 hover:text-white backdrop-blur-md border border-white/10 active:scale-95 transition-all text-sm font-bold cursor-pointer"
-            aria-label="Next"
-          >
-            ›
-          </button>
-
-          {/* BEFORE / AFTER 뱃지 */}
-          <div className="absolute bottom-2 left-2.5 z-30 flex items-center gap-1.5 pointer-events-none">
-            <span className="rounded-full bg-slate-950/80 px-2 py-0.5 text-[9px] font-black text-slate-300 backdrop-blur-md border border-white/10">
-              {translations.pricing.before[lang]}
+        {/* 🌟 하단 딥 다크 그라데이션 & 이미지 내부 요금제 안내 (요금제가 돋보이도록 어둡게 처리) */}
+        <div className="relative z-30 flex flex-col gap-2 pt-14 pb-3 px-3 bg-gradient-to-t from-slate-950 via-slate-950/95 via-slate-950/80 to-transparent">
+          {/* 요금제 타이틀 & 안내 */}
+          <div className="flex items-center justify-between px-0.5">
+            <span className="text-[11px] sm:text-xs font-black text-slate-100 uppercase tracking-wider flex items-center gap-1.5 drop-shadow">
+              <span className="text-amber-400">💎</span> {translations.pricing.title[lang]}
             </span>
-            <span className="text-[10px] text-amber-400 font-bold">➔</span>
-            <span className="rounded-full bg-gradient-to-r from-amber-400 to-orange-400 px-2 py-0.5 text-[9px] font-black text-slate-950 shadow-sm">
-              {translations.pricing.after[lang]}
+            <span className="text-[10.5px] font-bold text-amber-300 drop-shadow">
+              {translations.pricing.tryBeforeBuy[lang]}
+            </span>
+          </div>
+
+          {/* 3가지 요금제 카드 (글래스모피즘 + 골드 앰버 럭셔리 스타일) */}
+          <div className="grid grid-cols-3 gap-2">
+            {NEW_APP_PLANS.map((plan) => {
+              const isSelected = selectedPlanId === plan.id;
+              const pTrans = translations.pricing.plans[plan.id];
+              const pName = pTrans?.name[lang] || pTrans?.name['en'] || plan.name;
+              const pBadge = pTrans?.badge[lang] || pTrans?.badge['en'] || plan.badge;
+              const pCredits = pTrans?.creditsText[lang] || pTrans?.creditsText['en'] || plan.creditsText;
+              const pPeriod = pTrans?.periodText[lang] || pTrans?.periodText['en'] || plan.periodText;
+
+              return (
+                <button
+                  type="button"
+                  key={plan.id}
+                  onClick={() => setSelectedPlanId(plan.id)}
+                  className={`relative flex flex-col items-center justify-between rounded-2xl border p-2 pt-3 pb-2 text-center transition-all duration-200 cursor-pointer touch-manipulation backdrop-blur-md ${
+                    isSelected
+                      ? 'border-amber-400 bg-gradient-to-b from-amber-500/25 via-amber-500/10 to-slate-950/90 shadow-lg shadow-amber-500/20 ring-1 ring-amber-400/60 scale-[1.02]'
+                      : 'border-slate-800/90 bg-slate-950/75 hover:border-slate-700/80 hover:bg-slate-950/85 text-slate-400'
+                  }`}
+                >
+                  {/* 상단 뱃지 */}
+                  {pBadge && (
+                    <span
+                      className={`absolute -top-2 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full px-2 py-0.5 text-[8px] font-black uppercase tracking-wider shadow-sm ${
+                        plan.highlighted
+                          ? 'bg-gradient-to-r from-amber-400 to-orange-400 text-slate-950 font-black'
+                          : 'bg-slate-800 text-slate-200 border border-slate-700'
+                      }`}
+                    >
+                      {pBadge}
+                    </span>
+                  )}
+
+                  {/* 플랜 이름 & 크레딧 */}
+                  <div className="mt-0.5 flex flex-col items-center">
+                    <span className={`text-[11px] sm:text-xs font-black block leading-tight ${isSelected ? 'text-white' : 'text-slate-300'}`}>
+                      {pName}
+                    </span>
+                    <span className="text-[9.5px] font-bold text-amber-400 mt-0.5 leading-tight">
+                      {pCredits}
+                    </span>
+                  </div>
+
+                  {/* 가격 */}
+                  <div className="my-1 flex flex-col items-center">
+                    <span className="text-lg sm:text-xl font-black text-white tracking-tight leading-none">
+                      {plan.dollarPrice || plan.priceText}
+                    </span>
+                    <span className="text-[9px] font-medium text-slate-400 mt-0.5 whitespace-nowrap">
+                      {pPeriod}
+                    </span>
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+
+          {/* 선택된 요금제 한 줄 혜택 */}
+          <div className="rounded-xl border border-amber-500/30 bg-black/60 backdrop-blur-md px-2.5 py-1.5 text-xs text-slate-200 flex items-center justify-between gap-2 shadow-sm">
+            <div className="flex items-center gap-1.5 min-w-0">
+              <span className="text-amber-400 font-bold text-xs shrink-0">✨</span>
+              <span className="text-[11px] font-medium text-slate-200 truncate">{currentPlanTagline}</span>
+            </div>
+            <span className="font-black text-amber-300 shrink-0 text-xs tracking-tight bg-amber-500/15 px-2 py-0.5 rounded-full border border-amber-500/25">
+              {currentPlan.dollarPrice || currentPlan.priceText}
             </span>
           </div>
         </div>
       </div>
-
-      {/* ─────────────────────────────────────────────────────────────
-          3. [하단 영역]: 심플 & 모던 요금제 카드 (이전 상태로 복원)
-         ───────────────────────────────────────────────────────────── */}
-      <div className="flex flex-col gap-2.5 pt-2 border-t border-slate-800/70">
-        <div className="flex items-center justify-between px-0.5">
-          <span className="text-xs font-black text-slate-200 uppercase tracking-wider">
-            {translations.pricing.title[lang]}
-          </span>
-          <span className="text-[11px] font-bold text-amber-400">
-            {translations.pricing.tryBeforeBuy[lang]}
-          </span>
-        </div>
-
-        {/* 3가지 요금제 카드 (이전 상태의 골드/앰버 럭셔리 스타일 복원) */}
-        <div className="grid grid-cols-3 gap-2">
-          {NEW_APP_PLANS.map((plan) => {
-            const isSelected = selectedPlanId === plan.id;
-            const pTrans = translations.pricing.plans[plan.id];
-            const pName = pTrans?.name[lang] || pTrans?.name['en'] || plan.name;
-            const pBadge = pTrans?.badge[lang] || pTrans?.badge['en'] || plan.badge;
-            const pCredits = pTrans?.creditsText[lang] || pTrans?.creditsText['en'] || plan.creditsText;
-            const pPeriod = pTrans?.periodText[lang] || pTrans?.periodText['en'] || plan.periodText;
-
-            return (
-              <button
-                type="button"
-                key={plan.id}
-                onClick={() => setSelectedPlanId(plan.id)}
-                className={`relative flex flex-col items-center justify-between rounded-2xl border p-2.5 pt-3.5 pb-3 text-center transition-all duration-200 cursor-pointer touch-manipulation ${
-                  isSelected
-                    ? 'border-amber-400/90 bg-gradient-to-b from-amber-500/15 via-amber-500/5 to-slate-900/90 shadow-lg shadow-amber-500/10 ring-1 ring-amber-400/50 scale-[1.02]'
-                    : 'border-slate-800/80 bg-slate-900/60 hover:border-slate-700/80 hover:bg-slate-900/80 text-slate-400'
-                }`}
-              >
-                {/* 상단 뱃지 */}
-                {pBadge && (
-                  <span
-                    className={`absolute -top-2.5 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full px-2.5 py-0.5 text-[8.5px] font-black uppercase tracking-wider shadow-sm ${
-                      plan.highlighted
-                        ? 'bg-gradient-to-r from-amber-400 to-orange-400 text-slate-950 font-black'
-                        : 'bg-slate-800 text-slate-300 border border-slate-700'
-                    }`}
-                  >
-                    {pBadge}
-                  </span>
-                )}
-
-                {/* 플랜 이름 & 크레딧 */}
-                <div className="mt-0.5 flex flex-col items-center">
-                  <span className={`text-xs font-black block leading-tight ${isSelected ? 'text-white' : 'text-slate-300'}`}>
-                    {pName}
-                  </span>
-                  <span className="text-[10px] font-bold text-amber-400 mt-0.5 leading-tight">
-                    {pCredits}
-                  </span>
-                </div>
-
-                {/* 가격 (선명하고 깔끔한 화이트 달러 가격) */}
-                <div className="my-2 flex flex-col items-center">
-                  <span className="text-xl sm:text-2xl font-black text-white tracking-tight leading-none">
-                    {plan.dollarPrice || plan.priceText}
-                  </span>
-                  <span className="text-[10px] font-medium text-slate-400 mt-1 whitespace-nowrap">
-                    {pPeriod}
-                  </span>
-                </div>
-              </button>
-            );
-          })}
-        </div>
-
-        {/* 선택된 요금제 한 줄 혜택 (이전 상태 복원) */}
-        <div className="rounded-xl border border-amber-500/20 bg-amber-500/5 px-3 py-2 text-xs text-slate-200 flex items-center justify-between gap-2 shadow-sm">
-          <div className="flex items-center gap-2 min-w-0">
-            <span className="text-amber-400 font-bold text-sm shrink-0">✨</span>
-            <span className="text-xs font-medium text-slate-200 truncate">{currentPlanTagline}</span>
-          </div>
-          <span className="font-black text-amber-300 shrink-0 text-sm tracking-tight bg-amber-500/10 px-2.5 py-0.5 rounded-full border border-amber-500/20">
-            {currentPlan.dollarPrice || currentPlan.priceText}
-          </span>
-        </div>
 
         {/* 🎁 대표님 지정: 오픈 기념 10크레딧 무료 프로모션 배너 (터치 시 즉시 10크레딧 적립 & 체험 시작) */}
         <button

@@ -314,12 +314,12 @@ export default function PricingModal({
   };
 
   return (
-    <div className="pricing-modal-root fixed inset-0 z-50 flex flex-col justify-between bg-slate-950/95 text-white backdrop-blur-2xl shadow-2xl animate-fade-in sm:inset-auto sm:top-1/2 sm:left-1/2 sm:-translate-x-1/2 sm:-translate-y-1/2 sm:w-full sm:max-w-md sm:max-h-[96vh] sm:rounded-[36px] sm:border sm:border-slate-800/80 overflow-y-auto cursor-default touch-manipulation select-none p-4 pb-5">
+    <div className="pricing-modal-root fixed inset-0 z-50 flex flex-col justify-between bg-slate-950 text-white backdrop-blur-2xl shadow-2xl animate-fade-in sm:inset-auto sm:top-1/2 sm:left-1/2 sm:-translate-x-1/2 sm:-translate-y-1/2 sm:w-full sm:max-w-md sm:max-h-[96vh] sm:rounded-[36px] sm:border sm:border-slate-800/80 overflow-y-auto cursor-default touch-manipulation select-none p-3 pt-2 pb-4 sm:p-4.5">
 
       {/* ─────────────────────────────────────────────────────────────
           1. 최상단 헤더 바 (모던 미니멀 스타일)
          ───────────────────────────────────────────────────────────── */}
-      <div className="flex items-center justify-between pt-0.5 pb-2 border-b border-slate-800/60">
+      <div className="flex items-center justify-between pb-1.5 border-b border-slate-800/50">
         <div className="flex items-center gap-2 min-w-0">
           <span className="text-lg sm:text-xl font-black tracking-tight text-white shrink-0 flex items-center gap-1.5">
             <span className="text-amber-400">⚡</span> RoomFit AI
@@ -400,51 +400,18 @@ export default function PricingModal({
       </div>
 
       {/* ─────────────────────────────────────────────────────────────
-          2. [상단 영역]: 기능별 인터랙티브 비포/애프터 쇼케이스
-         ───────────────────────────────────────────────────────────── */}
-      <div className="flex flex-col gap-2 my-2">
-        {/* 🌟 대표님 지정: 파란색 네온 깜박임 + 오른쪽에서 왼쪽으로 흘러가는 슬로건 */}
-        <div className="relative w-full overflow-hidden rounded-xl border border-sky-500/40 bg-black py-1.5 shadow-[0_0_15px_rgba(56,189,248,0.18)] select-none">
-          {/* 좌우 부드러운 페이드 그라데이션 마스크 */}
-          <div className="pointer-events-none absolute inset-y-0 left-0 w-6 bg-gradient-to-r from-black to-transparent z-10" />
-          <div className="pointer-events-none absolute inset-y-0 right-0 w-6 bg-gradient-to-l from-black to-transparent z-10" />
-
-          {/* 오른쪽 ➔ 왼쪽으로 끊김 없이 흐르는 네온 텍스트 트랙 */}
-          <div className="marquee-rtl-track flex items-center gap-12">
-            {[1, 2, 3, 4].map((key) => (
-              <div
-                key={key}
-                className="neon-blue-blink flex items-center gap-2 text-xs sm:text-sm font-black tracking-wide whitespace-nowrap"
-              >
-                <span className="text-sky-400 text-xs">✨</span>
-                <span>
-                  {lang === 'ko'
-                    ? '상상이 현실이 되는 마법을 주문해보세요.'
-                    : lang === 'ja'
-                    ? '想像が現実になる魔法を注文してみてください。'
-                    : lang === 'es'
-                    ? 'Pide la magia donde la imaginación se hace realidad.'
-                    : 'Order the magic where imagination becomes reality.'}
-                </span>
-                <span className="text-sky-400 text-xs">✨</span>
-              </div>
-            ))}
-          </div>
-        </div>
-
-      {/* ─────────────────────────────────────────────────────────────
           2. [비주얼 쇼케이스 & 요금제 통합 프레임]:
-             이미지를 상단으로 올려 전체 이미지가 온전히 다 보이게 배치 + 하단 요금제 카드 유지
+             상단 여백 없이 화면 가득 확장된 고화질 쇼케이스 + 하단 요금제
          ───────────────────────────────────────────────────────────── */}
-      <div className="relative w-full overflow-hidden rounded-3xl border border-slate-800/90 bg-slate-950 shadow-2xl select-none group my-1">
-        {/* 🎬 상단 영역: 전체 이미지가 온전히 다 보이는 쇼케이스 비주얼 (16:9 와이드 프레임) */}
-        <div className="relative aspect-[16/9.5] w-full overflow-hidden bg-slate-900">
+      <div className="relative w-full overflow-hidden rounded-3xl border border-slate-800/90 bg-slate-950 shadow-2xl select-none group mt-1.5 mb-2">
+        {/* 🎬 상단 영역: 전체 이미지가 온전히 다 보이는 쇼케이스 비주얼 (16:10 와이드 확장 프레임) */}
+        <div className="relative aspect-[16/10] w-full overflow-hidden bg-slate-900">
           {/* 비포 원본 이미지 */}
           <Image
             src={currentFeature.beforeImg}
             alt={`${currentFeature.title} Before`}
             fill
-            className="object-cover"
+            className="object-cover object-center"
             priority
           />
 
@@ -457,7 +424,7 @@ export default function PricingModal({
               src={currentFeature.afterImg}
               alt={`${currentFeature.title} After`}
               fill
-              className="object-cover"
+              className="object-cover object-center"
               priority
             />
           </div>
@@ -703,7 +670,6 @@ export default function PricingModal({
               : '※ Promotional purchases are valid for 30 days from purchase date and expire thereafter.'}
           </p>
         </div>
-      </div>
 
       {/* 🌟 100% 무결점 인라인 CSS (파란색 네온 깜박임 + 오른쪽 ➔ 왼쪽 마키) */}
       <style>{`

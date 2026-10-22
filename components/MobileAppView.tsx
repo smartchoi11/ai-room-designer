@@ -218,6 +218,245 @@ const inferRoomType = (imageUri: string, fallback: string = 'living_room'): stri
   return fallback;
 };
 
+export interface ExploreGalleryItem {
+  id: string;
+  category: 'interior' | 'exterior';
+  subCategory: string;
+  title: Record<Language, string>;
+  style: Record<Language, string>;
+  img: string;
+  roomType: string;
+  styleKey: string;
+}
+
+export const EXPLORE_CATEGORIES = {
+  interior: [
+    { id: 'all', icon: '✨', label: { ko: '전체', en: 'All', ja: 'すべて', es: 'Todos' } },
+    { id: 'toilet', icon: '🚽', label: { ko: 'Toilet', en: 'Toilet', ja: 'トイレ・風呂', es: 'Baño' } },
+    { id: 'restaurant', icon: '🍽️', label: { ko: 'Restaurant', en: 'Restaurant', ja: 'レストラン', es: 'Restaurante' } },
+    { id: 'office', icon: '🖥️', label: { ko: 'Office', en: 'Office', ja: 'オフィス', es: 'Oficina' } },
+    { id: 'attic', icon: '🏠', label: { ko: 'Attic', en: 'Attic', ja: '屋根裏', es: 'Ático' } },
+    { id: 'living', icon: '🛋️', label: { ko: 'Living Room', en: 'Living Room', ja: 'リビング', es: 'Sala' } },
+    { id: 'bedroom', icon: '🛏️', label: { ko: 'Bedroom', en: 'Bedroom', ja: 'ベッドルーム', es: 'Dormitorio' } },
+    { id: 'kitchen', icon: '🍳', label: { ko: 'Kitchen', en: 'Kitchen', ja: 'キッチン', es: 'Cocina' } },
+  ],
+  exterior: [
+    { id: 'all', icon: '✨', label: { ko: '전체', en: 'All', ja: 'すべて', es: 'Todos' } },
+    { id: 'facade', icon: '🏡', label: { ko: 'Building & Villa', en: 'Building & Villa', ja: '建物・ヴィラ', es: 'Edificio y Villa' } },
+    { id: 'garden', icon: '🌿', label: { ko: 'Garden & Patio', en: 'Garden & Patio', ja: '庭園・パティオ', es: 'Jardín y Patio' } },
+  ],
+};
+
+export const EXPLORE_GALLERY_ITEMS: ExploreGalleryItem[] = [
+  // ── 🚽 Bathroom / Toilet ──
+  {
+    id: 'bath_zen',
+    category: 'interior',
+    subCategory: 'toilet',
+    title: { ko: '내추럴 재팬디 오크 욕실', en: 'Japandi Zen Oak Bathroom', ja: 'ジャパンディオーク風呂', es: 'Baño de Roble Japandi' },
+    style: { ko: '재팬디 & 우드', en: 'Japandi Wood', ja: 'ジャパンディ', es: 'Japandi Madera' },
+    img: '/explore/bathroom_zen.jpg',
+    roomType: 'bathroom',
+    styleKey: 'japandi',
+  },
+  {
+    id: 'bath_luxury',
+    category: 'interior',
+    subCategory: 'toilet',
+    title: { ko: '블랙 마블 골드 럭셔리 욕실', en: 'Black Marble Luxury Bath', ja: '高級ブラックマーブル風呂', es: 'Baño de Mármol Negro' },
+    style: { ko: '하이엔드 럭셔리', en: 'Hotel Luxury', ja: 'ラグジュアリー', es: 'Lujo Hotel' },
+    img: '/explore/bathroom_luxury.jpg',
+    roomType: 'bathroom',
+    styleKey: 'modern',
+  },
+  {
+    id: 'bath_boho',
+    category: 'interior',
+    subCategory: 'toilet',
+    title: { ko: '보태니컬 플랜트 보헤미안 욕실', en: 'Boho Plant Sanctuary Bath', ja: 'ボタニカルボヘミアン風呂', es: 'Baño Bohemio Plantas' },
+    style: { ko: '보헤미안 & 식물', en: 'Boho Botanical', ja: 'ボヘミアン', es: 'Bohemio' },
+    img: '/explore/bathroom_boho.jpg',
+    roomType: 'bathroom',
+    styleKey: 'bohemian',
+  },
+
+  // ── 🍽️ Restaurant & Cafe ──
+  {
+    id: 'rest_luxury',
+    category: 'interior',
+    subCategory: 'restaurant',
+    title: { ko: '파인 다이닝 벨벳 라운지', en: 'Fine Dining Velvet Lounge', ja: 'ファインダイニングラウンジ', es: 'Restaurante Lounge de Lujo' },
+    style: { ko: '모던 파인다이닝', en: 'Modern Fine Dining', ja: 'モダンダイニング', es: 'Comedor Moderno' },
+    img: '/explore/restaurant_luxury.jpg',
+    roomType: 'party_room',
+    styleKey: 'modern',
+  },
+  {
+    id: 'rest_cafe',
+    category: 'interior',
+    subCategory: 'restaurant',
+    title: { ko: '아티산 감성 카페 비스트로', en: 'Artisanal Cafe Bistro', ja: 'カフェビストロ空間', es: 'Bistró Café Artesanal' },
+    style: { ko: '웜 인더스트리얼', en: 'Warm Industrial', ja: 'インダストリアル', es: 'Industrial Cálido' },
+    img: '/explore/restaurant_cafe.jpg',
+    roomType: 'party_room',
+    styleKey: 'industrial',
+  },
+
+  // ── 🖥️ Office ──
+  {
+    id: 'office_exec',
+    category: 'interior',
+    subCategory: 'office',
+    title: { ko: '스카이라인 뷰 익스큐티브 오피스', en: 'Skyline View Executive Office', ja: 'スカイラインオフィス', es: 'Oficina Ejecutiva con Vistas' },
+    style: { ko: '모던 익스큐티브', en: 'Modern Executive', ja: 'モダンオフィス', es: 'Ejecutivo Moderno' },
+    img: '/explore/office_executive.jpg',
+    roomType: 'study',
+    styleKey: 'modern',
+  },
+  {
+    id: 'office_gamer',
+    category: 'interior',
+    subCategory: 'office',
+    title: { ko: '크리에이티브 미디어 테크 스튜디오', en: 'Creative Media Tech Studio', ja: 'クリエイティブテックスタジオ', es: 'Estudio Tecnológico Creativo' },
+    style: { ko: '테크 & 사이버', en: 'Cyber Tech Studio', ja: 'テックスタジオ', es: 'Tecnología y Estudio' },
+    img: '/showcase_gaming_room.png',
+    roomType: 'study',
+    styleKey: 'modern',
+  },
+
+  // ── 🏠 Attic ──
+  {
+    id: 'attic_cozy',
+    category: 'interior',
+    subCategory: 'attic',
+    title: { ko: '스카이라이트 노르딕 다락방', en: 'Sunlit Skylight Nordic Attic', ja: '天窓付き北欧屋根裏部屋', es: 'Ático Nórdico con Tragaluz' },
+    style: { ko: '스칸디나비안 코지', en: 'Scandinavian Cozy', ja: '北欧コージー', es: 'Nórdico Acogedor' },
+    img: '/explore/attic_cozy.jpg',
+    roomType: 'bedroom',
+    styleKey: 'scandinavian',
+  },
+
+  // ── 🛋️ Living Room ──
+  {
+    id: 'living_modern',
+    category: 'interior',
+    subCategory: 'living',
+    title: { ko: '내추럴 미니멀 모던 리빙룸', en: 'Natural Minimal Living Room', ja: 'ナチュラルモダンリビング', es: 'Sala Minimalista Natural' },
+    style: { ko: '모던 미니멀', en: 'Modern Minimal', ja: 'モダンミニマル', es: 'Moderno Minimalista' },
+    img: '/showcase_modern_living.png',
+    roomType: 'living_room',
+    styleKey: 'modern',
+  },
+  {
+    id: 'living_luxury',
+    category: 'interior',
+    subCategory: 'living',
+    title: { ko: '펜트하우스 하이엔드 스위트', en: 'Penthouse Luxury Suite', ja: 'ペントハウス高級リビング', es: 'Salón de Lujo Ático' },
+    style: { ko: '하이엔드 럭셔리', en: 'High-end Luxury', ja: 'ハイエンドラグジュアリー', es: 'Lujo Sofisticado' },
+    img: '/living_room_luxury.png',
+    roomType: 'living_room',
+    styleKey: 'modern',
+  },
+
+  // ── 🛏️ Bedroom ──
+  {
+    id: 'bed_japandi',
+    category: 'interior',
+    subCategory: 'bedroom',
+    title: { ko: '재팬디 오가닉 힐링 침실', en: 'Japandi Organic Bedroom', ja: 'ジャパンディ寝室', es: 'Dormitorio Orgánico Japandi' },
+    style: { ko: '재팬디 젠', en: 'Japandi Zen', ja: 'ジャパンディ', es: 'Japandi Zen' },
+    img: '/gallery_08_japandi_bedroom_wide_1787467164852.png',
+    roomType: 'bedroom',
+    styleKey: 'japandi',
+  },
+  {
+    id: 'bed_hotel',
+    category: 'interior',
+    subCategory: 'bedroom',
+    title: { ko: '부티크 호텔 마스터베드룸', en: 'Boutique Hotel Master Bedroom', ja: 'ブティックホテル風寝室', es: 'Habitación Hotel Boutique' },
+    style: { ko: '호텔 스위트', en: 'Hotel Suite', ja: 'ホテルスイート', es: 'Suite de Hotel' },
+    img: '/showcase_bedroom.png',
+    roomType: 'bedroom',
+    styleKey: 'modern',
+  },
+
+  // ── 🍳 Kitchen ──
+  {
+    id: 'kitchen_modern',
+    category: 'interior',
+    subCategory: 'kitchen',
+    title: { ko: '마블 아일랜드 오픈 키친', en: 'Marble Island Open Kitchen', ja: '大理石アイランドキッチン', es: 'Cocina Abierta con Isla de Mármol' },
+    style: { ko: '모던 프리미엄', en: 'Modern Premium', ja: 'モダンプレミアム', es: 'Cocina Premium' },
+    img: '/showcase_modern_kitchen.png',
+    roomType: 'kitchen',
+    styleKey: 'modern',
+  },
+
+  // ── 🏡 Facade & Villa (Exterior) ──
+  {
+    id: 'ext_villa',
+    category: 'exterior',
+    subCategory: 'facade',
+    title: { ko: '트와일라잇 인피니티 풀 빌라', en: 'Twilight Pool Luxury Villa', ja: '夕暮れのリゾートヴィラ', es: 'Villa de Lujo con Piscina' },
+    style: { ko: '모던 리조트 빌라', en: 'Modern Resort Villa', ja: 'モダンリゾート', es: 'Villa con Piscina' },
+    img: '/explore/villa_exterior.jpg',
+    roomType: 'exterior_house',
+    styleKey: 'modern',
+  },
+  {
+    id: 'ext_modern',
+    category: 'exterior',
+    subCategory: 'facade',
+    title: { ko: '글래스 & 우드 모던 파사드', en: 'Glass & Timber Facade', ja: 'ガラス＆木目モダンファサード', es: 'Fachada Moderna de Cristal y Madera' },
+    style: { ko: '건축 디자인', en: 'Architectural Modern', ja: 'モダン建築', es: 'Arquitectura Moderna' },
+    img: '/exterior_showcase_after.png',
+    roomType: 'exterior_house',
+    styleKey: 'modern',
+  },
+  {
+    id: 'ext_hanok',
+    category: 'exterior',
+    subCategory: 'facade',
+    title: { ko: '모던 퓨전 전통 한옥 에스테이트', en: 'Modern Fusion Hanok Estate', ja: 'モダン伝統韓屋ヴィラ', es: 'Fusión Hanok Tradicional' },
+    style: { ko: '전통 앤 모던', en: 'Heritage Modern', ja: '伝統＆モダン', es: 'Tradición y Modernidad' },
+    img: '/exterior_style_korea_hanok.jpg',
+    roomType: 'exterior_house',
+    styleKey: 'hanok',
+  },
+  {
+    id: 'ext_mediterranean',
+    category: 'exterior',
+    subCategory: 'facade',
+    title: { ko: '지중해풍 테라코타 화이트 빌라', en: 'Mediterranean Coastal Villa', ja: '地中海リゾートホワイトヴィラ', es: 'Villa Costera Mediterránea' },
+    style: { ko: '지중해 리조트', en: 'Mediterranean', ja: '地中海スタイル', es: 'Mediterráneo' },
+    img: '/exterior_style_mediterranean.jpg',
+    roomType: 'exterior_house',
+    styleKey: 'modern',
+  },
+
+  // ── 🌿 Garden & Patio (Exterior) ──
+  {
+    id: 'ext_garden_pool',
+    category: 'exterior',
+    subCategory: 'garden',
+    title: { ko: '트로피컬 리조트 정원 & 수영장', en: 'Tropical Resort Garden & Pool', ja: '熱帯リゾート造園＆プール', es: 'Jardín Tropical y Piscina' },
+    style: { ko: '럭셔리 리조트 조경', en: 'Luxury Landscape', ja: 'ラグジュアリー造園', es: 'Paisajismo de Lujo' },
+    img: '/garden_showcase_after.png',
+    roomType: 'garden_patio',
+    styleKey: 'modern',
+  },
+  {
+    id: 'ext_garden_zen',
+    category: 'exterior',
+    subCategory: 'garden',
+    title: { ko: '재패니즈 젠 가든 파빌리온', en: 'Zen Stone Garden & Pavilion', ja: '枯山水風モダン庭園', es: 'Jardín Zen y Piedra' },
+    style: { ko: '재패니즈 젠', en: 'Japanese Zen', ja: '日本庭園', es: 'Jardín Zen' },
+    img: '/garden_style_japanese_zen.jpg',
+    roomType: 'garden_patio',
+    styleKey: 'modern',
+  },
+];
+
 export const EXTERIOR_ELEMENT_OPTIONS = [
   {
     id: 'windows',
@@ -2151,6 +2390,11 @@ export default function MobileAppView() {
   const [lang, setLang] = useState<Language>('ko');
   const [isLangModalOpen, setIsLangModalOpen] = useState(false);
 
+  // 🧭 탐색(Explore) 탭 카테고리 필터 및 줌 모달 상태
+  const [exploreMainCategory, setExploreMainCategory] = useState<'interior' | 'exterior'>('interior');
+  const [exploreSubCategory, setExploreSubCategory] = useState<string>('toilet');
+  const [previewExploreItem, setPreviewExploreItem] = useState<ExploreGalleryItem | null>(null);
+
   useEffect(() => {
     try {
       const saved = localStorage.getItem('reroom_lang') as Language;
@@ -4072,36 +4316,175 @@ Ultra-photorealistic lifestyle interior photography, Architectural Digest party 
         </div>
       )}
 
-      {/* ── 탭 3: Discover (갤러리 쇼케이스) ── */}
+      {/* ── 탭 2: Discover (탐색 탭 - 참조 사이트 스타일) ── */}
       {activeTab === 'discover' && (
-        <div className="flex flex-col gap-4 p-4 animate-fade-in">
-          <div>
-            <h2 className="text-xl font-bold text-white tracking-tight">Discover Ideas</h2>
-            <p className="text-xs text-slate-400 mt-0.5">Explore 4K designs generated by users</p>
+        <div className="flex flex-col gap-3 p-4 pt-2 animate-fade-in pb-28">
+          {/* 1. 상단 2단 메인 분류 (Interior Design vs Exterior Design) */}
+          <div className="flex items-center justify-around border-b border-slate-200/90 pt-1 pb-0.5">
+            <button
+              type="button"
+              onClick={() => {
+                setExploreMainCategory('interior');
+                setExploreSubCategory('toilet');
+              }}
+              className={`relative pb-2.5 text-sm sm:text-base font-black transition-all cursor-pointer ${
+                exploreMainCategory === 'interior'
+                  ? 'text-[#ff2d55]'
+                  : 'text-slate-500 hover:text-slate-800'
+              }`}
+            >
+              Interior Design
+              {exploreMainCategory === 'interior' && (
+                <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#ff2d55] rounded-full animate-fade-in" />
+              )}
+            </button>
+
+            <button
+              type="button"
+              onClick={() => {
+                setExploreMainCategory('exterior');
+                setExploreSubCategory('facade');
+              }}
+              className={`relative pb-2.5 text-sm sm:text-base font-black transition-all cursor-pointer ${
+                exploreMainCategory === 'exterior'
+                  ? 'text-[#ff2d55]'
+                  : 'text-slate-500 hover:text-slate-800'
+              }`}
+            >
+              Exterior Design
+              {exploreMainCategory === 'exterior' && (
+                <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#ff2d55] rounded-full animate-fade-in" />
+              )}
+            </button>
           </div>
 
-          <div className="grid grid-cols-2 gap-3">
-            {[
-              { title: 'Modern Living', style: 'Modern', img: '/showcase_modern_living.png' },
-              { title: 'Japandi Bedroom', style: 'Japandi', img: '/gallery_08_japandi_bedroom_wide_1787467164852.png' },
-              { title: 'Nordic Lounge', style: 'Scandinavian', img: '/gallery_05_nordic_living_wide_1787467117362.png' },
-              { title: 'Luxury Suite', style: 'Luxury', img: '/living_room_luxury.png' },
-              { title: 'Gamer Setup', style: 'Gamer', img: '/showcase_gaming_room.png' },
-              { title: 'Boho Corner', style: 'Bohemian', img: '/showcase_bohemian.png' },
-            ].map((item, idx) => (
+          {/* 2. 하위 카테고리 가로 스크롤 칩 (Restaurant, Office, Attic, Toilet ...) */}
+          <div className="flex items-center gap-2 overflow-x-auto no-scrollbar py-1 -mx-1 px-1">
+            {EXPLORE_CATEGORIES[exploreMainCategory].map((cat) => {
+              const isSelected = exploreSubCategory === cat.id;
+              return (
+                <button
+                  type="button"
+                  key={cat.id}
+                  onClick={() => setExploreSubCategory(cat.id)}
+                  className={`flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-xs font-bold shrink-0 transition-all cursor-pointer touch-manipulation ${
+                    isSelected
+                      ? 'border border-[#ff2d55] bg-rose-50 text-[#ff2d55] shadow-2xs font-black'
+                      : 'border border-slate-200/90 bg-white text-slate-700 hover:border-slate-300 shadow-2xs'
+                  }`}
+                >
+                  <span>{cat.icon}</span>
+                  <span>{cat.label[lang] || cat.label['en']}</span>
+                </button>
+              );
+            })}
+          </div>
+
+          {/* 3. 2열 세로형 카드 그리드 (2-column portrait grid) */}
+          <div className="grid grid-cols-2 gap-3 mt-1">
+            {EXPLORE_GALLERY_ITEMS
+              .filter((item) => {
+                if (item.category !== exploreMainCategory) return false;
+                if (exploreSubCategory === 'all') return true;
+                return item.subCategory === exploreSubCategory;
+              })
+              .map((item) => (
+                <div
+                  key={item.id}
+                  onClick={() => setPreviewExploreItem(item)}
+                  className="group relative aspect-[3/4] w-full overflow-hidden rounded-2xl bg-slate-100 border border-slate-200/80 shadow-xs hover:shadow-lg transition-all cursor-pointer active:scale-[0.98] select-none"
+                >
+                  {/* 이미지 */}
+                  <Image
+                    src={item.img}
+                    alt={item.title[lang] || item.title['en']}
+                    fill
+                    className="object-cover group-hover:scale-105 transition-transform duration-500"
+                    sizes="(max-width: 768px) 50vw, 300px"
+                  />
+
+                  {/* 하단 소프트 그라데이션 오버레이 */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent flex flex-col justify-end p-2.5 pointer-events-none">
+                    <span className="text-[10px] font-black text-rose-300 drop-shadow-sm">
+                      {item.style[lang] || item.style['en']}
+                    </span>
+                    <span className="text-xs font-black text-white line-clamp-1 drop-shadow-md">
+                      {item.title[lang] || item.title['en']}
+                    </span>
+                  </div>
+
+                  {/* 우측 하단 원형 줌/확대 버튼 (참조 이미지와 100% 동일) */}
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setPreviewExploreItem(item);
+                    }}
+                    className="absolute bottom-2.5 right-2.5 z-10 flex h-7 w-7 items-center justify-center rounded-full bg-black/45 backdrop-blur-md text-white text-xs hover:bg-black/70 hover:scale-110 active:scale-95 transition-all shadow-md cursor-pointer"
+                    aria-label="Enlarge image"
+                  >
+                    ⤢
+                  </button>
+                </div>
+              ))}
+          </div>
+
+          {/* 🖼️ 탐색 이미지 고화질 풀스크린 뷰어 & 생성 시작 모달 */}
+          {previewExploreItem && (
+            <div
+              className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 backdrop-blur-md p-4 animate-fade-in"
+              onClick={() => setPreviewExploreItem(null)}
+            >
               <div
-                key={idx}
-                onClick={() => startWizard()}
-                className="relative aspect-square cursor-pointer overflow-hidden rounded-2xl border border-slate-800 bg-slate-900 transition-all hover:border-amber-500 active:scale-95"
+                className="relative w-full max-w-sm rounded-3xl bg-white overflow-hidden shadow-2xl flex flex-col"
+                onClick={(e) => e.stopPropagation()}
               >
-                <Image src={item.img} alt={item.title} fill className="object-cover" />
-                <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent p-2.5 flex flex-col justify-end">
-                  <span className="text-[10px] font-bold text-amber-400">{item.style}</span>
-                  <span className="text-xs font-bold text-white line-clamp-1">{item.title}</span>
+                <div className="relative aspect-[3/4] w-full bg-slate-900">
+                  <Image
+                    src={previewExploreItem.img}
+                    alt={previewExploreItem.title[lang] || previewExploreItem.title['en']}
+                    fill
+                    className="object-cover"
+                    priority
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setPreviewExploreItem(null)}
+                    className="absolute top-3 right-3 flex h-8 w-8 items-center justify-center rounded-full bg-black/50 hover:bg-black/70 text-white font-bold backdrop-blur-md text-xs cursor-pointer shadow-md"
+                  >
+                    ✕
+                  </button>
+                </div>
+
+                <div className="p-4 space-y-3 bg-white">
+                  <div>
+                    <span className="text-xs font-bold text-[#ff2d55]">
+                      {previewExploreItem.style[lang] || previewExploreItem.style['en']}
+                    </span>
+                    <h3 className="text-base font-black text-slate-900 mt-0.5">
+                      {previewExploreItem.title[lang] || previewExploreItem.title['en']}
+                    </h3>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const targetToolId = previewExploreItem.category === 'exterior' ? 'exterior' : 'interior';
+                      const targetTool = TOOL_CARDS.find((t) => t.id === targetToolId) || TOOL_CARDS[0];
+                      startWizard(targetTool);
+                      if (previewExploreItem.roomType) setSelectedRoom(previewExploreItem.roomType);
+                      if (previewExploreItem.styleKey) setSelectedStyle(previewExploreItem.styleKey);
+                      setPreviewExploreItem(null);
+                    }}
+                    className="w-full rounded-2xl bg-[#ff2d55] hover:bg-[#e02449] py-3.5 text-white font-black text-sm shadow-lg shadow-rose-500/25 active:scale-[0.98] transition-all cursor-pointer flex items-center justify-center gap-2"
+                  >
+                    <span>✨</span>
+                    <span>{lang === 'ko' ? '이 스타일로 내 공간 변환하기 ➔' : 'Design My Room in This Style ➔'}</span>
+                  </button>
                 </div>
               </div>
-            ))}
-          </div>
+            </div>
+          )}
         </div>
       )}
 

@@ -3894,11 +3894,11 @@ Ultra-photorealistic lifestyle interior photography, Architectural Digest party 
 
   return (
     <>
-      <div className="app-screen-scale relative mx-auto min-h-screen w-full max-w-md bg-slate-950 font-sans text-slate-100 pb-24 shadow-2xl overflow-x-hidden touch-manipulation">
+      <div className="app-screen-scale relative mx-auto min-h-screen w-full max-w-md bg-white font-sans text-slate-900 pb-24 shadow-xl overflow-x-hidden touch-manipulation">
       {/* ── 📱 상단 네비게이션 헤더 (로고 좌측, 크레딧/설정 우측 깔끔 분리) ── */}
-      <header className="sticky top-0 z-40 flex items-center justify-between border-b border-slate-800/80 bg-slate-950/90 px-3.5 py-2.5 backdrop-blur-md">
-        <h1 className="text-base sm:text-lg font-black tracking-tight text-white flex items-center gap-1 shrink-0 whitespace-nowrap">
-          <span className="bg-gradient-to-r from-amber-300 via-orange-400 to-amber-200 bg-clip-text text-transparent">
+      <header className="sticky top-0 z-40 flex items-center justify-between border-b border-slate-100 bg-white/95 px-3.5 py-2.5 backdrop-blur-md shadow-2xs">
+        <h1 className="text-base sm:text-lg font-black tracking-tight text-slate-900 flex items-center gap-1 shrink-0 whitespace-nowrap">
+          <span className="bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 bg-clip-text text-transparent font-black">
             RoomFit AI
           </span>
         </h1>
@@ -3909,7 +3909,7 @@ Ultra-photorealistic lifestyle interior photography, Architectural Digest party 
             <button
               type="button"
               onClick={() => setIsLangModalOpen((prev) => !prev)}
-              className="flex items-center gap-1 rounded-full border border-slate-700 bg-slate-900/90 px-2 py-1 text-[11px] font-bold text-slate-200 hover:border-amber-400 active:scale-95 transition-all shadow cursor-pointer shrink-0 whitespace-nowrap"
+              className="flex items-center gap-1 rounded-full border border-slate-200 bg-slate-50 px-2 py-1 text-[11px] font-bold text-slate-700 hover:border-amber-400 active:scale-95 transition-all shadow-2xs cursor-pointer shrink-0 whitespace-nowrap"
               title="Change Language"
             >
               <span className="text-xs">{SUPPORTED_LANGUAGES.find((l) => l.code === lang)?.flag || '🌐'}</span>
@@ -3926,13 +3926,13 @@ Ultra-photorealistic lifestyle interior photography, Architectural Digest party 
                 />
 
                 {/* 빠른 4개국어 선택 드롭다운 팝업 */}
-                <div className="absolute right-0 top-full mt-2 z-50 w-44 rounded-2xl border border-amber-500/40 bg-slate-950 p-1.5 shadow-2xl animate-fade-in backdrop-blur-xl">
-                  <div className="px-2.5 py-1.5 border-b border-slate-800/80 flex items-center justify-between text-[10px] font-bold text-slate-400">
+                <div className="absolute right-0 top-full mt-2 z-50 w-44 rounded-2xl border border-slate-200 bg-white p-1.5 shadow-2xl animate-fade-in">
+                  <div className="px-2.5 py-1.5 border-b border-slate-100 flex items-center justify-between text-[10px] font-bold text-slate-400">
                     <span>{translations.header.langSelectTitle[lang]}</span>
                     <button
                       type="button"
                       onClick={() => setIsLangModalOpen(false)}
-                      className="text-slate-400 hover:text-white font-bold cursor-pointer"
+                      className="text-slate-400 hover:text-slate-700 font-bold cursor-pointer"
                     >
                       ✕
                     </button>
@@ -3945,18 +3945,18 @@ Ultra-photorealistic lifestyle interior photography, Architectural Digest party 
                         onClick={() => handleLanguageChange(l.code)}
                         className={`flex items-center justify-between rounded-xl px-2.5 py-2 text-left text-xs transition-all cursor-pointer ${
                           lang === l.code
-                            ? 'border border-amber-400/50 bg-amber-500/20 text-amber-300 font-black shadow-sm'
-                            : 'text-slate-300 hover:bg-slate-900 hover:text-white'
+                            ? 'border border-amber-300 bg-amber-50 text-amber-800 font-black shadow-xs'
+                            : 'text-slate-700 hover:bg-slate-100 hover:text-slate-900'
                         }`}
                       >
                         <div className="flex items-center gap-2">
                           <span className="text-base">{l.flag}</span>
                           <div>
-                            <span className="block font-bold leading-tight text-white">{l.nativeName}</span>
-                            <span className="text-[9px] text-slate-400">{l.label}</span>
+                            <span className="block font-bold leading-tight text-slate-900">{l.nativeName}</span>
+                            <span className="text-[9px] text-slate-500">{l.label}</span>
                           </div>
                         </div>
-                        {lang === l.code && <span className="text-amber-400 font-black">✓</span>}
+                        {lang === l.code && <span className="text-amber-500 font-black">✓</span>}
                       </button>
                     ))}
                   </div>
@@ -3968,7 +3968,7 @@ Ultra-photorealistic lifestyle interior photography, Architectural Digest party 
           <button
             type="button"
             onClick={() => setIsPricingModalOpen(true)}
-            className="flex items-center gap-1 rounded-full bg-amber-500/10 px-2.5 py-1 text-[11px] font-black text-amber-400 border border-amber-500/30 hover:bg-amber-500/20 active:scale-95 transition-all cursor-pointer touch-manipulation shadow-sm shrink-0 whitespace-nowrap"
+            className="flex items-center gap-1 rounded-full bg-amber-50 px-2.5 py-1 text-[11px] font-black text-amber-700 border border-amber-300 hover:bg-amber-100 active:scale-95 transition-all cursor-pointer touch-manipulation shadow-2xs shrink-0 whitespace-nowrap"
           >
             <span>💎</span>
             <span>
@@ -3981,7 +3981,7 @@ Ultra-photorealistic lifestyle interior photography, Architectural Digest party 
           <button
             type="button"
             onClick={() => setActiveTab('profile')}
-            className="flex h-7 w-7 shrink-0 cursor-pointer items-center justify-center rounded-full bg-slate-800 text-slate-300 hover:bg-slate-700 touch-manipulation text-xs"
+            className="flex h-7 w-7 shrink-0 cursor-pointer items-center justify-center rounded-full bg-slate-100 text-slate-600 hover:bg-slate-200 touch-manipulation text-xs"
             aria-label="Profile"
           >
             ⚙️
@@ -3990,7 +3990,7 @@ Ultra-photorealistic lifestyle interior photography, Architectural Digest party 
       </header>
 
       {/* 📢 10월 31일까지 무료 이용 가능 안내 최상단 공지 띠배너 (처음 화면 노출) */}
-      <div className="bg-gradient-to-r from-amber-500 via-orange-500 to-amber-500 py-2 px-3 text-center shadow-md border-b border-amber-400/40 animate-fade-in">
+      <div className="bg-gradient-to-r from-amber-400 via-orange-400 to-amber-400 py-2 px-3 text-center shadow-xs border-b border-amber-300 animate-fade-in">
         <div className="flex items-center justify-center gap-1.5 flex-wrap">
           <span className="text-xs">🎉</span>
           <span className="text-xs font-black text-slate-950">
@@ -4002,7 +4002,7 @@ Ultra-photorealistic lifestyle interior photography, Architectural Digest party 
               ? '¡10 pruebas gratis hasta el 31 de octubre!'
               : '10 free trials to use until October 31!'}
           </span>
-          <span className="bg-slate-950 text-amber-300 px-2 py-0.5 rounded-full text-[10px] font-black border border-amber-400/30">
+          <span className="bg-black/80 text-amber-300 px-2 py-0.5 rounded-full text-[10px] font-black border border-white/20">
             {lang === 'ko' ? '오픈 프로모션 10회 무료 제공' : lang === 'ja' ? '10回無料体験付与' : lang === 'es' ? '10 pruebas gratis' : '10 Free Trials'}
           </span>
         </div>
@@ -4011,17 +4011,17 @@ Ultra-photorealistic lifestyle interior photography, Architectural Digest party 
       {/* ── 탭 1: Tools (도구 홈 피드) ── */}
       {activeTab === 'tools' && (
         <div className="flex flex-col gap-4 p-4 animate-fade-in">
-          {/* 💳 모바일 홈 요금제 안내 카드 (중복 프로모션 삭제, 깔끔한 요금제 안내 유지) */}
-          <div className="relative overflow-hidden rounded-2xl border border-amber-500/30 bg-gradient-to-r from-slate-900 via-amber-950/20 to-slate-900 p-3 shadow-lg flex items-center justify-between gap-3">
+          {/* 💳 모바일 홈 요금제 안내 카드 (화이트 테마) */}
+          <div className="relative overflow-hidden rounded-2xl border border-amber-200/90 bg-gradient-to-r from-amber-50/90 via-orange-50/50 to-amber-50/90 p-3 shadow-xs flex items-center justify-between gap-3">
             <div className="flex items-center gap-2.5 min-w-0">
-              <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-amber-400 to-orange-500 text-sm font-black text-slate-950 shadow-md">
+              <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-amber-400 to-orange-500 text-sm font-black text-white shadow-xs">
                 💎
               </div>
               <div className="min-w-0">
-                <span className="text-xs sm:text-sm font-black text-white block truncate">
+                <span className="text-xs sm:text-sm font-black text-slate-900 block truncate">
                   {lang === 'ko' ? '멤버십 요금제 안내' : lang === 'ja' ? '料金プラン案内' : lang === 'es' ? 'Planes de Precios' : 'Pricing Plans'}
                 </span>
-                <span className="text-[10px] text-slate-400 font-medium block truncate">
+                <span className="text-[10px] text-slate-600 font-medium block truncate">
                   {lang === 'ko' ? '스타터 · 아마추어 · 프로 혜택 확인' : lang === 'ja' ? 'スターター・アマチュア・プロ' : lang === 'es' ? 'Starter · Amateur · Pro' : 'Starter · Amateur · Pro'}
                 </span>
               </div>
@@ -4029,7 +4029,7 @@ Ultra-photorealistic lifestyle interior photography, Architectural Digest party 
             <button
               type="button"
               onClick={() => setIsPricingModalOpen(true)}
-              className="shrink-0 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 px-3.5 py-1.5 text-xs font-black text-slate-950 shadow-md hover:brightness-110 active:scale-95 transition-all cursor-pointer touch-manipulation whitespace-nowrap"
+              className="shrink-0 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 px-3.5 py-1.5 text-xs font-black text-white shadow-xs hover:brightness-105 active:scale-95 transition-all cursor-pointer touch-manipulation whitespace-nowrap"
             >
               {lang === 'ko' ? '요금제 보기' : lang === 'ja' ? 'プランを見る' : lang === 'es' ? 'Ver Planes' : 'View Plans'}
             </button>
@@ -4054,7 +4054,7 @@ Ultra-photorealistic lifestyle interior photography, Architectural Digest party 
                       startWizard(tool);
                     }
                   }}
-                  className="w-full text-left group relative cursor-pointer overflow-hidden rounded-3xl border border-slate-800/80 bg-slate-950 shadow-xl transition-all duration-300 hover:border-amber-400/40 hover:shadow-2xl active:scale-[0.98] touch-manipulation"
+                  className="w-full text-left group relative cursor-pointer overflow-hidden rounded-3xl border border-slate-200/90 bg-white shadow-md transition-all duration-300 hover:border-amber-400/50 hover:shadow-xl active:scale-[0.98] touch-manipulation"
                 >
                   <AnimatedToolPreview
                     beforeImage={tool.beforeImage}
@@ -7830,11 +7830,11 @@ Ultra-photorealistic lifestyle interior photography, Architectural Digest party 
       )}
 
       {/* ── 📱 하단 4단 고정 바 (Home AI 스타일) ── */}
-      <nav className="fixed bottom-0 left-0 right-0 z-40 mx-auto max-w-md border-t border-slate-800/90 bg-slate-950/95 px-6 py-2 backdrop-blur-lg">
+      <nav className="fixed bottom-0 left-0 right-0 z-40 mx-auto max-w-md border-t border-slate-200/90 bg-white/95 px-6 py-2 backdrop-blur-lg shadow-lg">
         <div className="flex items-center justify-between">
           <button
             onClick={() => setActiveTab('tools')}
-            className={`flex flex-col items-center gap-1 transition-all ${activeTab === 'tools' ? 'text-amber-400 scale-105 font-black' : 'text-slate-400 hover:text-slate-200 font-medium'
+            className={`flex flex-col items-center gap-1 transition-all ${activeTab === 'tools' ? 'text-amber-600 scale-105 font-black' : 'text-slate-500 hover:text-slate-800 font-medium'
               }`}
           >
             <span className="text-xl">🧰</span>
@@ -7843,7 +7843,7 @@ Ultra-photorealistic lifestyle interior photography, Architectural Digest party 
 
           <button
             onClick={() => startWizard()}
-            className={`flex flex-col items-center gap-1 transition-all ${activeTab === 'create' ? 'text-amber-400 scale-105 font-black' : 'text-slate-400 hover:text-slate-200 font-medium'
+            className={`flex flex-col items-center gap-1 transition-all ${activeTab === 'create' ? 'text-amber-600 scale-105 font-black' : 'text-slate-500 hover:text-slate-800 font-medium'
               }`}
           >
             <span className="text-xl">➕</span>
@@ -7852,7 +7852,7 @@ Ultra-photorealistic lifestyle interior photography, Architectural Digest party 
 
           <button
             onClick={() => setActiveTab('discover')}
-            className={`flex flex-col items-center gap-1 transition-all ${activeTab === 'discover' ? 'text-amber-400 scale-105 font-black' : 'text-slate-400 hover:text-slate-200 font-medium'
+            className={`flex flex-col items-center gap-1 transition-all ${activeTab === 'discover' ? 'text-amber-600 scale-105 font-black' : 'text-slate-500 hover:text-slate-800 font-medium'
               }`}
           >
             <span className="text-xl">✨</span>
@@ -7861,7 +7861,7 @@ Ultra-photorealistic lifestyle interior photography, Architectural Digest party 
 
           <button
             onClick={() => setActiveTab('profile')}
-            className={`flex flex-col items-center gap-1 transition-all ${activeTab === 'profile' ? 'text-amber-400 scale-105 font-black' : 'text-slate-400 hover:text-slate-200 font-medium'
+            className={`flex flex-col items-center gap-1 transition-all ${activeTab === 'profile' ? 'text-amber-600 scale-105 font-black' : 'text-slate-500 hover:text-slate-800 font-medium'
               }`}
           >
             <span className="text-xl">👤</span>

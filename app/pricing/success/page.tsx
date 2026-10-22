@@ -39,10 +39,17 @@ function SuccessContent() {
 
         if (res.ok && data.success) {
           // 크레딧 충전 반영
-          const addedCredits = planId === 'starter_pack' ? 50 : planId === 'pro_pack' ? 180 : 300;
+          const addedCredits =
+            planId === 'starter' || planId === 'starter_pack'
+              ? 30
+              : planId === 'amateur'
+              ? 999
+              : planId === 'pro' || planId === 'pro_pack'
+              ? 999
+              : 300;
           const current = Number(localStorage.getItem('reroom_free_generations') || '2');
           localStorage.setItem('reroom_free_generations', String(current + addedCredits));
-          if (planId === 'studio_agency') {
+          if (planId === 'pro' || planId === 'amateur' || planId === 'pro_pack' || planId === 'studio_agency') {
             localStorage.setItem('reroom_pro_subscribed', 'true');
           }
 

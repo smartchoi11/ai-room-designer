@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
+import { loadTossPayments, ANONYMOUS } from '@tosspayments/tosspayments-sdk';
 import { Language, SUPPORTED_LANGUAGES, translations } from '@/lib/i18n';
 
 interface PricingModalProps {
@@ -25,6 +26,7 @@ export interface PricingPlan {
   priceText: string;
   dollarPrice?: string;
   wonPrice?: string;
+  priceKrw: number;
   periodText: string;
   creditsText: string;
   tagline: string;
@@ -40,6 +42,8 @@ export const NEW_APP_PLANS: PricingPlan[] = [
     badge: 'Budget',
     priceText: '$3.99',
     dollarPrice: '$3.99',
+    wonPrice: '5,500원',
+    priceKrw: 5500,
     periodText: 'One-time',
     creditsText: '30 Credits',
     tagline: 'One-time recharge for 1-2 rooms remodel',
@@ -51,6 +55,8 @@ export const NEW_APP_PLANS: PricingPlan[] = [
     badge: 'Monthly',
     priceText: '$12.99',
     dollarPrice: '$12.99',
+    wonPrice: '17,900원',
+    priceKrw: 17900,
     periodText: '$12.99 / mo',
     creditsText: '1 Month Pass',
     tagline: 'Unlimited interior design for a whole month',
@@ -63,6 +69,8 @@ export const NEW_APP_PLANS: PricingPlan[] = [
     highlighted: true,
     priceText: '$19.99',
     dollarPrice: '$19.99',
+    wonPrice: '27,900원',
+    priceKrw: 27900,
     periodText: '$6.66 / mo',
     creditsText: '3 Months Pass',
     tagline: 'Complete moving & renovation 3-month all-pass',
@@ -223,31 +231,57 @@ export default function PricingModal({
   const currentPlanName = planTrans?.name[lang] || planTrans?.name['en'] || currentPlan.name;
   const currentPlanTagline = planTrans?.tagline[lang] || planTrans?.tagline['en'] || currentPlan.tagline;
 
-  // 무료 체험 시작 (2회 지급)
+  const [isProcessingPayment, setIsProcessingPayment] = useState(false);
+
+  // 무료 체험 시작 (10회 지급)
   const handleTryFree = () => {
     if (onClaimFreeCredits) onClaimFreeCredits();
+    if (lang === 'ko') {
+      alert('🎉 [오픈 기념 10회 무료 체험]이 정상 지급되었습니다!\n결제 없이 바로 원하는 인테리어를 만들어보세요.');
+    }
     onClose();
     if (onStartExperience) onStartExperience();
   };
 
-  // 결제 진행 (테스트 환경)
-  const handleContinue = () => {
-    if (onPurchasePlan) {
-      onPurchasePlan(currentPlan);
-    } else if (onClaimFreeCredits) {
-      onClaimFreeCredits();
+  // 실제 결제 진행 (토스페이먼츠 카드/간편결제 연동)
+  const handleContinue = async () => {
+    try {
+      setIsProcessingPayment(true);
+
+      const clientKey = process.env.NEXT_PUBLIC_TOSS_CLIENT_KEY || 'test_ck_D5GePWvyJqK4WBaqkxl3OBryNqmE';
+      const tossPayments = await loadTossPayments(clientKey);
+      const payment = tossPayments.payment({ customerKey: ANONYMOUS });
+
+      const orderId = `roomfit_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
+      const origin = typeof window !== 'undefined' ? window.location.origin : 'https://ai-room-smart-designer-choi.vercel.app';
+
+      // 토스 공식 결제창 호출 (신용카드, 카카오페이, 네이버페이, 토스페이 통합 지원)
+      await payment.requestPayment({
+        method: 'CARD',
+        amount: {
+          currency: 'KRW',
+          value: currentPlan.priceKrw || 27900,
+        },
+        orderId,
+        orderName: `RoomFit AI ${currentPlanName}`,
+        successUrl: `${origin}/pricing/success?planId=${currentPlan.id}&amount=${currentPlan.priceKrw || 27900}`,
+        failUrl: `${origin}/pricing/fail`,
+        customerEmail: 'customer@roomfit.ai',
+        customerName: 'RoomFit AI 고객',
+      });
+    } catch (err: any) {
+      console.error('Toss Payments error:', err);
+      // 사용자가 결제창을 닫은 경우(USER_CANCEL) 외의 실제 에러 시 처리
+      if (err.code !== 'USER_CANCEL') {
+        if (currentPlan.lemonCheckoutUrl && lang !== 'ko') {
+          window.open(currentPlan.lemonCheckoutUrl, '_blank');
+        } else {
+          alert(lang === 'ko' ? '결제창을 여는 도중 문제가 발생했습니다. 잠시 후 다시 시도해 주세요.' : 'Checkout error. Please try again.');
+        }
+      }
+    } finally {
+      setIsProcessingPayment(false);
     }
-    const alertMsg =
-      lang === 'ko'
-        ? `🎉 [${currentPlanName}] 테스트 결제 승인 완료!\n혜택이 성공적으로 적용되었습니다.`
-        : lang === 'ja'
-        ? `🎉 [${currentPlanName}] テスト決済が完了しました！\n特典が正常に適用されました。`
-        : lang === 'es'
-        ? `🎉 ¡Pago de prueba de [${currentPlanName}] completado!\nBeneficios aplicados con éxito.`
-        : `🎉 [${currentPlanName}] Test Checkout Successful!\nBenefits have been activated.`;
-    alert(alertMsg);
-    onClose();
-    if (onStartExperience) onStartExperience();
   };
 
   const handlePrevFeature = () => {
@@ -427,8 +461,8 @@ export default function PricingModal({
           })}
         </div>
 
-        {/* 🌟 Interio 감성: 중앙 볼드 타이틀 & 가로 혜택 칩 */}
-        <div className="text-center my-1.5 px-1">
+        {/* 🌟 중앙 볼드 타이틀 */}
+        <div className="text-center my-1 px-1">
           <h1 className="text-lg sm:text-xl font-black text-white tracking-tight">
             {lang === 'ko'
               ? 'RoomFit AI 무제한 이용권'
@@ -438,27 +472,6 @@ export default function PricingModal({
               ? 'Acceso Ilimitado RoomFit AI'
               : 'Unlock Unlimited Access'}
           </h1>
-          <p className="text-[11px] sm:text-xs text-slate-400 mt-0.5 font-medium">
-            {lang === 'ko'
-              ? `${currentFeature.stepNum}/07 ${currentTitle} - ${currentSubtitle}`
-              : `${currentFeature.stepNum}/07 ${currentTitle}`}
-          </p>
-
-          {/* Interio 스타일 가로 혜택 칩 바 */}
-          <div className="flex items-center justify-center gap-1.5 mt-2 overflow-x-auto scrollbar-none select-none">
-            <div className="flex items-center gap-1 rounded-full border border-white/10 bg-white/[0.04] px-2.5 py-0.5 text-[10px] sm:text-[10.5px] font-semibold text-slate-200 shrink-0">
-              <span className="text-rose-400">⚡</span>
-              <span>{lang === 'ko' ? '3초 초고속 생성' : lang === 'ja' ? '3秒超高速' : lang === 'es' ? 'Súper Rápido' : 'Faster Outcomes'}</span>
-            </div>
-            <div className="flex items-center gap-1 rounded-full border border-white/10 bg-white/[0.04] px-2.5 py-0.5 text-[10px] sm:text-[10.5px] font-semibold text-slate-200 shrink-0">
-              <span className="text-rose-400">🔒</span>
-              <span>{lang === 'ko' ? '광고 없는 환경' : lang === 'ja' ? '広告なし' : lang === 'es' ? 'Sin Anuncios' : 'No Ads'}</span>
-            </div>
-            <div className="flex items-center gap-1 rounded-full border border-white/10 bg-white/[0.04] px-2.5 py-0.5 text-[10px] sm:text-[10.5px] font-semibold text-slate-200 shrink-0">
-              <span className="text-rose-400">♾️</span>
-              <span>{lang === 'ko' ? '무제한 4K 렌더링' : lang === 'ja' ? '無制限生成' : lang === 'es' ? 'Renders Ilimitados' : 'Unlimited Renders'}</span>
-            </div>
-          </div>
         </div>
       </div>
 
@@ -475,7 +488,7 @@ export default function PricingModal({
           </span>
         </div>
 
-        {/* 3가지 요금제 카드 (기능 & 요금 그대로 보존, Interio 카드 디자인 적용) */}
+        {/* 3가지 요금제 카드 */}
         <div className="grid grid-cols-3 gap-2">
           {NEW_APP_PLANS.map((plan) => {
             const isSelected = selectedPlanId === plan.id;
@@ -490,7 +503,7 @@ export default function PricingModal({
                 type="button"
                 key={plan.id}
                 onClick={() => setSelectedPlanId(plan.id)}
-                className={`relative flex flex-col items-center justify-between rounded-2xl p-2.5 pt-3.5 text-center transition-all duration-200 cursor-pointer touch-manipulation ${
+                className={`relative flex flex-col items-center justify-between rounded-2xl p-2.5 pt-3.5 pb-3 text-center transition-all duration-200 cursor-pointer touch-manipulation ${
                   isSelected
                     ? 'border-2 border-rose-500 bg-gradient-to-b from-rose-500/15 via-rose-500/[0.04] to-transparent shadow-[0_8px_20px_rgba(244,63,94,0.18)] ring-1 ring-rose-400/30 scale-[1.02]'
                     : 'border border-white/10 bg-white/[0.02] hover:bg-white/[0.05] hover:border-white/20 text-slate-400'
@@ -528,20 +541,6 @@ export default function PricingModal({
                     {pPeriod}
                   </span>
                 </div>
-
-                {/* 선택 상태 인디케이터 */}
-                <div className="mt-0.5">
-                  {isSelected ? (
-                    <span className="inline-flex items-center gap-1 rounded-full bg-rose-500/20 px-2 py-0.5 text-[9px] font-bold text-rose-300 border border-rose-500/30">
-                      <span className="h-1.5 w-1.5 rounded-full bg-rose-500" />
-                      {lang === 'ko' ? '선택됨' : lang === 'ja' ? '選択中' : lang === 'es' ? 'Elegido' : 'Active'}
-                    </span>
-                  ) : (
-                    <span className="inline-block h-4 text-[9px] font-medium text-slate-500">
-                      {lang === 'ko' ? '선택하기' : lang === 'ja' ? '選択' : lang === 'es' ? 'Elegir' : 'Select'}
-                    </span>
-                  )}
-                </div>
               </button>
             );
           })}
@@ -558,64 +557,75 @@ export default function PricingModal({
           </span>
         </div>
 
-        {/* 🎁 세련된 무료 프로모션 안내 배너 */}
-        <div className="rounded-xl border border-rose-500/30 bg-gradient-to-r from-rose-500/[0.08] via-rose-500/[0.04] to-transparent p-2.5 flex items-center justify-between gap-2 select-none">
-          <div className="flex items-center gap-2 min-w-0">
-            <span className="text-base shrink-0">🎁</span>
+        {/* 🎁 눈에 확 띄는 오픈 기념 10크레딧 무료 체험 배너 (클릭 시 즉시 무료 체험) */}
+        <div
+          onClick={handleTryFree}
+          role="button"
+          tabIndex={0}
+          className="rounded-2xl border-2 border-amber-400/90 bg-gradient-to-r from-amber-500/25 via-amber-500/15 to-orange-500/20 p-2.5 sm:p-3 shadow-lg shadow-amber-500/10 flex items-center justify-between gap-2.5 cursor-pointer hover:brightness-110 active:scale-[0.98] transition-all select-none group"
+        >
+          <div className="flex items-center gap-2.5 min-w-0">
+            <div className="h-9 w-9 sm:h-10 sm:w-10 shrink-0 rounded-xl bg-gradient-to-br from-amber-400 to-orange-400 text-slate-950 flex items-center justify-center text-xl font-black shadow-md group-hover:scale-105 transition-transform">
+              🎁
+            </div>
             <div className="flex flex-col text-left min-w-0">
-              <span className="text-[11px] sm:text-xs font-bold text-white truncate">
+              <div className="flex items-center gap-1.5 flex-wrap">
+                <span className="text-xs sm:text-[13px] font-black text-amber-300 tracking-tight">
+                  {lang === 'ko'
+                    ? '오픈 기념 10크레딧 즉시 무료 이용'
+                    : lang === 'ja'
+                    ? 'オープン記念 10クレジット無料進呈'
+                    : lang === 'es'
+                    ? '10 Créditos Gratis de Apertura'
+                    : 'Claim 10 Free Credits Now'}
+                </span>
+                <span className="rounded-full bg-amber-400 px-1.5 py-0.2 text-[8.5px] font-black text-slate-950 leading-tight">
+                  {lang === 'ko' ? '무료' : 'FREE'}
+                </span>
+              </div>
+              <span className="text-[10px] sm:text-[10.5px] font-semibold text-slate-200 mt-0.5 truncate">
                 {lang === 'ko'
-                  ? 'Google Play 출시 기념 오픈 프로모션'
+                  ? '결제 없이 지금 바로 10회 생성 체험하기'
                   : lang === 'ja'
-                  ? 'Google Playリリース記念無料プロモ'
+                  ? '決済なしで今すぐ10回無料体験'
                   : lang === 'es'
-                  ? 'Promo de Lanzamiento'
-                  : 'Launch Special Free Promotion'}
-              </span>
-              <span className="text-[9.5px] sm:text-[10px] font-medium text-slate-400 truncate">
-                {lang === 'ko'
-                  ? '10월 31일까지 누구나 10회 무료 체험 가능'
-                  : lang === 'ja'
-                  ? '10月31日まで誰でも10回無料でお試し可能'
-                  : lang === 'es'
-                  ? '¡10 pruebas gratis hasta el 31 de octubre!'
-                  : '10 free trials for everyone until Oct 31'}
+                  ? 'Prueba 10 renders sin pagar'
+                  : 'Try 10 renders free without payment'}
               </span>
             </div>
           </div>
-          <span className="shrink-0 rounded-full bg-rose-500/20 border border-rose-500/30 px-2 py-0.5 text-[9px] sm:text-[9.5px] font-bold text-rose-300 whitespace-nowrap">
-            {lang === 'ko'
-              ? '10회 무료'
-              : lang === 'ja'
-              ? '10回無料'
-              : lang === 'es'
-              ? '10 Gratis'
-              : '10 Free'}
+          <span className="shrink-0 rounded-xl bg-gradient-to-r from-amber-400 to-orange-400 px-3 py-1.5 text-xs font-black text-slate-950 shadow-md group-hover:shadow-amber-400/50 transition-all whitespace-nowrap">
+            {lang === 'ko' ? '10회 받기 ➔' : lang === 'ja' ? '無料で取得 ➔' : 'Claim ➔'}
           </span>
         </div>
 
-        {/* 하단 메인 결제 버튼 & 무료 체험 버튼 (Interio 스타일) */}
+        {/* 하단 메인 결제 버튼 & 무료 체험 버튼 */}
         <div className="space-y-1.5 text-center mt-0.5">
           <button
             type="button"
             onClick={handleContinue}
-            className="w-full rounded-2xl bg-gradient-to-r from-rose-500 via-rose-600 to-rose-500 hover:from-rose-600 hover:to-rose-700 py-3.5 sm:py-4 text-white font-black text-sm sm:text-base shadow-[0_10px_25px_-5px_rgba(244,63,94,0.45)] hover:shadow-[0_12px_30px_-5px_rgba(244,63,94,0.55)] active:scale-[0.98] transition-all cursor-pointer touch-manipulation flex items-center justify-center gap-2"
+            disabled={isProcessingPayment}
+            className="w-full rounded-2xl bg-gradient-to-r from-rose-500 via-rose-600 to-rose-500 hover:from-rose-600 hover:to-rose-700 py-3.5 sm:py-4 text-white font-black text-sm sm:text-base shadow-[0_10px_25px_-5px_rgba(244,63,94,0.45)] hover:shadow-[0_12px_30px_-5px_rgba(244,63,94,0.55)] active:scale-[0.98] transition-all cursor-pointer touch-manipulation flex items-center justify-center gap-2 disabled:opacity-50"
           >
             <span>
-              {translations.pricing.ctaStart[lang].replace('{name}', currentPlanName).split('(')[0].trim()}
+              {isProcessingPayment
+                ? (lang === 'ko' ? '결제창 여는 중...' : 'Loading checkout...')
+                : translations.pricing.ctaStart[lang].replace('{name}', currentPlanName).split('(')[0].trim()}
             </span>
-            <span className="text-white/80 font-bold tracking-tight">
-              ({currentPlan.dollarPrice || currentPlan.priceText})
-            </span>
+            {!isProcessingPayment && (
+              <span className="text-white/80 font-bold tracking-tight">
+                ({currentPlan.dollarPrice || currentPlan.priceText})
+              </span>
+            )}
           </button>
 
           <button
             type="button"
             onClick={handleTryFree}
-            className="w-full py-2.5 px-3 rounded-xl border border-white/10 bg-white/[0.04] hover:bg-white/[0.08] hover:border-white/20 active:scale-[0.98] transition-all cursor-pointer flex items-center justify-center gap-1.5 select-none"
+            className="w-full py-2.5 px-3 rounded-xl border border-amber-400/40 bg-amber-500/10 hover:bg-amber-500/20 active:scale-[0.98] transition-all cursor-pointer flex items-center justify-center gap-1.5 select-none text-amber-300 hover:text-amber-200"
           >
-            <span className="text-xs sm:text-sm font-semibold text-slate-300 hover:text-white transition-colors">
-              {translations.pricing.ctaFree[lang]}
+            <span className="text-xs sm:text-sm font-bold">
+              🎁 {translations.pricing.ctaFree[lang]}
             </span>
           </button>
 

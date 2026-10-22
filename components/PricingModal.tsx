@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
+import { loadTossPayments, ANONYMOUS } from '@tosspayments/tosspayments-sdk';
 import { Language, SUPPORTED_LANGUAGES, translations } from '@/lib/i18n';
 
 interface PricingModalProps {
@@ -25,6 +26,7 @@ export interface PricingPlan {
   priceText: string;
   dollarPrice?: string;
   wonPrice?: string;
+  priceKrw?: number;
   periodText: string;
   creditsText: string;
   tagline: string;
@@ -40,6 +42,8 @@ export const NEW_APP_PLANS: PricingPlan[] = [
     badge: 'Budget',
     priceText: '$3.99',
     dollarPrice: '$3.99',
+    wonPrice: '₩5,500',
+    priceKrw: 5500,
     periodText: 'One-time',
     creditsText: '30 Credits',
     tagline: 'One-time recharge for 1-2 rooms remodel',
@@ -51,6 +55,8 @@ export const NEW_APP_PLANS: PricingPlan[] = [
     badge: 'Monthly',
     priceText: '$12.99',
     dollarPrice: '$12.99',
+    wonPrice: '₩17,900',
+    priceKrw: 17900,
     periodText: '$12.99 / mo',
     creditsText: '1 Month Pass',
     tagline: 'Unlimited interior design for a whole month',
@@ -63,6 +69,8 @@ export const NEW_APP_PLANS: PricingPlan[] = [
     highlighted: true,
     priceText: '$19.99',
     dollarPrice: '$19.99',
+    wonPrice: '₩27,900',
+    priceKrw: 27900,
     periodText: '$6.66 / mo',
     creditsText: '3 Months Pass',
     tagline: 'Complete moving & renovation 3-month all-pass',
@@ -155,6 +163,29 @@ export default function PricingModal({
   const [selectedPlanId, setSelectedPlanId] = useState<PlanId>('pro');
   const [progressPercent, setProgressPercent] = useState(0);
   const [isLangDropdownOpen, setIsLangDropdownOpen] = useState(false);
+  const [isProcessingPayment, setIsProcessingPayment] = useState(false);
+  const [copyFeedback, setCopyFeedback] = useState(false);
+
+  // 🔗 브라우저 주소 간편 복사 핸들러
+  const handleCopyUrl = async () => {
+    try {
+      const url = typeof window !== 'undefined' ? window.location.href : 'https://ai-room-smart-designer-choi.vercel.app';
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        await navigator.clipboard.writeText(url);
+      } else {
+        const textArea = document.createElement('textarea');
+        textArea.value = url;
+        document.body.appendChild(textArea);
+        textArea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textArea);
+      }
+      setCopyFeedback(true);
+      setTimeout(() => setCopyFeedback(false), 2000);
+    } catch (e) {
+      console.warn('URL copy failed:', e);
+    }
+  };
 
   // 🎬 상단 영상: 1.35배 빠른 좌우 왕복 스캔 모션 (0% ➔ 100% ➔ 0%)
   useEffect(() => {
@@ -223,31 +254,55 @@ export default function PricingModal({
   const currentPlanName = planTrans?.name[lang] || planTrans?.name['en'] || currentPlan.name;
   const currentPlanTagline = planTrans?.tagline[lang] || planTrans?.tagline['en'] || currentPlan.tagline;
 
-  // 무료 체험 시작 (2회 지급)
+  // 무료 체험 시작 (10회 지급)
   const handleTryFree = () => {
-    if (onClaimFreeCredits) onClaimFreeCredits();
+    try {
+      if (onClaimFreeCredits) onClaimFreeCredits();
+    } catch (e) {
+      console.error('Error claiming free credits:', e);
+    }
     onClose();
     if (onStartExperience) onStartExperience();
   };
 
-  // 결제 진행 (테스트 환경)
-  const handleContinue = () => {
-    if (onPurchasePlan) {
-      onPurchasePlan(currentPlan);
-    } else if (onClaimFreeCredits) {
-      onClaimFreeCredits();
+  // 실제 결제 진행 (토스페이먼츠 공식 결제창 연동)
+  const handleContinue = async () => {
+    if (isProcessingPayment) return;
+    try {
+      setIsProcessingPayment(true);
+      const clientKey = process.env.NEXT_PUBLIC_TOSS_CLIENT_KEY || 'test_ck_D5GePWvyJqK4WBaqkxl3OBryNqmE';
+      const tossPayments = await loadTossPayments(clientKey);
+      const payment = tossPayments.payment({ customerKey: ANONYMOUS });
+
+      const orderId = `roomfit_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
+      const origin = typeof window !== 'undefined' ? window.location.origin : 'https://ai-room-smart-designer-choi.vercel.app';
+
+      // 토스 공식 결제창 호출 (신용카드, 카카오페이, 네이버페이, 토스페이 통합 지원)
+      await payment.requestPayment({
+        method: 'CARD',
+        amount: {
+          currency: 'KRW',
+          value: currentPlan.priceKrw || 27900,
+        },
+        orderId,
+        orderName: `RoomFit AI ${currentPlanName}`,
+        successUrl: `${origin}/pricing/success?planId=${currentPlan.id}&amount=${currentPlan.priceKrw || 27900}`,
+        failUrl: `${origin}/pricing/fail`,
+        customerEmail: 'customer@roomfit.ai',
+        customerName: 'RoomFit AI 고객',
+      });
+    } catch (err: any) {
+      console.error('Toss Payments error:', err);
+      if (err.code !== 'USER_CANCEL') {
+        if (currentPlan.lemonCheckoutUrl && lang !== 'ko') {
+          window.open(currentPlan.lemonCheckoutUrl, '_blank');
+        } else {
+          alert(lang === 'ko' ? '결제창을 여는 도중 문제가 발생했습니다. 잠시 후 다시 시도해 주세요.' : 'Checkout error. Please try again.');
+        }
+      }
+    } finally {
+      setIsProcessingPayment(false);
     }
-    const alertMsg =
-      lang === 'ko'
-        ? `🎉 [${currentPlanName}] 테스트 결제 승인 완료!\n혜택이 성공적으로 적용되었습니다.`
-        : lang === 'ja'
-        ? `🎉 [${currentPlanName}] テスト決済が完了しました！\n特典が正常に適用されました。`
-        : lang === 'es'
-        ? `🎉 ¡Pago de prueba de [${currentPlanName}] completado!\nBeneficios aplicados con éxito.`
-        : `🎉 [${currentPlanName}] Test Checkout Successful!\nBenefits have been activated.`;
-    alert(alertMsg);
-    onClose();
-    if (onStartExperience) onStartExperience();
   };
 
   const handlePrevFeature = () => {
@@ -274,7 +329,20 @@ export default function PricingModal({
           </span>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5">
+          {/* 🔗 브라우저 주소 간편 복사 버튼 */}
+          <button
+            type="button"
+            onClick={handleCopyUrl}
+            className="flex items-center gap-1 rounded-full border border-slate-800 bg-slate-900/90 px-2.5 py-1 text-xs font-semibold text-slate-300 hover:border-slate-700 active:scale-95 transition-all shadow-sm cursor-pointer touch-manipulation shrink-0"
+            title="웹 브라우저 주소 복사"
+          >
+            <span className="text-xs">{copyFeedback ? '✓' : '🔗'}</span>
+            <span className="text-[10px] font-bold text-slate-200">
+              {copyFeedback ? (lang === 'ko' ? '복사됨!' : 'Copied!') : (lang === 'ko' ? '주소복사' : 'Copy URL')}
+            </span>
+          </button>
+
           {/* 🌐 언어 선택 드롭다운 */}
           {onLanguageChange && (
             <div className="relative">
@@ -500,7 +568,7 @@ export default function PricingModal({
                 type="button"
                 key={plan.id}
                 onClick={() => setSelectedPlanId(plan.id)}
-                className={`relative flex flex-col items-center justify-between rounded-2xl border p-2.5 pt-3.5 text-center transition-all duration-200 cursor-pointer touch-manipulation ${
+                className={`relative flex flex-col items-center justify-between rounded-2xl border p-2.5 pt-3.5 pb-3 text-center transition-all duration-200 cursor-pointer touch-manipulation ${
                   isSelected
                     ? 'border-amber-400/90 bg-gradient-to-b from-amber-500/15 via-amber-500/5 to-slate-900/90 shadow-lg shadow-amber-500/10 ring-1 ring-amber-400/50 scale-[1.02]'
                     : 'border-slate-800/80 bg-slate-900/60 hover:border-slate-700/80 hover:bg-slate-900/80 text-slate-400'
@@ -538,20 +606,6 @@ export default function PricingModal({
                     {pPeriod}
                   </span>
                 </div>
-
-                {/* 선택 상태 인디케이터 */}
-                <div className="mt-0.5">
-                  {isSelected ? (
-                    <span className="inline-flex items-center gap-1 rounded-full bg-amber-400/20 px-2 py-0.5 text-[9px] font-black text-amber-300 border border-amber-400/30">
-                      <span className="h-1.5 w-1.5 rounded-full bg-amber-400" />
-                      {lang === 'ko' ? '선택됨' : lang === 'ja' ? '選択中' : lang === 'es' ? 'Elegido' : 'Active'}
-                    </span>
-                  ) : (
-                    <span className="inline-block h-4 text-[9px] font-medium text-slate-500">
-                      {lang === 'ko' ? '선택하기' : lang === 'ja' ? '選択' : lang === 'es' ? 'Elegir' : 'Select'}
-                    </span>
-                  )}
-                </div>
               </button>
             );
           })}
@@ -568,21 +622,25 @@ export default function PricingModal({
           </span>
         </div>
 
-        {/* 🎁 대표님 지정: 무료 프로모션 안내 배너 (프로 팩 시작하기 버튼 바로 위에 배치) */}
-        <div className="rounded-2xl border border-amber-400/50 bg-gradient-to-r from-amber-500/20 via-orange-500/15 to-amber-500/20 p-2.5 shadow-md flex items-center justify-between gap-2 select-none">
-          <div className="flex items-center gap-2 min-w-0">
-            <span className="text-base shrink-0">🎁</span>
-            <div className="flex flex-col text-left min-w-0">
-              <span className="text-[11px] sm:text-xs font-black text-amber-300 truncate">
+        {/* 🎁 대표님 지정: 오픈 기념 10크레딧 무료 프로모션 배너 (터치 시 즉시 10크레딧 적립 & 체험 시작) */}
+        <button
+          type="button"
+          onClick={handleTryFree}
+          className="w-full rounded-2xl border border-amber-400/60 bg-gradient-to-r from-amber-500/20 via-orange-500/20 to-amber-500/25 p-3 shadow-md hover:border-amber-300 hover:brightness-110 active:scale-[0.98] transition-all flex items-center justify-between gap-2 cursor-pointer touch-manipulation group text-left select-none"
+        >
+          <div className="flex items-center gap-2.5 min-w-0">
+            <span className="text-xl shrink-0 group-hover:scale-110 transition-transform">🎁</span>
+            <div className="flex flex-col min-w-0">
+              <span className="text-xs sm:text-sm font-black text-amber-300 truncate">
                 {lang === 'ko'
-                  ? 'Google Play 출시 기념 오픈 무료 프로모션'
+                  ? 'Google Play 출시 기념 10크레딧 무료 증정'
                   : lang === 'ja'
-                  ? 'Google Playリリース記念無料プロモ'
+                  ? 'Google Playリリース記念 10クレジット無料進呈'
                   : lang === 'es'
-                  ? 'Promo Gratuita de Lanzamiento'
-                  : 'Launch Special Free Promotion'}
+                  ? '10 Créditos Gratis por Lanzamiento'
+                  : 'Launch Special: 10 Free Credits'}
               </span>
-              <span className="text-[9.5px] sm:text-[10px] font-semibold text-slate-200 truncate">
+              <span className="text-[10px] sm:text-[11px] font-semibold text-slate-200 truncate">
                 {lang === 'ko'
                   ? '10월 31일까지 누구나 10회 무료 체험 가능!'
                   : lang === 'ja'
@@ -593,36 +651,46 @@ export default function PricingModal({
               </span>
             </div>
           </div>
-          <span className="shrink-0 rounded-full bg-gradient-to-r from-amber-400 to-orange-400 px-2 py-0.5 text-[9px] sm:text-[9.5px] font-black text-slate-950 shadow-sm whitespace-nowrap">
+          <span className="shrink-0 rounded-full bg-gradient-to-r from-amber-400 to-orange-400 px-2.5 py-1 text-[10px] sm:text-xs font-black text-slate-950 shadow-md whitespace-nowrap">
             {lang === 'ko'
-              ? '10.31까지 10회 무료'
+              ? '지금 10회 받기 ➔'
               : lang === 'ja'
-              ? '~10/31 10回無料'
+              ? '今すぐ10回受取 ➔'
               : lang === 'es'
-              ? '10 Gratis ~31 Oct'
-              : '10 Free ~Oct 31'}
+              ? 'Obtener 10 ➔'
+              : 'Claim 10 Free ➔'}
           </span>
-        </div>
+        </button>
 
         {/* 하단 메인 결제 버튼 (블랙 버튼 + 파란색 네온 결제금액 폰트 확대) */}
         <div className="space-y-1.5 text-center mt-0.5">
           <button
             type="button"
             onClick={handleContinue}
-            className="w-full rounded-2xl bg-black border-2 border-sky-400/90 py-3.5 sm:py-4 text-white shadow-xl shadow-sky-500/25 hover:bg-slate-950 hover:border-sky-300 active:scale-[0.98] transition-all cursor-pointer touch-manipulation flex items-center justify-center gap-2"
+            disabled={isProcessingPayment}
+            className="w-full rounded-2xl bg-black border-2 border-sky-400/90 py-3.5 sm:py-4 text-white shadow-xl shadow-sky-500/25 hover:bg-slate-950 hover:border-sky-300 active:scale-[0.98] transition-all cursor-pointer touch-manipulation flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed"
           >
-            <span className="text-sm sm:text-base font-black text-white">
-              {translations.pricing.ctaStart[lang].replace('{name}', currentPlanName).split('(')[0].trim()}
-            </span>
-            <span className="neon-blue-blink text-lg sm:text-xl font-black tracking-tight">
-              ({currentPlan.dollarPrice || currentPlan.priceText})
-            </span>
+            {isProcessingPayment ? (
+              <span className="flex items-center gap-2 text-sm font-black text-white">
+                <span className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                {lang === 'ko' ? '결제창 여는 중...' : 'Loading checkout...'}
+              </span>
+            ) : (
+              <>
+                <span className="text-sm sm:text-base font-black text-white">
+                  {translations.pricing.ctaStart[lang].replace('{name}', currentPlanName).split('(')[0].trim()}
+                </span>
+                <span className="neon-blue-blink text-lg sm:text-xl font-black tracking-tight">
+                  ({currentPlan.dollarPrice || currentPlan.priceText})
+                </span>
+              </>
+            )}
           </button>
 
           <button
             type="button"
             onClick={handleTryFree}
-            className="w-full py-2.5 px-3 rounded-xl border border-rose-500/80 bg-rose-950/30 hover:bg-rose-900/40 active:scale-[0.98] transition-all cursor-pointer flex items-center justify-center gap-1.5 neon-red-border select-none shadow-lg"
+            className="w-full py-2.5 px-3 rounded-xl border border-rose-500/80 bg-rose-950/30 hover:bg-rose-900/40 active:scale-[0.98] transition-all cursor-pointer flex items-center justify-center gap-1.5 neon-red-border select-none shadow-lg touch-manipulation"
           >
             <span className="text-sm shrink-0">🎁</span>
             <span className="neon-red-blink text-xs sm:text-sm font-black tracking-wide">

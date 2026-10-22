@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
 import { loadTossPayments, ANONYMOUS } from '@tosspayments/tosspayments-sdk';
 import { Language, SUPPORTED_LANGUAGES, translations } from '@/lib/i18n';
@@ -159,65 +159,65 @@ export default function PricingModal({
   onLanguageChange,
 }: PricingModalProps) {
   const [currentIdx, setCurrentIdx] = useState(0);
-  const [scanPos, setScanPos] = useState(0);
   const [selectedPlanId, setSelectedPlanId] = useState<PlanId>('pro');
-  const [progressPercent, setProgressPercent] = useState(0);
   const [isLangDropdownOpen, setIsLangDropdownOpen] = useState(false);
+  const [copyFeedback, setCopyFeedback] = useState(false);
+  const isClaimingRef = useRef(false);
 
-  // 🎬 상단 영상: 1.35배 빠른 좌우 왕복 스캔 모션 (0% ➔ 100% ➔ 0%)
+  // 🎬 상단 영상: 3.5초마다 부드럽게 다음 쇼케이스로 전환 (CSS GPU 가속 활용, 25ms 리렌더링 제거)
   useEffect(() => {
     if (!isOpen) return;
-
-    let pos = 0;
-    let phase: 'scanRight' | 'pauseRight' | 'scanLeft' | 'pauseLeft' = 'scanRight';
-    let pauseTicks = 0;
-
-    const SPEED = 1.35;
-    const PAUSE_RIGHT_TICKS = 22;
-    const PAUSE_LEFT_TICKS = 14;
-
-    setScanPos(0);
-    setProgressPercent(0);
-
-    const totalTicks = Math.round((100 / SPEED) * 2 + PAUSE_RIGHT_TICKS + PAUSE_LEFT_TICKS);
-    let currentTick = 0;
-
     const interval = setInterval(() => {
-      currentTick++;
-      const pct = Math.min(100, (currentTick / totalTicks) * 100);
-      setProgressPercent(pct);
-
-      if (phase === 'scanRight') {
-        pos += SPEED;
-        if (pos >= 100) {
-          pos = 100;
-          phase = 'pauseRight';
-          pauseTicks = PAUSE_RIGHT_TICKS;
-        }
-        setScanPos(pos);
-      } else if (phase === 'pauseRight') {
-        pauseTicks--;
-        if (pauseTicks <= 0) {
-          phase = 'scanLeft';
-        }
-      } else if (phase === 'scanLeft') {
-        pos -= SPEED;
-        if (pos <= 0) {
-          pos = 0;
-          phase = 'pauseLeft';
-          pauseTicks = PAUSE_LEFT_TICKS;
-        }
-        setScanPos(pos);
-      } else if (phase === 'pauseLeft') {
-        pauseTicks--;
-        if (pauseTicks <= 0) {
-          setCurrentIdx((prev) => (prev + 1) % SHOWCASE_FEATURES.length);
-        }
-      }
-    }, 25);
-
+      setCurrentIdx((prev) => (prev + 1) % SHOWCASE_FEATURES.length);
+    }, 3500);
     return () => clearInterval(interval);
-  }, [currentIdx, isOpen]);
+  }, [isOpen]);
+
+  // 🔗 브라우저 주소 간편 복사 핸들러
+  const handleCopyUrl = async () => {
+    try {
+      const url = typeof window !== 'undefined' ? window.location.href : 'https://ai-room-smart-designer-choi.vercel.app';
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        await navigator.clipboard.writeText(url);
+      } else {
+        const textArea = document.createElement('textarea');
+        textArea.value = url;
+        document.body.appendChild(textArea);
+        textArea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textArea);
+      }
+      setCopyFeedback(true);
+      setTimeout(() => setCopyFeedback(false), 2000);
+    } catch (e) {
+      console.warn('URL copy failed:', e);
+    }
+  };
+
+  // 무료 체험 시작 (10회 지급 및 즉시 첫 생성 마법사로 진행)
+  const handleTryFree = () => {
+    if (isClaimingRef.current) return;
+    isClaimingRef.current = true;
+    setTimeout(() => {
+      isClaimingRef.current = false;
+    }, 800);
+
+    try {
+      if (onClaimFreeCredits) onClaimFreeCredits();
+    } catch (e) {
+      console.error('Error claiming free credits:', e);
+    }
+    try {
+      onClose();
+    } catch (e) {
+      console.error('Error closing modal:', e);
+    }
+    try {
+      if (onStartExperience) onStartExperience();
+    } catch (e) {
+      console.error('Error starting experience:', e);
+    }
+  };
 
   if (!isOpen) return null;
 
@@ -232,19 +232,6 @@ export default function PricingModal({
   const currentPlanTagline = planTrans?.tagline[lang] || planTrans?.tagline['en'] || currentPlan.tagline;
 
   const [isProcessingPayment, setIsProcessingPayment] = useState(false);
-
-  // 무료 체험 시작 (10회 지급 및 즉시 첫 생성 마법사로 진행)
-  const handleTryFree = () => {
-    try {
-      if (onClaimFreeCredits) onClaimFreeCredits();
-    } catch (e) {
-      console.error('Error claiming free credits:', e);
-    }
-    onClose();
-    if (onStartExperience) {
-      onStartExperience();
-    }
-  };
 
   // 실제 결제 진행 (토스페이먼츠 카드/간편결제 연동)
   const handleContinue = async () => {
@@ -311,14 +298,31 @@ export default function PricingModal({
           </span>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5">
+          {/* 🔗 브라우저 주소 간편 복사 버튼 */}
+          <button
+            type="button"
+            onClick={handleCopyUrl}
+            onTouchEnd={(e) => {
+              e.preventDefault();
+              handleCopyUrl();
+            }}
+            className="flex items-center gap-1 rounded-full border border-white/10 bg-white/[0.04] hover:bg-white/[0.08] active:scale-95 px-2.5 py-1 text-xs font-medium text-slate-300 transition-all cursor-pointer touch-manipulation shrink-0"
+            title="웹 브라우저 주소 복사"
+          >
+            <span className="text-xs">{copyFeedback ? '✓' : '🔗'}</span>
+            <span className="text-[10px] font-bold text-slate-200">
+              {copyFeedback ? (lang === 'ko' ? '복사됨!' : 'Copied!') : (lang === 'ko' ? '주소복사' : 'Copy URL')}
+            </span>
+          </button>
+
           {/* 🌐 언어 선택 드롭다운 */}
           {onLanguageChange && (
             <div className="relative">
               <button
                 type="button"
                 onClick={() => setIsLangDropdownOpen(!isLangDropdownOpen)}
-                className="flex items-center gap-1.5 rounded-full border border-white/10 bg-white/[0.04] hover:bg-white/[0.08] px-2.5 py-1 text-xs font-medium text-slate-300 transition-all cursor-pointer"
+                className="flex items-center gap-1.5 rounded-full border border-white/10 bg-white/[0.04] hover:bg-white/[0.08] px-2.5 py-1 text-xs font-medium text-slate-300 transition-all cursor-pointer touch-manipulation"
                 title="Change Language"
               >
                 <span>{SUPPORTED_LANGUAGES.find((l) => l.code === lang)?.flag || '🌐'}</span>
@@ -360,7 +364,11 @@ export default function PricingModal({
           <button
             type="button"
             onClick={onClose}
-            className="flex h-7 w-7 items-center justify-center rounded-full bg-white/[0.06] hover:bg-white/[0.12] text-slate-400 hover:text-white active:scale-95 transition-all text-xs font-bold cursor-pointer"
+            onTouchEnd={(e) => {
+              e.preventDefault();
+              onClose();
+            }}
+            className="flex h-7 w-7 items-center justify-center rounded-full bg-white/[0.06] hover:bg-white/[0.12] text-slate-400 hover:text-white active:scale-95 transition-all text-xs font-bold cursor-pointer touch-manipulation"
             aria-label="Close"
           >
             ✕
@@ -384,10 +392,7 @@ export default function PricingModal({
           />
 
           {/* 애프터 변환 이미지 */}
-          <div
-            className="absolute inset-0 z-10"
-            style={{ clipPath: `inset(0 ${Math.max(0, 100 - scanPos)}% 0 0)` }}
-          >
+          <div className="absolute inset-0 z-10 animate-modal-clip">
             <Image
               src={currentFeature.afterImg}
               alt={`${currentFeature.title} After`}
@@ -398,10 +403,7 @@ export default function PricingModal({
           </div>
 
           {/* 스캔 레이저 바 */}
-          <div
-            className="absolute inset-y-0 z-20 w-[1.5px] bg-gradient-to-b from-rose-400 via-rose-500 to-rose-600 shadow-[0_0_8px_rgba(244,63,94,0.8)] pointer-events-none"
-            style={{ left: `${scanPos}%` }}
-          >
+          <div className="absolute inset-y-0 z-20 w-[1.5px] bg-gradient-to-b from-rose-400 via-rose-500 to-rose-600 shadow-[0_0_8px_rgba(244,63,94,0.8)] pointer-events-none animate-modal-laser">
             <div className="absolute top-2 -left-1 h-2 w-2 rounded-full bg-rose-400 shadow-[0_0_6px_rgba(244,63,94,1)]" />
             <div className="absolute bottom-4 -left-1 h-2 w-2 rounded-full bg-rose-400 shadow-[0_0_6px_rgba(244,63,94,1)]" />
           </div>
@@ -448,16 +450,13 @@ export default function PricingModal({
                 className="h-1 rounded-full bg-white/10 overflow-hidden cursor-pointer touch-manipulation hover:bg-white/20 transition-all"
               >
                 <div
-                  className={`h-full transition-all duration-100 ${
+                  className={`h-full transition-all duration-300 ${
                     isCompleted
                       ? 'w-full bg-rose-500'
                       : isCurrent
-                      ? 'bg-rose-500 shadow-[0_0_6px_rgba(244,63,94,0.6)]'
+                      ? 'w-full bg-rose-500 shadow-[0_0_6px_rgba(244,63,94,0.6)]'
                       : 'w-0'
                   }`}
-                  style={{
-                    width: isCurrent ? `${progressPercent}%` : isCompleted ? '100%' : '0%',
-                  }}
                 />
               </div>
             );
@@ -563,6 +562,10 @@ export default function PricingModal({
         {/* 🎁 눈에 확 띄는 오픈 기념 10크레딧 무료 체험 배너 (클릭 시 즉시 10크레딧 지급 및 마법사 시작) */}
         <div
           onClick={handleTryFree}
+          onTouchEnd={(e) => {
+            e.preventDefault();
+            handleTryFree();
+          }}
           role="button"
           tabIndex={0}
           onKeyDown={(e) => {
@@ -609,6 +612,11 @@ export default function PricingModal({
               e.stopPropagation();
               handleTryFree();
             }}
+            onTouchEnd={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              handleTryFree();
+            }}
             className="shrink-0 rounded-xl bg-gradient-to-r from-amber-400 to-orange-400 px-3 py-1.5 text-xs font-black text-slate-950 shadow-md group-hover:shadow-amber-400/50 transition-all whitespace-nowrap active:scale-95 cursor-pointer touch-manipulation"
           >
             {lang === 'ko' ? '10회 받기 ➔' : lang === 'ja' ? '無料で取得 ➔' : 'Claim ➔'}
@@ -638,7 +646,11 @@ export default function PricingModal({
           <button
             type="button"
             onClick={handleTryFree}
-            className="w-full py-2.5 px-3 rounded-xl border border-amber-400/40 bg-amber-500/10 hover:bg-amber-500/20 active:scale-[0.98] transition-all cursor-pointer flex items-center justify-center gap-1.5 select-none text-amber-300 hover:text-amber-200"
+            onTouchEnd={(e) => {
+              e.preventDefault();
+              handleTryFree();
+            }}
+            className="w-full py-2.5 px-3 rounded-xl border border-amber-400/40 bg-amber-500/10 hover:bg-amber-500/20 active:scale-[0.98] transition-all cursor-pointer flex items-center justify-center gap-1.5 select-none text-amber-300 hover:text-amber-200 touch-manipulation"
           >
             <span className="text-xs sm:text-sm font-bold">
               🎁 {translations.pricing.ctaFree[lang]}

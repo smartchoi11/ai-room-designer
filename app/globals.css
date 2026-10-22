@@ -46,6 +46,26 @@
       background-position: -200% 0;
     }
   }
+
+  @keyframes modalLaserSweep {
+    0% { left: 0%; }
+    50% { left: 100%; }
+    100% { left: 0%; }
+  }
+
+  @keyframes modalClipSweep {
+    0% { clip-path: inset(0 100% 0 0); }
+    50% { clip-path: inset(0 0% 0 0); }
+    100% { clip-path: inset(0 100% 0 0); }
+  }
+}
+
+.animate-modal-laser {
+  animation: modalLaserSweep 3s ease-in-out infinite;
+}
+
+.animate-modal-clip {
+  animation: modalClipSweep 3s ease-in-out infinite;
 }
 
 html {

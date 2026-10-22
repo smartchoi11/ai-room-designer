@@ -16,15 +16,19 @@ export const PROMO_VALIDITY_MS = PROMO_VALIDITY_DAYS * 24 * 60 * 60 * 1000;
 export function recordPromoPurchase(planId: string, creditsAdded: number) {
   if (typeof window === 'undefined') return;
 
-  const now = Date.now();
-  const expiresAt = now + PROMO_VALIDITY_MS;
+  try {
+    const now = Date.now();
+    const expiresAt = now + PROMO_VALIDITY_MS;
 
-  localStorage.setItem(PROMO_PURCHASED_AT_KEY, String(now));
-  localStorage.setItem(PROMO_EXPIRES_AT_KEY, String(expiresAt));
-  localStorage.setItem(PROMO_PURCHASED_PLAN_KEY, planId);
-  localStorage.setItem(PROMO_PURCHASED_CREDITS_KEY, String(creditsAdded));
+    localStorage.setItem(PROMO_PURCHASED_AT_KEY, String(now));
+    localStorage.setItem(PROMO_EXPIRES_AT_KEY, String(expiresAt));
+    localStorage.setItem(PROMO_PURCHASED_PLAN_KEY, planId);
+    localStorage.setItem(PROMO_PURCHASED_CREDITS_KEY, String(creditsAdded));
 
-  window.dispatchEvent(new Event(PROMO_STORAGE_EVENT));
+    window.dispatchEvent(new Event(PROMO_STORAGE_EVENT));
+  } catch (err) {
+    console.warn('Failed to record promo purchase to localStorage:', err);
+  }
 }
 
 export interface PromoExpiryStatus {

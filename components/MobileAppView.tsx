@@ -2119,6 +2119,28 @@ export default function MobileAppView() {
     setIsLangModalOpen(false);
   };
 
+  // 🔗 브라우저 URL 복사 상태 및 핸들러
+  const [isUrlCopied, setIsUrlCopied] = useState(false);
+  const handleCopyAppUrl = async () => {
+    try {
+      const url = typeof window !== 'undefined' ? window.location.href : 'https://ai-room-smart-designer-choi.vercel.app';
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        await navigator.clipboard.writeText(url);
+      } else {
+        const textArea = document.createElement('textarea');
+        textArea.value = url;
+        document.body.appendChild(textArea);
+        textArea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textArea);
+      }
+      setIsUrlCopied(true);
+      setTimeout(() => setIsUrlCopied(false), 2000);
+    } catch (e) {
+      console.warn('URL copy failed:', e);
+    }
+  };
+
   // 크레딧 상태 (localStorage) - 기본 0회 (테스트 누적 수치 자동 클린업)
   const [freeCountRaw, setFreeCountRaw] = useLocalStorage(
     'reroom_free_generations',
@@ -3914,6 +3936,23 @@ Ultra-photorealistic lifestyle interior photography, Architectural Digest party 
               {freeCount >= 999
                 ? (lang === 'ko' ? '무제한' : lang === 'ja' ? '無制限' : lang === 'es' ? 'Ilimitado' : 'Unlimited')
                 : `${freeCount} ${translations.header.credits[lang]}`}
+            </span>
+          </button>
+
+          {/* 🔗 주소 복사 버튼 (앱/브라우저 주소 간편 복사) */}
+          <button
+            type="button"
+            onClick={handleCopyAppUrl}
+            onTouchEnd={(e) => {
+              e.preventDefault();
+              handleCopyAppUrl();
+            }}
+            className="flex items-center gap-1 rounded-full border border-slate-700 bg-slate-900/90 px-2 py-1 text-[11px] font-bold text-slate-300 hover:text-white hover:border-slate-500 active:scale-95 transition-all shadow cursor-pointer shrink-0 touch-manipulation whitespace-nowrap"
+            title={lang === 'ko' ? '브라우저 주소 복사' : 'Copy URL'}
+          >
+            <span className="text-xs">{isUrlCopied ? '✓' : '🔗'}</span>
+            <span className="text-[10px] font-semibold">
+              {isUrlCopied ? (lang === 'ko' ? '복사됨!' : 'Copied!') : (lang === 'ko' ? '주소복사' : 'URL')}
             </span>
           </button>
 
@@ -7975,7 +8014,11 @@ Ultra-photorealistic lifestyle interior photography, Architectural Digest party 
       }}
       onStartExperience={() => {
         setIsPricingModalOpen(false);
-        startWizard(TOOL_CARDS[0]);
+        setActiveTab('tools');
+        setSelectedTool(TOOL_CARDS[0]);
+        setUploadedImage(null);
+        setWizardStep(1);
+        setIsWizardOpen(true);
       }}
       freeCreditsCount={freeCount}
       lang={lang}

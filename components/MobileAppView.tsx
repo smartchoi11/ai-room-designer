@@ -232,23 +232,109 @@ export interface ExploreGalleryItem {
 export const EXPLORE_CATEGORIES = {
   interior: [
     { id: 'all', icon: '✨', label: { ko: '전체', en: 'All', ja: 'すべて', es: 'Todos' } },
-    { id: 'toilet', icon: '🚽', label: { ko: 'Toilet', en: 'Toilet', ja: 'トイレ・風呂', es: 'Baño' } },
-    { id: 'restaurant', icon: '🍽️', label: { ko: 'Restaurant', en: 'Restaurant', ja: 'レストラン', es: 'Restaurante' } },
-    { id: 'office', icon: '🖥️', label: { ko: 'Office', en: 'Office', ja: 'オフィス', es: 'Oficina' } },
-    { id: 'attic', icon: '🏠', label: { ko: 'Attic', en: 'Attic', ja: '屋根裏', es: 'Ático' } },
-    { id: 'living', icon: '🛋️', label: { ko: 'Living Room', en: 'Living Room', ja: 'リビング', es: 'Sala' } },
-    { id: 'bedroom', icon: '🛏️', label: { ko: 'Bedroom', en: 'Bedroom', ja: 'ベッドルーム', es: 'Dormitorio' } },
-    { id: 'kitchen', icon: '🍳', label: { ko: 'Kitchen', en: 'Kitchen', ja: 'キッチン', es: 'Cocina' } },
+    { id: 'living', icon: '🛋️', label: { ko: '거실', en: 'Living Room', ja: 'リビング', es: 'Sala' } },
+    { id: 'bedroom', icon: '🛏️', label: { ko: '침실', en: 'Bedroom', ja: 'ベッドルーム', es: 'Dormitorio' } },
+    { id: 'kitchen', icon: '🍳', label: { ko: '주방', en: 'Kitchen', ja: 'キッチン', es: 'Cocina' } },
+    { id: 'toilet', icon: '🚽', label: { ko: '욕실&화장실', en: 'Bathroom & Toilet', ja: 'バス・トイレ', es: 'Baño y Aseo' } },
+    { id: 'attic', icon: '🏠', label: { ko: '다락방', en: 'Attic', ja: '屋根裏', es: 'Ático' } },
+    { id: 'restaurant', icon: '🍽️', label: { ko: '레스토랑&카페', en: 'Restaurant & Cafe', ja: 'レストラン・カフェ', es: 'Restaurante y Café' } },
+    { id: 'office', icon: '🖥️', label: { ko: '오피스&사무실', en: 'Office & Study', ja: 'オフィス・書斎', es: 'Oficina y Estudio' } },
   ],
   exterior: [
     { id: 'all', icon: '✨', label: { ko: '전체', en: 'All', ja: 'すべて', es: 'Todos' } },
-    { id: 'facade', icon: '🏡', label: { ko: 'Building & Villa', en: 'Building & Villa', ja: '建物・ヴィラ', es: 'Edificio y Villa' } },
-    { id: 'garden', icon: '🌿', label: { ko: 'Garden & Patio', en: 'Garden & Patio', ja: '庭園・パティオ', es: 'Jardín y Patio' } },
+    { id: 'facade', icon: '🏡', label: { ko: '빌라 & 단독주택', en: 'Building & Villa', ja: '建物・ヴィラ', es: 'Edificio y Villa' } },
+    { id: 'garden', icon: '🌿', label: { ko: '정원 & 테라스', en: 'Garden & Patio', ja: '庭園・パティオ', es: 'Jardín y Patio' } },
   ],
 };
 
 export const EXPLORE_GALLERY_ITEMS: ExploreGalleryItem[] = [
-  // ── 🚽 Bathroom / Toilet ──
+  // ── 🛋️ 1. Living Room (거실 - 일반 가정집 1순위) ──
+  {
+    id: 'living_modern',
+    category: 'interior',
+    subCategory: 'living',
+    title: { ko: '내추럴 미니멀 모던 리빙룸', en: 'Natural Minimal Living Room', ja: 'ナチュラルモダンリビング', es: 'Sala Minimalista Natural' },
+    style: { ko: '모던 미니멀', en: 'Modern Minimal', ja: 'モダンミニマル', es: 'Moderno Minimalista' },
+    img: '/showcase_modern_living.png',
+    roomType: 'living_room',
+    styleKey: 'modern',
+  },
+  {
+    id: 'living_luxury',
+    category: 'interior',
+    subCategory: 'living',
+    title: { ko: '펜트하우스 하이엔드 스위트 거실', en: 'Penthouse Luxury Suite Living', ja: 'ペントハウス高級リビング', es: 'Salón de Lujo Ático' },
+    style: { ko: '하이엔드 럭셔리', en: 'High-end Luxury', ja: 'ハイエンドラグジュアリー', es: 'Lujo Sofisticado' },
+    img: '/living_room_luxury.png',
+    roomType: 'living_room',
+    styleKey: 'modern',
+  },
+  {
+    id: 'living_nordic',
+    category: 'interior',
+    subCategory: 'living',
+    title: { ko: '스칸디나비안 웜 우드 리빙룸', en: 'Scandinavian Warm Wood Living', ja: '北欧ウォームウッドリビング', es: 'Sala Nórdica de Madera Cálida' },
+    style: { ko: '스칸디나비안', en: 'Scandinavian', ja: '北欧スタイル', es: 'Nórdico Cálido' },
+    img: '/gallery_05_nordic_living_wide_1787467117362.png',
+    roomType: 'living_room',
+    styleKey: 'scandinavian',
+  },
+
+  // ── 🛏️ 2. Bedroom (침실 - 일반 가정집 2순위) ──
+  {
+    id: 'bed_japandi',
+    category: 'interior',
+    subCategory: 'bedroom',
+    title: { ko: '재팬디 오가닉 힐링 침실', en: 'Japandi Organic Bedroom', ja: 'ジャパンディ寝室', es: 'Dormitorio Orgánico Japandi' },
+    style: { ko: '재팬디 젠', en: 'Japandi Zen', ja: 'ジャパンディ', es: 'Japandi Zen' },
+    img: '/gallery_08_japandi_bedroom_wide_1787467164852.png',
+    roomType: 'bedroom',
+    styleKey: 'japandi',
+  },
+  {
+    id: 'bed_hotel',
+    category: 'interior',
+    subCategory: 'bedroom',
+    title: { ko: '부티크 호텔 마스터베드룸', en: 'Boutique Hotel Master Bedroom', ja: 'ブティックホテル風寝室', es: 'Habitación Hotel Boutique' },
+    style: { ko: '호텔 스위트', en: 'Hotel Suite', ja: 'ホテルスイート', es: 'Suite de Hotel' },
+    img: '/showcase_bedroom.png',
+    roomType: 'bedroom',
+    styleKey: 'modern',
+  },
+  {
+    id: 'bed_master',
+    category: 'interior',
+    subCategory: 'bedroom',
+    title: { ko: '모던 프리미엄 마스터 침실', en: 'Modern Premium Master Bedroom', ja: 'モダンマスター寝室', es: 'Dormitorio Principal Moderno' },
+    style: { ko: '모던 클래식', en: 'Modern Classic', ja: 'モダンクラシック', es: 'Clásico Moderno' },
+    img: '/gallery_07_modern_master_bedroom_wide_1787467148091.png',
+    roomType: 'bedroom',
+    styleKey: 'modern',
+  },
+
+  // ── 🍳 3. Kitchen (주방 - 일반 가정집 3순위) ──
+  {
+    id: 'kitchen_modern',
+    category: 'interior',
+    subCategory: 'kitchen',
+    title: { ko: '마블 아일랜드 오픈 키친', en: 'Marble Island Open Kitchen', ja: '大理石アイランドキッチン', es: 'Cocina Abierta con Isla de Mármol' },
+    style: { ko: '모던 프리미엄', en: 'Modern Premium', ja: 'モダンプレミアム', es: 'Cocina Premium' },
+    img: '/showcase_modern_kitchen.png',
+    roomType: 'kitchen',
+    styleKey: 'modern',
+  },
+  {
+    id: 'kitchen_warm',
+    category: 'interior',
+    subCategory: 'kitchen',
+    title: { ko: '웜 우드 미니멀 다이닝 키친', en: 'Warm Minimal Dining Kitchen', ja: '温もりウッドダイニングキッチン', es: 'Cocina Comedor de Madera Cálida' },
+    style: { ko: '내추럴 우드', en: 'Natural Wood', ja: 'ナチュラルウッド', es: 'Madera Natural' },
+    img: '/showcase_kitchen.png',
+    roomType: 'kitchen',
+    styleKey: 'modern',
+  },
+
+  // ── 🚽 4. Bathroom / Toilet (욕실 & 화장실) ──
   {
     id: 'bath_zen',
     category: 'interior',
@@ -280,7 +366,19 @@ export const EXPLORE_GALLERY_ITEMS: ExploreGalleryItem[] = [
     styleKey: 'bohemian',
   },
 
-  // ── 🍽️ Restaurant & Cafe ──
+  // ── 🏠 5. Attic (다락방) ──
+  {
+    id: 'attic_cozy',
+    category: 'interior',
+    subCategory: 'attic',
+    title: { ko: '스카이라이트 노르딕 다락방', en: 'Sunlit Skylight Nordic Attic', ja: '天窓付き北欧屋根裏部屋', es: 'Ático Nórdico con Tragaluz' },
+    style: { ko: '스칸디나비안 코지', en: 'Scandinavian Cozy', ja: '北欧コージー', es: 'Nórdico Acogedor' },
+    img: '/explore/attic_cozy.jpg',
+    roomType: 'bedroom',
+    styleKey: 'scandinavian',
+  },
+
+  // ── 🍽️ 6. Restaurant & Cafe (레스토랑 & 카페 - 상업적 공간) ──
   {
     id: 'rest_luxury',
     category: 'interior',
@@ -302,7 +400,7 @@ export const EXPLORE_GALLERY_ITEMS: ExploreGalleryItem[] = [
     styleKey: 'industrial',
   },
 
-  // ── 🖥️ Office ──
+  // ── 🖥️ 7. Office & Study (오피스 & 사무실 - 상업/업무 공간) ──
   {
     id: 'office_exec',
     category: 'interior',
@@ -321,74 +419,6 @@ export const EXPLORE_GALLERY_ITEMS: ExploreGalleryItem[] = [
     style: { ko: '테크 & 사이버', en: 'Cyber Tech Studio', ja: 'テックスタジオ', es: 'Tecnología y Estudio' },
     img: '/showcase_gaming_room.png',
     roomType: 'study',
-    styleKey: 'modern',
-  },
-
-  // ── 🏠 Attic ──
-  {
-    id: 'attic_cozy',
-    category: 'interior',
-    subCategory: 'attic',
-    title: { ko: '스카이라이트 노르딕 다락방', en: 'Sunlit Skylight Nordic Attic', ja: '天窓付き北欧屋根裏部屋', es: 'Ático Nórdico con Tragaluz' },
-    style: { ko: '스칸디나비안 코지', en: 'Scandinavian Cozy', ja: '北欧コージー', es: 'Nórdico Acogedor' },
-    img: '/explore/attic_cozy.jpg',
-    roomType: 'bedroom',
-    styleKey: 'scandinavian',
-  },
-
-  // ── 🛋️ Living Room ──
-  {
-    id: 'living_modern',
-    category: 'interior',
-    subCategory: 'living',
-    title: { ko: '내추럴 미니멀 모던 리빙룸', en: 'Natural Minimal Living Room', ja: 'ナチュラルモダンリビング', es: 'Sala Minimalista Natural' },
-    style: { ko: '모던 미니멀', en: 'Modern Minimal', ja: 'モダンミニマル', es: 'Moderno Minimalista' },
-    img: '/showcase_modern_living.png',
-    roomType: 'living_room',
-    styleKey: 'modern',
-  },
-  {
-    id: 'living_luxury',
-    category: 'interior',
-    subCategory: 'living',
-    title: { ko: '펜트하우스 하이엔드 스위트', en: 'Penthouse Luxury Suite', ja: 'ペントハウス高級リビング', es: 'Salón de Lujo Ático' },
-    style: { ko: '하이엔드 럭셔리', en: 'High-end Luxury', ja: 'ハイエンドラグジュアリー', es: 'Lujo Sofisticado' },
-    img: '/living_room_luxury.png',
-    roomType: 'living_room',
-    styleKey: 'modern',
-  },
-
-  // ── 🛏️ Bedroom ──
-  {
-    id: 'bed_japandi',
-    category: 'interior',
-    subCategory: 'bedroom',
-    title: { ko: '재팬디 오가닉 힐링 침실', en: 'Japandi Organic Bedroom', ja: 'ジャパンディ寝室', es: 'Dormitorio Orgánico Japandi' },
-    style: { ko: '재팬디 젠', en: 'Japandi Zen', ja: 'ジャパンディ', es: 'Japandi Zen' },
-    img: '/gallery_08_japandi_bedroom_wide_1787467164852.png',
-    roomType: 'bedroom',
-    styleKey: 'japandi',
-  },
-  {
-    id: 'bed_hotel',
-    category: 'interior',
-    subCategory: 'bedroom',
-    title: { ko: '부티크 호텔 마스터베드룸', en: 'Boutique Hotel Master Bedroom', ja: 'ブティックホテル風寝室', es: 'Habitación Hotel Boutique' },
-    style: { ko: '호텔 스위트', en: 'Hotel Suite', ja: 'ホテルスイート', es: 'Suite de Hotel' },
-    img: '/showcase_bedroom.png',
-    roomType: 'bedroom',
-    styleKey: 'modern',
-  },
-
-  // ── 🍳 Kitchen ──
-  {
-    id: 'kitchen_modern',
-    category: 'interior',
-    subCategory: 'kitchen',
-    title: { ko: '마블 아일랜드 오픈 키친', en: 'Marble Island Open Kitchen', ja: '大理石アイランドキッチン', es: 'Cocina Abierta con Isla de Mármol' },
-    style: { ko: '모던 프리미엄', en: 'Modern Premium', ja: 'モダンプレミアム', es: 'Cocina Premium' },
-    img: '/showcase_modern_kitchen.png',
-    roomType: 'kitchen',
     styleKey: 'modern',
   },
 
@@ -2392,7 +2422,7 @@ export default function MobileAppView() {
 
   // 🧭 탐색(Explore) 탭 카테고리 필터 및 줌 모달 상태
   const [exploreMainCategory, setExploreMainCategory] = useState<'interior' | 'exterior'>('interior');
-  const [exploreSubCategory, setExploreSubCategory] = useState<string>('toilet');
+  const [exploreSubCategory, setExploreSubCategory] = useState<string>('all');
   const [previewExploreItem, setPreviewExploreItem] = useState<ExploreGalleryItem | null>(null);
 
   useEffect(() => {
@@ -4325,7 +4355,7 @@ Ultra-photorealistic lifestyle interior photography, Architectural Digest party 
               type="button"
               onClick={() => {
                 setExploreMainCategory('interior');
-                setExploreSubCategory('toilet');
+                setExploreSubCategory('all');
               }}
               className={`relative pb-2.5 text-sm sm:text-base font-black transition-all cursor-pointer ${
                 exploreMainCategory === 'interior'
@@ -4343,7 +4373,7 @@ Ultra-photorealistic lifestyle interior photography, Architectural Digest party 
               type="button"
               onClick={() => {
                 setExploreMainCategory('exterior');
-                setExploreSubCategory('facade');
+                setExploreSubCategory('all');
               }}
               className={`relative pb-2.5 text-sm sm:text-base font-black transition-all cursor-pointer ${
                 exploreMainCategory === 'exterior'

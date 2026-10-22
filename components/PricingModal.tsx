@@ -314,334 +314,308 @@ export default function PricingModal({
   };
 
   return (
-    <div className="pricing-modal-root fixed inset-0 z-50 flex flex-col justify-between bg-slate-950 text-white backdrop-blur-2xl shadow-2xl animate-fade-in sm:inset-auto sm:top-1/2 sm:left-1/2 sm:-translate-x-1/2 sm:-translate-y-1/2 sm:w-full sm:max-w-md sm:max-h-[96vh] sm:rounded-[36px] sm:border sm:border-slate-800/80 overflow-y-auto cursor-default touch-manipulation select-none p-3 pt-2 pb-4 sm:p-4.5">
+    <div className="pricing-modal-root fixed inset-0 z-50 flex flex-col bg-white text-slate-900 shadow-2xl animate-fade-in sm:inset-auto sm:top-1/2 sm:left-1/2 sm:-translate-x-1/2 sm:-translate-y-1/2 sm:w-full sm:max-w-md sm:max-h-[94vh] sm:rounded-[36px] sm:border sm:border-slate-200/90 overflow-y-auto cursor-default touch-manipulation select-none">
 
       {/* ─────────────────────────────────────────────────────────────
-          1. 최상단 헤더 바 (모던 미니멀 스타일)
+          1. [상단 비주얼 영역]: 화면의 약 1/2을 채우는 전면 쇼케이스 (Edge-to-Edge)
          ───────────────────────────────────────────────────────────── */}
-      <div className="flex items-center justify-between pb-1.5 border-b border-slate-800/50">
-        <div className="flex items-center gap-2 min-w-0">
-          <span className="text-lg sm:text-xl font-black tracking-tight text-white shrink-0 flex items-center gap-1.5">
-            <span className="text-amber-400">⚡</span> RoomFit AI
-          </span>
-          <span className="flex items-center gap-1 rounded-full bg-amber-400/10 px-2.5 py-0.5 text-[11px] font-bold text-amber-300 border border-amber-400/20 truncate">
-            <span>{translations.header.freeBadge[lang]}</span>
-          </span>
+      <div className="relative w-full h-[44vh] min-h-[290px] max-h-[380px] bg-slate-900 overflow-hidden shrink-0 select-none">
+        {/* 🎬 7-Segment 스토리 인디케이터 (상단 얇은 바) */}
+        <div className="absolute top-2 inset-x-3 z-30 grid grid-cols-7 gap-1 pointer-events-none">
+          {SHOWCASE_FEATURES.map((feat, idx) => {
+            const isCompleted = idx < currentIdx;
+            const isCurrent = idx === currentIdx;
+            return (
+              <div
+                key={feat.id}
+                className="h-1 rounded-full bg-white/25 overflow-hidden"
+              >
+                <div
+                  className={`h-full transition-all duration-100 ${
+                    isCompleted
+                      ? 'w-full bg-white'
+                      : isCurrent
+                      ? 'bg-white shadow-[0_0_6px_rgba(255,255,255,0.9)]'
+                      : 'w-0'
+                  }`}
+                  style={{
+                    width: isCurrent ? `${progressPercent}%` : isCompleted ? '100%' : '0%',
+                  }}
+                />
+              </div>
+            );
+          })}
         </div>
 
-        <div className="flex items-center gap-1.5">
-          {/* 🔗 브라우저 주소 간편 복사 버튼 */}
-          <button
-            type="button"
-            onClick={handleCopyUrl}
-            className="flex items-center gap-1 rounded-full border border-slate-800 bg-slate-900/90 px-2.5 py-1 text-xs font-semibold text-slate-300 hover:border-slate-700 active:scale-95 transition-all shadow-sm cursor-pointer touch-manipulation shrink-0"
-            title="웹 브라우저 주소 복사"
-          >
-            <span className="text-xs">{copyFeedback ? '✓' : '🔗'}</span>
-            <span className="text-[10px] font-bold text-slate-200">
-              {copyFeedback ? (lang === 'ko' ? '복사됨!' : 'Copied!') : (lang === 'ko' ? '주소복사' : 'Copy URL')}
-            </span>
-          </button>
-
-          {/* 🌐 언어 선택 드롭다운 */}
-          {onLanguageChange && (
-            <div className="relative">
-              <button
-                type="button"
-                onClick={() => setIsLangDropdownOpen(!isLangDropdownOpen)}
-                className="flex items-center gap-1.5 rounded-full border border-slate-800 bg-slate-900/90 px-2.5 py-1 text-xs font-semibold text-slate-300 hover:border-slate-700 active:scale-95 transition-all shadow-sm cursor-pointer"
-                title="Change Language"
-              >
-                <span>{SUPPORTED_LANGUAGES.find((l) => l.code === lang)?.flag || '🌐'}</span>
-                <span className="font-bold uppercase text-[10px]">{lang}</span>
-                <span className="text-[8px] text-slate-500">▾</span>
-              </button>
-              {isLangDropdownOpen && (
-                <>
-                  <div
-                    className="fixed inset-0 z-40 cursor-default"
-                    onClick={() => setIsLangDropdownOpen(false)}
-                  />
-                  <div className="absolute right-0 top-full mt-1.5 z-50 flex flex-col rounded-2xl border border-slate-800 bg-slate-900/95 backdrop-blur-xl shadow-2xl p-1.5 min-w-[130px]">
-                    {SUPPORTED_LANGUAGES.map((l) => (
-                      <button
-                        key={l.code}
-                        type="button"
-                        onClick={() => {
-                          onLanguageChange(l.code);
-                          setIsLangDropdownOpen(false);
-                        }}
-                        className={`flex items-center justify-between gap-2 px-3 py-1.5 rounded-xl text-xs font-semibold text-left transition-all cursor-pointer ${
-                          lang === l.code ? 'bg-amber-500/15 text-amber-300 font-bold' : 'text-slate-300 hover:bg-slate-800/80'
-                        }`}
-                      >
-                        <div className="flex items-center gap-2">
-                          <span>{l.flag}</span>
-                          <span>{l.nativeName}</span>
-                        </div>
-                        {lang === l.code && <span className="text-amber-400 text-xs">✓</span>}
-                      </button>
-                    ))}
-                  </div>
-                </>
-              )}
-            </div>
-          )}
-
+        {/* 🔝 이미지 위 플로팅 상단 바: 좌측 닫기(✕), 우측 주소복사 및 언어선택 */}
+        <div className="absolute top-4 inset-x-3 z-30 flex items-center justify-between pointer-events-auto">
+          {/* 좌측 닫기 버튼 (원형 다크 글래스) */}
           <button
             type="button"
             onClick={onClose}
-            className="flex h-7 w-7 items-center justify-center rounded-full bg-slate-900 border border-slate-800 text-slate-400 hover:text-white hover:bg-slate-800 active:scale-95 transition-all text-xs font-bold cursor-pointer"
+            className="flex h-8 w-8 items-center justify-center rounded-full bg-black/45 hover:bg-black/65 backdrop-blur-md text-white transition-all text-xs font-bold cursor-pointer shadow-md"
             aria-label="Close"
           >
             ✕
           </button>
-        </div>
-      </div>
 
-      {/* ─────────────────────────────────────────────────────────────
-          2. [비주얼 쇼케이스 & 요금제 통합 프레임]:
-             상단 여백 없이 화면 가득 확장된 고화질 쇼케이스 + 하단 요금제
-         ───────────────────────────────────────────────────────────── */}
-      <div className="relative w-full overflow-hidden rounded-3xl border border-slate-800/90 bg-slate-950 shadow-2xl select-none group mt-1.5 mb-2">
-        {/* 🎬 상단 영역: 전체 이미지가 온전히 다 보이는 쇼케이스 비주얼 (16:10 와이드 확장 프레임) */}
-        <div className="relative aspect-[16/10] w-full overflow-hidden bg-slate-900">
-          {/* 비포 원본 이미지 */}
+          {/* 우측 버튼 그룹 */}
+          <div className="flex items-center gap-1.5">
+            {/* 🔗 주소 복사 버튼 */}
+            <button
+              type="button"
+              onClick={handleCopyUrl}
+              className="flex items-center gap-1 rounded-full bg-black/45 hover:bg-black/65 backdrop-blur-md px-2.5 py-1 text-xs font-semibold text-white transition-all shadow-md cursor-pointer"
+              title="웹 브라우저 주소 복사"
+            >
+              <span className="text-xs">{copyFeedback ? '✓' : '🔗'}</span>
+              <span className="text-[10px] font-bold">
+                {copyFeedback ? (lang === 'ko' ? '복사됨!' : 'Copied!') : (lang === 'ko' ? '주소복사' : 'Copy URL')}
+              </span>
+            </button>
+
+            {/* 🌐 언어 선택 드롭다운 */}
+            {onLanguageChange && (
+              <div className="relative">
+                <button
+                  type="button"
+                  onClick={() => setIsLangDropdownOpen(!isLangDropdownOpen)}
+                  className="flex items-center gap-1 rounded-full bg-black/45 hover:bg-black/65 backdrop-blur-md px-2.5 py-1 text-xs font-semibold text-white transition-all shadow-md cursor-pointer"
+                  title="Change Language"
+                >
+                  <span>{SUPPORTED_LANGUAGES.find((l) => l.code === lang)?.flag || '🌐'}</span>
+                  <span className="font-bold uppercase text-[10px]">{lang}</span>
+                  <span className="text-[8px] text-white/70">▾</span>
+                </button>
+                {isLangDropdownOpen && (
+                  <>
+                    <div
+                      className="fixed inset-0 z-40 cursor-default"
+                      onClick={() => setIsLangDropdownOpen(false)}
+                    />
+                    <div className="absolute right-0 top-full mt-1.5 z-50 flex flex-col rounded-2xl border border-slate-200 bg-white/95 backdrop-blur-xl shadow-2xl p-1.5 min-w-[130px]">
+                      {SUPPORTED_LANGUAGES.map((l) => (
+                        <button
+                          key={l.code}
+                          type="button"
+                          onClick={() => {
+                            onLanguageChange(l.code);
+                            setIsLangDropdownOpen(false);
+                          }}
+                          className={`flex items-center justify-between gap-2 px-3 py-1.5 rounded-xl text-xs font-semibold text-left transition-all cursor-pointer ${
+                            lang === l.code ? 'bg-rose-50 text-rose-600 font-bold' : 'text-slate-700 hover:bg-slate-100'
+                          }`}
+                        >
+                          <div className="flex items-center gap-2">
+                            <span>{l.flag}</span>
+                            <span>{l.nativeName}</span>
+                          </div>
+                          {lang === l.code && <span className="text-rose-600 text-xs">✓</span>}
+                        </button>
+                      ))}
+                    </div>
+                  </>
+                )}
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* 🖼️ 비포 원본 이미지 */}
+        <Image
+          src={currentFeature.beforeImg}
+          alt={`${currentFeature.title} Before`}
+          fill
+          className="object-cover object-center"
+          priority
+        />
+
+        {/* 🖼️ 애프터 변환 이미지 (스캔 와이프) */}
+        <div
+          className="absolute inset-0 z-10"
+          style={{ clipPath: `inset(0 ${Math.max(0, 100 - scanPos)}% 0 0)` }}
+        >
           <Image
-            src={currentFeature.beforeImg}
-            alt={`${currentFeature.title} Before`}
+            src={currentFeature.afterImg}
+            alt={`${currentFeature.title} After`}
             fill
             className="object-cover object-center"
             priority
           />
+        </div>
 
-          {/* 애프터 변환 이미지 (스캔 와이프) */}
-          <div
-            className="absolute inset-0 z-10"
-            style={{ clipPath: `inset(0 ${Math.max(0, 100 - scanPos)}% 0 0)` }}
-          >
-            <Image
-              src={currentFeature.afterImg}
-              alt={`${currentFeature.title} After`}
-              fill
-              className="object-cover object-center"
-              priority
-            />
-          </div>
-
-          {/* 스캔 레이저 바 */}
-          <div
-            className="absolute inset-y-0 z-20 w-0.5 bg-gradient-to-b from-amber-300 via-amber-400 to-orange-400 shadow-[0_0_10px_rgba(251,191,36,0.9)] pointer-events-none"
-            style={{ left: `${scanPos}%` }}
-          >
-            <div className="absolute top-2 -left-1 h-2 w-2 rounded-full bg-amber-300 shadow-[0_0_6px_rgba(251,191,36,1)]" />
-            <div className="absolute bottom-2 -left-1 h-2 w-2 rounded-full bg-amber-300 shadow-[0_0_6px_rgba(251,191,36,1)]" />
-          </div>
-
-          {/* 좌우 이동 화살표 */}
-          <button
-            type="button"
-            onClick={handlePrevFeature}
-            className="absolute left-2.5 top-1/2 -translate-y-1/2 z-30 flex h-7 w-7 items-center justify-center rounded-full bg-slate-950/70 text-slate-300 hover:text-white backdrop-blur-md border border-white/10 active:scale-95 transition-all text-sm font-bold cursor-pointer"
-            aria-label="Previous"
-          >
-            ‹
-          </button>
-          <button
-            type="button"
-            onClick={handleNextFeature}
-            className="absolute right-2.5 top-1/2 -translate-y-1/2 z-30 flex h-7 w-7 items-center justify-center rounded-full bg-slate-950/70 text-slate-300 hover:text-white backdrop-blur-md border border-white/10 active:scale-95 transition-all text-sm font-bold cursor-pointer"
-            aria-label="Next"
-          >
-            ›
-          </button>
-
-          {/* 상단 오버레이: 7-Segment 인디케이터 + 타이틀 + BEFORE ➔ AFTER */}
-          <div className="absolute inset-x-0 top-0 z-30 p-2.5 pb-6 bg-gradient-to-b from-black/85 via-black/40 to-transparent">
-            {/* 7-Segment 스토리 인디케이터 */}
-            <div className="grid grid-cols-7 gap-1 mb-1.5">
-              {SHOWCASE_FEATURES.map((feat, idx) => {
-                const isCompleted = idx < currentIdx;
-                const isCurrent = idx === currentIdx;
-                return (
-                  <div
-                    key={feat.id}
-                    onClick={() => setCurrentIdx(idx)}
-                    className="h-1 rounded-full bg-white/20 overflow-hidden cursor-pointer touch-manipulation hover:bg-white/30 transition-all"
-                  >
-                    <div
-                      className={`h-full transition-all duration-100 ${
-                        isCompleted
-                          ? 'w-full bg-amber-400'
-                          : isCurrent
-                          ? 'bg-amber-400 shadow-[0_0_6px_rgba(251,191,36,0.9)]'
-                          : 'w-0'
-                      }`}
-                      style={{
-                        width: isCurrent ? `${progressPercent}%` : isCompleted ? '100%' : '0%',
-                      }}
-                    />
-                  </div>
-                );
-              })}
-            </div>
-
-            {/* 타이틀 및 BEFORE ➔ AFTER 뱃지 */}
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-1.5 min-w-0">
-                <span className="rounded-md bg-amber-400/25 px-1.5 py-0.5 text-[9.5px] font-mono font-black text-amber-300 border border-amber-400/30 backdrop-blur-md">
-                  {currentFeature.stepNum} / 07
-                </span>
-                <h2 className="text-xs sm:text-sm font-black tracking-tight text-white truncate drop-shadow-md">
-                  {currentTitle}
-                </h2>
-              </div>
-              <div className="flex items-center gap-1 shrink-0 pointer-events-none">
-                <span className="rounded-full bg-slate-950/80 px-2 py-0.5 text-[8.5px] font-black text-slate-300 backdrop-blur-md border border-white/10">
-                  {translations.pricing.before[lang]}
-                </span>
-                <span className="text-[9px] text-amber-400 font-bold">➔</span>
-                <span className="rounded-full bg-gradient-to-r from-amber-400 to-orange-400 px-2 py-0.5 text-[8.5px] font-black text-slate-950 shadow-sm">
-                  {translations.pricing.after[lang]}
-                </span>
-              </div>
-            </div>
-            <p className="text-[10px] text-slate-200/90 font-medium line-clamp-1 drop-shadow mt-0.5">
-              {currentSubtitle}
-            </p>
+        {/* ⚡ 스캔 레이저 바 & 중앙 ◀ ▶ 조절 핸들 (참조 이미지와 동일) */}
+        <div
+          className="absolute inset-y-0 z-20 w-0.5 bg-white shadow-[0_0_10px_rgba(255,255,255,0.9)] pointer-events-none"
+          style={{ left: `${scanPos}%` }}
+        >
+          <div className="absolute top-1/2 -translate-y-1/2 -left-3.5 h-7 w-7 rounded-full bg-white text-slate-800 shadow-xl flex items-center justify-center text-[10px] font-black pointer-events-none select-none tracking-tighter border border-slate-200">
+            ◀▶
           </div>
         </div>
 
-        {/* 💳 하단 영역: 요금제 카드 (글래스모피즘 + 앰버 골드 럭셔리 스타일 유지) */}
-        <div className="p-2.5 pt-2 flex flex-col gap-2 bg-gradient-to-b from-slate-950/90 via-slate-950 to-slate-950 border-t border-slate-800/60">
-          {/* 요금제 타이틀 & 안내 */}
-          <div className="flex items-center justify-between px-0.5">
-            <span className="text-[11px] sm:text-xs font-black text-slate-100 uppercase tracking-wider flex items-center gap-1.5">
-              <span className="text-amber-400">💎</span> {translations.pricing.title[lang]}
-            </span>
-            <span className="text-[10.5px] font-bold text-amber-300">
-              {translations.pricing.tryBeforeBuy[lang]}
-            </span>
-          </div>
+        {/* 🏷️ Before 뱃지 (참조 이미지 하단 중앙 뱃지 스타일) */}
+        <span className="absolute bottom-8 left-1/2 -translate-x-1/2 z-20 rounded-full bg-black/55 backdrop-blur-md px-3.5 py-1 text-[11px] font-black text-white pointer-events-none shadow-md">
+          {translations.pricing.before[lang]}
+        </span>
 
-          {/* 3가지 요금제 카드 */}
-          <div className="grid grid-cols-3 gap-2">
-            {NEW_APP_PLANS.map((plan) => {
-              const isSelected = selectedPlanId === plan.id;
-              const pTrans = translations.pricing.plans[plan.id];
-              const pName = pTrans?.name[lang] || pTrans?.name['en'] || plan.name;
-              const pBadge = pTrans?.badge[lang] || pTrans?.badge['en'] || plan.badge;
-              const pCredits = pTrans?.creditsText[lang] || pTrans?.creditsText['en'] || plan.creditsText;
-              const pPeriod = pTrans?.periodText[lang] || pTrans?.periodText['en'] || plan.periodText;
+        {/* 좌우 이동 화살표 */}
+        <button
+          type="button"
+          onClick={handlePrevFeature}
+          className="absolute left-2.5 top-1/2 -translate-y-1/2 z-30 flex h-7 w-7 items-center justify-center rounded-full bg-black/40 text-white hover:bg-black/60 backdrop-blur-md border border-white/20 active:scale-95 transition-all text-sm font-bold cursor-pointer"
+          aria-label="Previous"
+        >
+          ‹
+        </button>
+        <button
+          type="button"
+          onClick={handleNextFeature}
+          className="absolute right-2.5 top-1/2 -translate-y-1/2 z-30 flex h-7 w-7 items-center justify-center rounded-full bg-black/40 text-white hover:bg-black/60 backdrop-blur-md border border-white/20 active:scale-95 transition-all text-sm font-bold cursor-pointer"
+          aria-label="Next"
+        >
+          ›
+        </button>
 
-              return (
-                <button
-                  type="button"
-                  key={plan.id}
-                  onClick={() => setSelectedPlanId(plan.id)}
-                  className={`relative flex flex-col items-center justify-between rounded-2xl border p-2 pt-3 pb-2 text-center transition-all duration-200 cursor-pointer touch-manipulation backdrop-blur-md ${
-                    isSelected
-                      ? 'border-amber-400 bg-gradient-to-b from-amber-500/25 via-amber-500/10 to-slate-950/90 shadow-lg shadow-amber-500/20 ring-1 ring-amber-400/60 scale-[1.02]'
-                      : 'border-slate-800/90 bg-slate-900/80 hover:border-slate-700 hover:bg-slate-900 text-slate-400'
-                  }`}
-                >
-                  {/* 상단 뱃지 */}
-                  {pBadge && (
-                    <span
-                      className={`absolute -top-2 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full px-2 py-0.5 text-[8px] font-black uppercase tracking-wider shadow-sm ${
-                        plan.highlighted
-                          ? 'bg-gradient-to-r from-amber-400 to-orange-400 text-slate-950 font-black'
-                          : 'bg-slate-800 text-slate-200 border border-slate-700'
-                      }`}
-                    >
-                      {pBadge}
-                    </span>
-                  )}
-
-                  {/* 플랜 이름 & 크레딧 */}
-                  <div className="mt-0.5 flex flex-col items-center">
-                    <span className={`text-[11px] sm:text-xs font-black block leading-tight ${isSelected ? 'text-white' : 'text-slate-300'}`}>
-                      {pName}
-                    </span>
-                    <span className="text-[9.5px] font-bold text-amber-400 mt-0.5 leading-tight">
-                      {pCredits}
-                    </span>
-                  </div>
-
-                  {/* 가격 */}
-                  <div className="my-1 flex flex-col items-center">
-                    <span className="text-lg sm:text-xl font-black text-white tracking-tight leading-none">
-                      {plan.dollarPrice || plan.priceText}
-                    </span>
-                    <span className="text-[9px] font-medium text-slate-400 mt-0.5 whitespace-nowrap">
-                      {pPeriod}
-                    </span>
-                  </div>
-                </button>
-              );
-            })}
-          </div>
-
-          {/* 선택된 요금제 한 줄 혜택 */}
-          <div className="rounded-xl border border-amber-500/30 bg-slate-900/90 px-2.5 py-1.5 text-xs text-slate-200 flex items-center justify-between gap-2 shadow-sm">
-            <div className="flex items-center gap-1.5 min-w-0">
-              <span className="text-amber-400 font-bold text-xs shrink-0">✨</span>
-              <span className="text-[11px] font-medium text-slate-200 truncate">{currentPlanTagline}</span>
-            </div>
-            <span className="font-black text-amber-300 shrink-0 text-xs tracking-tight bg-amber-500/15 px-2 py-0.5 rounded-full border border-amber-500/25">
-              {currentPlan.dollarPrice || currentPlan.priceText}
-            </span>
-          </div>
-        </div>
+        {/* 하단 소프트 화이트 페이드 그라데이션 (화이트 배경으로 자연스러운 전환) */}
+        <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-white via-white/80 to-transparent pointer-events-none z-10" />
       </div>
 
-        {/* 🎁 대표님 지정: 오픈 기념 10크레딧 무료 프로모션 배너 (터치 시 즉시 10크레딧 적립 & 체험 시작) */}
+      {/* ─────────────────────────────────────────────────────────────
+          2. [하단 화이트 영역]: 타이틀 + 혜택 칩 + 가로배치 요금제 + 결제 버튼
+         ───────────────────────────────────────────────────────────── */}
+      <div className="relative z-20 -mt-5 flex-1 flex flex-col justify-between px-4 pb-4 pt-1 bg-white space-y-3">
+        {/* 헤드라인 타이틀 (참조 이미지: Unlock Unlimited Access) */}
+        <div className="text-center pt-1">
+          <h2 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight leading-tight">
+            {lang === 'ko'
+              ? '무제한 인테리어 AI 이용권'
+              : lang === 'ja'
+              ? '無制限インテリアAIアクセス'
+              : lang === 'es'
+              ? 'Acceso Ilimitado Interior AI'
+              : 'Unlock Unlimited Access'}
+          </h2>
+          <p className="text-xs text-slate-500 font-medium mt-1 truncate">
+            {currentFeature.stepNum}/07 {currentTitle} · {currentSubtitle}
+          </p>
+        </div>
+
+        {/* 혜택 칩 (참조 이미지: Faster Outcomes, No Ads 등 가로 칩 배치) */}
+        <div className="flex items-center justify-center gap-2 flex-wrap">
+          <div className="flex items-center gap-1.5 rounded-2xl border border-slate-200/90 bg-slate-50/90 px-3 py-1.5 shadow-2xs">
+            <span className="text-[#ff2d55] text-xs font-bold">⚡</span>
+            <span className="text-xs font-bold text-slate-800">
+              {lang === 'ko' ? '빠른 AI 렌더링' : 'Faster Outcomes'}
+            </span>
+          </div>
+          <div className="flex items-center gap-1.5 rounded-2xl border border-slate-200/90 bg-slate-50/90 px-3 py-1.5 shadow-2xs">
+            <span className="text-[#ff2d55] text-xs font-bold">🔒</span>
+            <span className="text-xs font-bold text-slate-800">
+              {lang === 'ko' ? '광고 없는 무제한' : 'No Ads'}
+            </span>
+          </div>
+          <div className="flex items-center gap-1.5 rounded-2xl border border-slate-200/90 bg-slate-50/90 px-3 py-1.5 shadow-2xs">
+            <span className="text-[#ff2d55] text-xs font-bold">💎</span>
+            <span className="text-xs font-bold text-slate-800">
+              {lang === 'ko' ? '4K 초고화질' : 'Ultra 4K HD'}
+            </span>
+          </div>
+        </div>
+
+        {/* 💳 요금제 가로배치 (참조 이미지 스타일: 가로 와이드 카드 스택) */}
+        <div className="flex flex-col gap-2.5">
+          {NEW_APP_PLANS.map((plan) => {
+            const isSelected = selectedPlanId === plan.id;
+            const pTrans = translations.pricing.plans[plan.id];
+            const pName = pTrans?.name[lang] || pTrans?.name['en'] || plan.name;
+            const pCredits = pTrans?.creditsText[lang] || pTrans?.creditsText['en'] || plan.creditsText;
+            const isPro = plan.id === 'pro';
+
+            return (
+              <button
+                type="button"
+                key={plan.id}
+                onClick={() => setSelectedPlanId(plan.id)}
+                className={`relative w-full rounded-2xl p-3 sm:p-3.5 text-left transition-all duration-200 cursor-pointer touch-manipulation flex items-center justify-between ${
+                  isSelected
+                    ? 'border-2 border-[#ff2d55] bg-rose-50/30 shadow-md ring-1 ring-[#ff2d55]/20'
+                    : 'border border-slate-200/90 bg-white hover:border-slate-300 hover:bg-slate-50/60 shadow-xs'
+                }`}
+              >
+                {/* BEST OFFER 뱃지 (프로 팩 상단 우측에 부착, 참조 이미지와 100% 동일) */}
+                {isPro && (
+                  <span className="absolute -top-2.5 right-4 rounded-full bg-[#ff2d55] px-2.5 py-0.5 text-[9px] font-black uppercase text-white shadow-sm tracking-wider">
+                    BEST OFFER
+                  </span>
+                )}
+
+                {/* 좌측: 주기 설명 및 플랜명 & 크레딧 */}
+                <div className="flex flex-col min-w-0 pr-2">
+                  <span className="text-[11px] font-medium text-slate-500 leading-tight">
+                    {plan.id === 'starter'
+                      ? (lang === 'ko' ? '1회 충전 · 30 크레딧' : 'Billed Once · 30 Credits')
+                      : plan.id === 'amateur'
+                      ? (lang === 'ko' ? '월간 결제 · 1개월 무제한' : 'Billed Monthly · 1 Month Pass')
+                      : (lang === 'ko' ? '3개월 일괄 결제 · 3개월 무제한' : 'Billed 3-Months · 3 Months Pass')}
+                  </span>
+                  <div className="flex items-center gap-2 mt-0.5">
+                    <span className={`text-sm sm:text-base font-black ${isSelected ? 'text-slate-950' : 'text-slate-800'}`}>
+                      {pName}
+                    </span>
+                    <span className="text-xs font-bold text-slate-500">
+                      ({pCredits})
+                    </span>
+                  </div>
+                </div>
+
+                {/* 우측: 가격 */}
+                <div className="flex flex-col items-end shrink-0">
+                  <span className="text-base sm:text-lg font-black text-slate-950 tracking-tight leading-none">
+                    {plan.dollarPrice || plan.priceText}
+                  </span>
+                  <span className="text-[10px] font-medium text-slate-500 mt-0.5">
+                    {plan.id === 'starter'
+                      ? (lang === 'ko' ? '1회 충전' : 'One-time')
+                      : plan.id === 'amateur'
+                      ? (lang === 'ko' ? '/ 월' : '/ Month')
+                      : (lang === 'ko' ? '월 $6.66 상당' : '$6.66 / mo')}
+                  </span>
+                </div>
+              </button>
+            );
+          })}
+        </div>
+
+        {/* 🎁 구글 플레이 출시 기념 10크레딧 무료 증정 배너 */}
         <button
           type="button"
           onClick={handleTryFree}
-          className="w-full rounded-2xl border border-amber-400/60 bg-gradient-to-r from-amber-500/20 via-orange-500/20 to-amber-500/25 p-3 shadow-md hover:border-amber-300 hover:brightness-110 active:scale-[0.98] transition-all flex items-center justify-between gap-2 cursor-pointer touch-manipulation group text-left select-none"
+          className="w-full flex items-center justify-between p-2.5 px-3 rounded-2xl bg-amber-50/80 border border-amber-200/90 text-left hover:bg-amber-100/60 active:scale-[0.99] transition-all cursor-pointer shadow-2xs"
         >
-          <div className="flex items-center gap-2.5 min-w-0">
-            <span className="text-xl shrink-0 group-hover:scale-110 transition-transform">🎁</span>
+          <div className="flex items-center gap-2 min-w-0">
+            <span className="text-base">🎁</span>
             <div className="flex flex-col min-w-0">
-              <span className="text-xs sm:text-sm font-black text-amber-300 truncate">
-                {lang === 'ko'
-                  ? 'Google Play 출시 기념 10크레딧 무료 증정'
-                  : lang === 'ja'
-                  ? 'Google Playリリース記念 10クレジット無料進呈'
-                  : lang === 'es'
-                  ? '10 Créditos Gratis por Lanzamiento'
-                  : 'Launch Special: 10 Free Credits'}
+              <span className="text-[11px] font-black text-amber-950 truncate">
+                {lang === 'ko' ? 'Google Play 출시 기념 10크레딧 무료 증정' : 'Google Play Launch 10 Free Credits'}
               </span>
-              <span className="text-[10px] sm:text-[11px] font-semibold text-slate-200 truncate">
-                {lang === 'ko'
-                  ? '10월 31일까지 누구나 10회 무료 체험 가능!'
-                  : lang === 'ja'
-                  ? '10月31日まで誰でも10回無料でお試し可能！'
-                  : lang === 'es'
-                  ? '¡10 pruebas gratis hasta el 31 de octubre!'
-                  : '10 free trials for everyone until Oct 31!'}
+              <span className="text-[9.5px] font-semibold text-amber-800 truncate">
+                {lang === 'ko' ? '10월 31일까지 누구나 10회 무료 체험 가능!' : '10 free trials for everyone until Oct 31!'}
               </span>
             </div>
           </div>
-          <span className="shrink-0 rounded-full bg-gradient-to-r from-amber-400 to-orange-400 px-2.5 py-1 text-[10px] sm:text-xs font-black text-slate-950 shadow-md whitespace-nowrap">
-            {lang === 'ko'
-              ? '지금 10회 받기 ➔'
-              : lang === 'ja'
-              ? '今すぐ10回受取 ➔'
-              : lang === 'es'
-              ? 'Obtener 10 ➔'
-              : 'Claim 10 Free ➔'}
+          <span className="shrink-0 rounded-full bg-gradient-to-r from-amber-500 to-orange-500 px-2.5 py-0.5 text-[10px] font-black text-white shadow-sm whitespace-nowrap">
+            {lang === 'ko' ? '지금 10회 받기 ➔' : 'Claim 10 ➔'}
           </span>
         </button>
 
-        {/* 하단 메인 결제 버튼 (블랙 버튼 + 파란색 네온 결제금액 폰트 확대) */}
-        <div className="space-y-1.5 text-center mt-0.5">
+        {/* 메인 액션 버튼 (참조 이미지의 Continue 버튼: 밝은 코랄 레드 풀와이드 버튼) */}
+        <div className="space-y-1.5 text-center pt-0.5">
           <button
             type="button"
             onClick={handleContinue}
             disabled={isProcessingPayment}
-            className="w-full rounded-2xl bg-black border-2 border-sky-400/90 py-3.5 sm:py-4 text-white shadow-xl shadow-sky-500/25 hover:bg-slate-950 hover:border-sky-300 active:scale-[0.98] transition-all cursor-pointer touch-manipulation flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed"
+            className="w-full rounded-2xl bg-[#ff2d55] hover:bg-[#e02449] py-3.5 sm:py-4 text-white shadow-lg shadow-rose-500/25 active:scale-[0.98] transition-all cursor-pointer touch-manipulation flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed font-black text-base sm:text-lg tracking-tight"
           >
             {isProcessingPayment ? (
               <span className="flex items-center gap-2 text-sm font-black text-white">
@@ -649,18 +623,28 @@ export default function PricingModal({
                 {lang === 'ko' ? '결제창 여는 중...' : 'Loading checkout...'}
               </span>
             ) : (
-              <>
-                <span className="text-sm sm:text-base font-black text-white">
-                  {translations.pricing.ctaStart[lang].replace('{name}', currentPlanName).split('(')[0].trim()}
-                </span>
-                <span className="neon-blue-blink text-lg sm:text-xl font-black tracking-tight">
-                  ({currentPlan.dollarPrice || currentPlan.priceText})
-                </span>
-              </>
+              <span>
+                {lang === 'ko'
+                  ? `계속하기 (${currentPlan.dollarPrice || currentPlan.priceText})`
+                  : `Continue (${currentPlan.dollarPrice || currentPlan.priceText})`}
+              </span>
             )}
           </button>
 
-          <p className="text-center text-[9.5px] text-slate-400 mt-1 leading-tight">
+          {/* 푸터 이용약관 및 자동갱신 안내 링크 (참조 이미지 하단과 동일) */}
+          <div className="flex items-center justify-center gap-3 text-[11px] font-medium text-slate-400 pt-1">
+            <a href="/terms" target="_blank" className="hover:text-slate-600 underline underline-offset-2">
+              {lang === 'ko' ? '이용약관' : 'Terms'}
+            </a>
+            <span>•</span>
+            <span>{lang === 'ko' ? '언제든 해지 가능' : 'Auto Renewal, Cancel Anytime'}</span>
+            <span>•</span>
+            <a href="/privacy" target="_blank" className="hover:text-slate-600 underline underline-offset-2">
+              {lang === 'ko' ? '개인정보처리방침' : 'Privacy'}
+            </a>
+          </div>
+
+          <p className="text-center text-[9px] text-slate-400 mt-0.5 leading-tight">
             {lang === 'ko'
               ? '※ 프로모션 기간 내 결제 내역은 결제일로부터 30일간 유효하며, 30일 후 잔여분은 자동 소멸됩니다.'
               : lang === 'ja'
@@ -670,70 +654,7 @@ export default function PricingModal({
               : '※ Promotional purchases are valid for 30 days from purchase date and expire thereafter.'}
           </p>
         </div>
-
-      {/* 🌟 100% 무결점 인라인 CSS (파란색 네온 깜박임 + 오른쪽 ➔ 왼쪽 마키) */}
-      <style>{`
-        @keyframes marquee-rtl-smooth {
-          0% {
-            transform: translateX(0%);
-          }
-          100% {
-            transform: translateX(-50%);
-          }
-        }
-        @keyframes neon-blue-blink-anim {
-          0%, 100% {
-            color: #f0f9ff;
-            text-shadow: 0 0 4px #38bdf8, 0 0 10px #0ea5e9, 0 0 20px #0284c7, 0 0 32px #0284c7;
-            filter: drop-shadow(0 0 6px rgba(56, 189, 248, 0.95));
-            opacity: 1;
-          }
-          50% {
-            color: #7dd3fc;
-            text-shadow: 0 0 2px #38bdf8, 0 0 4px #0369a1;
-            filter: drop-shadow(0 0 2px rgba(56, 189, 248, 0.35));
-            opacity: 0.55;
-          }
-        }
-        .marquee-rtl-track {
-          display: flex;
-          width: max-content;
-          animation: marquee-rtl-smooth 15s linear infinite;
-        }
-        .neon-blue-blink {
-          animation: neon-blue-blink-anim 1.8s ease-in-out infinite;
-        }
-        @keyframes neon-red-blink-anim {
-          0%, 100% {
-            color: #ffffff;
-            text-shadow: 0 0 4px #ff3366, 0 0 10px #ff0055, 0 0 20px #ff0055, 0 0 30px #e11d48;
-            filter: drop-shadow(0 0 6px rgba(255, 0, 85, 0.95));
-            opacity: 1;
-          }
-          50% {
-            color: #fca5a5;
-            text-shadow: 0 0 2px #ff3366, 0 0 6px #e11d48;
-            filter: drop-shadow(0 0 2px rgba(255, 0, 85, 0.45));
-            opacity: 0.65;
-          }
-        }
-        @keyframes neon-red-border-anim {
-          0%, 100% {
-            border-color: rgba(255, 0, 85, 0.9);
-            box-shadow: 0 0 15px rgba(255, 0, 85, 0.45), inset 0 0 8px rgba(255, 0, 85, 0.15);
-          }
-          50% {
-            border-color: rgba(255, 0, 85, 0.35);
-            box-shadow: 0 0 5px rgba(255, 0, 85, 0.15), inset 0 0 2px rgba(255, 0, 85, 0.05);
-          }
-        }
-        .neon-red-blink {
-          animation: neon-red-blink-anim 1.6s ease-in-out infinite;
-        }
-        .neon-red-border {
-          animation: neon-red-border-anim 1.6s ease-in-out infinite;
-        }
-      `}</style>
+      </div>
     </div>
   );
 }

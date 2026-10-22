@@ -7829,43 +7829,92 @@ Ultra-photorealistic lifestyle interior photography, Architectural Digest party 
         </div>
       )}
 
-      {/* ── 📱 하단 4단 고정 바 (Home AI 스타일) ── */}
-      <nav className="fixed bottom-0 left-0 right-0 z-40 mx-auto max-w-md border-t border-slate-200/90 bg-white/95 px-6 py-2 backdrop-blur-lg shadow-lg">
+      {/* ── 📱 하단 3단 미니멀 고정 바 (홈 / 탐색 / 내 정보) ── */}
+      <nav className="fixed bottom-0 left-0 right-0 z-40 mx-auto max-w-md border-t border-slate-100 bg-white/95 px-10 py-2 backdrop-blur-lg shadow-lg">
         <div className="flex items-center justify-between">
+          {/* 1. 홈 (Home) */}
           <button
             onClick={() => setActiveTab('tools')}
-            className={`flex flex-col items-center gap-1 transition-all ${activeTab === 'tools' ? 'text-amber-600 scale-105 font-black' : 'text-slate-500 hover:text-slate-800 font-medium'
-              }`}
+            className={`flex flex-col items-center gap-1 transition-all cursor-pointer touch-manipulation ${
+              activeTab === 'tools'
+                ? 'text-[#ff2d55] font-bold'
+                : 'text-slate-400 hover:text-slate-600 font-medium'
+            }`}
           >
-            <span className="text-xl">🧰</span>
-            <span className="text-[10px]">{translations.home.tabs.tools[lang]}</span>
+            <svg
+              className="w-5 h-5"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth={activeTab === 'tools' ? '2.2' : '1.8'}
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <path d="m15 4-2 2" />
+              <path d="m15 9-9 9a2.121 2.121 0 0 1-3-3l9-9" />
+              <path d="M19 15v6" />
+              <path d="M22 18h-6" />
+              <path d="M2 2l3 3" />
+              <path d="M2 8 8 2" />
+            </svg>
+            <span className="text-[9.5px] tracking-tight">
+              {lang === 'ko' ? '홈' : lang === 'ja' ? 'ホーム' : lang === 'es' ? 'Inicio' : 'Home'}
+            </span>
           </button>
 
-          <button
-            onClick={() => startWizard()}
-            className={`flex flex-col items-center gap-1 transition-all ${activeTab === 'create' ? 'text-amber-600 scale-105 font-black' : 'text-slate-500 hover:text-slate-800 font-medium'
-              }`}
-          >
-            <span className="text-xl">➕</span>
-            <span className="text-[10px]">{translations.home.tabs.create[lang]}</span>
-          </button>
-
+          {/* 2. 탐색 (Explore) */}
           <button
             onClick={() => setActiveTab('discover')}
-            className={`flex flex-col items-center gap-1 transition-all ${activeTab === 'discover' ? 'text-amber-600 scale-105 font-black' : 'text-slate-500 hover:text-slate-800 font-medium'
-              }`}
+            className={`flex flex-col items-center gap-1 transition-all cursor-pointer touch-manipulation ${
+              activeTab === 'discover'
+                ? 'text-[#ff2d55] font-bold'
+                : 'text-slate-400 hover:text-slate-600 font-medium'
+            }`}
           >
-            <span className="text-xl">✨</span>
-            <span className="text-[10px]">{translations.home.tabs.discover[lang]}</span>
+            <svg
+              className="w-5 h-5"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth={activeTab === 'discover' ? '2.2' : '1.8'}
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <circle cx="12" cy="12" r="10" />
+              <polygon
+                points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"
+                fill={activeTab === 'discover' ? 'currentColor' : 'none'}
+              />
+            </svg>
+            <span className="text-[9.5px] tracking-tight">
+              {lang === 'ko' ? '탐색' : lang === 'ja' ? '探索' : lang === 'es' ? 'Explorar' : 'Explore'}
+            </span>
           </button>
 
+          {/* 3. 내 정보 (Profile) */}
           <button
             onClick={() => setActiveTab('profile')}
-            className={`flex flex-col items-center gap-1 transition-all ${activeTab === 'profile' ? 'text-amber-600 scale-105 font-black' : 'text-slate-500 hover:text-slate-800 font-medium'
-              }`}
+            className={`flex flex-col items-center gap-1 transition-all cursor-pointer touch-manipulation ${
+              activeTab === 'profile'
+                ? 'text-[#ff2d55] font-bold'
+                : 'text-slate-400 hover:text-slate-600 font-medium'
+            }`}
           >
-            <span className="text-xl">👤</span>
-            <span className="text-[10px]">{translations.home.tabs.profile[lang]}</span>
+            <svg
+              className="w-5 h-5"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth={activeTab === 'profile' ? '2.2' : '1.8'}
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" />
+              <circle cx="12" cy="7" r="4" fill={activeTab === 'profile' ? 'currentColor' : 'none'} />
+            </svg>
+            <span className="text-[9.5px] tracking-tight">
+              {lang === 'ko' ? '내 정보' : lang === 'ja' ? 'マイページ' : lang === 'es' ? 'Perfil' : 'Profile'}
+            </span>
           </button>
         </div>
       </nav>

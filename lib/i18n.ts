@@ -233,9 +233,9 @@ export const translations = {
       },
     },
     tabs: {
-      tools: { en: 'Tools', ko: '도구', ja: 'ツール', es: 'Herramientas' },
+      tools: { en: 'Home', ko: '홈', ja: 'ホーム', es: 'Inicio' },
       create: { en: 'Create', ko: '제작', ja: '作成', es: 'Crear' },
-      discover: { en: 'Discover', ko: '탐색', ja: '探索', es: 'Descubrir' },
+      discover: { en: 'Explore', ko: '탐색', ja: '探索', es: 'Explorar' },
       gallery: { en: 'History', ko: '보관함', ja: '履歴', es: 'Historial' },
       profile: { en: 'Profile', ko: '내 정보', ja: 'マイページ', es: 'Perfil' },
     },

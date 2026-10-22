@@ -1,8 +1,7 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import Image from 'next/image';
-import { loadTossPayments, ANONYMOUS } from '@tosspayments/tosspayments-sdk';
 import { Language, SUPPORTED_LANGUAGES, translations } from '@/lib/i18n';
 
 interface PricingModalProps {
@@ -26,7 +25,6 @@ export interface PricingPlan {
   priceText: string;
   dollarPrice?: string;
   wonPrice?: string;
-  priceKrw: number;
   periodText: string;
   creditsText: string;
   tagline: string;
@@ -42,8 +40,6 @@ export const NEW_APP_PLANS: PricingPlan[] = [
     badge: 'Budget',
     priceText: '$3.99',
     dollarPrice: '$3.99',
-    wonPrice: '5,500원',
-    priceKrw: 5500,
     periodText: 'One-time',
     creditsText: '30 Credits',
     tagline: 'One-time recharge for 1-2 rooms remodel',
@@ -55,8 +51,6 @@ export const NEW_APP_PLANS: PricingPlan[] = [
     badge: 'Monthly',
     priceText: '$12.99',
     dollarPrice: '$12.99',
-    wonPrice: '17,900원',
-    priceKrw: 17900,
     periodText: '$12.99 / mo',
     creditsText: '1 Month Pass',
     tagline: 'Unlimited interior design for a whole month',
@@ -69,8 +63,6 @@ export const NEW_APP_PLANS: PricingPlan[] = [
     highlighted: true,
     priceText: '$19.99',
     dollarPrice: '$19.99',
-    wonPrice: '27,900원',
-    priceKrw: 27900,
     periodText: '$6.66 / mo',
     creditsText: '3 Months Pass',
     tagline: 'Complete moving & renovation 3-month all-pass',
@@ -159,65 +151,65 @@ export default function PricingModal({
   onLanguageChange,
 }: PricingModalProps) {
   const [currentIdx, setCurrentIdx] = useState(0);
+  const [scanPos, setScanPos] = useState(0);
   const [selectedPlanId, setSelectedPlanId] = useState<PlanId>('pro');
+  const [progressPercent, setProgressPercent] = useState(0);
   const [isLangDropdownOpen, setIsLangDropdownOpen] = useState(false);
-  const [copyFeedback, setCopyFeedback] = useState(false);
-  const isClaimingRef = useRef(false);
 
-  // 🎬 상단 영상: 3.5초마다 부드럽게 다음 쇼케이스로 전환 (CSS GPU 가속 활용, 25ms 리렌더링 제거)
+  // 🎬 상단 영상: 1.35배 빠른 좌우 왕복 스캔 모션 (0% ➔ 100% ➔ 0%)
   useEffect(() => {
     if (!isOpen) return;
+
+    let pos = 0;
+    let phase: 'scanRight' | 'pauseRight' | 'scanLeft' | 'pauseLeft' = 'scanRight';
+    let pauseTicks = 0;
+
+    const SPEED = 1.35;
+    const PAUSE_RIGHT_TICKS = 22;
+    const PAUSE_LEFT_TICKS = 14;
+
+    setScanPos(0);
+    setProgressPercent(0);
+
+    const totalTicks = Math.round((100 / SPEED) * 2 + PAUSE_RIGHT_TICKS + PAUSE_LEFT_TICKS);
+    let currentTick = 0;
+
     const interval = setInterval(() => {
-      setCurrentIdx((prev) => (prev + 1) % SHOWCASE_FEATURES.length);
-    }, 3500);
-    return () => clearInterval(interval);
-  }, [isOpen]);
+      currentTick++;
+      const pct = Math.min(100, (currentTick / totalTicks) * 100);
+      setProgressPercent(pct);
 
-  // 🔗 브라우저 주소 간편 복사 핸들러
-  const handleCopyUrl = async () => {
-    try {
-      const url = typeof window !== 'undefined' ? window.location.href : 'https://ai-room-smart-designer-choi.vercel.app';
-      if (navigator.clipboard && navigator.clipboard.writeText) {
-        await navigator.clipboard.writeText(url);
-      } else {
-        const textArea = document.createElement('textarea');
-        textArea.value = url;
-        document.body.appendChild(textArea);
-        textArea.select();
-        document.execCommand('copy');
-        document.body.removeChild(textArea);
+      if (phase === 'scanRight') {
+        pos += SPEED;
+        if (pos >= 100) {
+          pos = 100;
+          phase = 'pauseRight';
+          pauseTicks = PAUSE_RIGHT_TICKS;
+        }
+        setScanPos(pos);
+      } else if (phase === 'pauseRight') {
+        pauseTicks--;
+        if (pauseTicks <= 0) {
+          phase = 'scanLeft';
+        }
+      } else if (phase === 'scanLeft') {
+        pos -= SPEED;
+        if (pos <= 0) {
+          pos = 0;
+          phase = 'pauseLeft';
+          pauseTicks = PAUSE_LEFT_TICKS;
+        }
+        setScanPos(pos);
+      } else if (phase === 'pauseLeft') {
+        pauseTicks--;
+        if (pauseTicks <= 0) {
+          setCurrentIdx((prev) => (prev + 1) % SHOWCASE_FEATURES.length);
+        }
       }
-      setCopyFeedback(true);
-      setTimeout(() => setCopyFeedback(false), 2000);
-    } catch (e) {
-      console.warn('URL copy failed:', e);
-    }
-  };
+    }, 25);
 
-  // 무료 체험 시작 (10회 지급 및 즉시 첫 생성 마법사로 진행)
-  const handleTryFree = () => {
-    if (isClaimingRef.current) return;
-    isClaimingRef.current = true;
-    setTimeout(() => {
-      isClaimingRef.current = false;
-    }, 800);
-
-    try {
-      if (onClaimFreeCredits) onClaimFreeCredits();
-    } catch (e) {
-      console.error('Error claiming free credits:', e);
-    }
-    try {
-      onClose();
-    } catch (e) {
-      console.error('Error closing modal:', e);
-    }
-    try {
-      if (onStartExperience) onStartExperience();
-    } catch (e) {
-      console.error('Error starting experience:', e);
-    }
-  };
+    return () => clearInterval(interval);
+  }, [currentIdx, isOpen]);
 
   if (!isOpen) return null;
 
@@ -231,47 +223,31 @@ export default function PricingModal({
   const currentPlanName = planTrans?.name[lang] || planTrans?.name['en'] || currentPlan.name;
   const currentPlanTagline = planTrans?.tagline[lang] || planTrans?.tagline['en'] || currentPlan.tagline;
 
-  const [isProcessingPayment, setIsProcessingPayment] = useState(false);
+  // 무료 체험 시작 (2회 지급)
+  const handleTryFree = () => {
+    if (onClaimFreeCredits) onClaimFreeCredits();
+    onClose();
+    if (onStartExperience) onStartExperience();
+  };
 
-  // 실제 결제 진행 (토스페이먼츠 카드/간편결제 연동)
-  const handleContinue = async () => {
-    try {
-      setIsProcessingPayment(true);
-
-      const clientKey = process.env.NEXT_PUBLIC_TOSS_CLIENT_KEY || 'test_ck_D5GePWvyJqK4WBaqkxl3OBryNqmE';
-      const tossPayments = await loadTossPayments(clientKey);
-      const payment = tossPayments.payment({ customerKey: ANONYMOUS });
-
-      const orderId = `roomfit_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
-      const origin = typeof window !== 'undefined' ? window.location.origin : 'https://ai-room-smart-designer-choi.vercel.app';
-
-      // 토스 공식 결제창 호출 (신용카드, 카카오페이, 네이버페이, 토스페이 통합 지원)
-      await payment.requestPayment({
-        method: 'CARD',
-        amount: {
-          currency: 'KRW',
-          value: currentPlan.priceKrw || 27900,
-        },
-        orderId,
-        orderName: `RoomFit AI ${currentPlanName}`,
-        successUrl: `${origin}/pricing/success?planId=${currentPlan.id}&amount=${currentPlan.priceKrw || 27900}`,
-        failUrl: `${origin}/pricing/fail`,
-        customerEmail: 'customer@roomfit.ai',
-        customerName: 'RoomFit AI 고객',
-      });
-    } catch (err: any) {
-      console.error('Toss Payments error:', err);
-      // 사용자가 결제창을 닫은 경우(USER_CANCEL) 외의 실제 에러 시 처리
-      if (err.code !== 'USER_CANCEL') {
-        if (currentPlan.lemonCheckoutUrl && lang !== 'ko') {
-          window.open(currentPlan.lemonCheckoutUrl, '_blank');
-        } else {
-          alert(lang === 'ko' ? '결제창을 여는 도중 문제가 발생했습니다. 잠시 후 다시 시도해 주세요.' : 'Checkout error. Please try again.');
-        }
-      }
-    } finally {
-      setIsProcessingPayment(false);
+  // 결제 진행 (테스트 환경)
+  const handleContinue = () => {
+    if (onPurchasePlan) {
+      onPurchasePlan(currentPlan);
+    } else if (onClaimFreeCredits) {
+      onClaimFreeCredits();
     }
+    const alertMsg =
+      lang === 'ko'
+        ? `🎉 [${currentPlanName}] 테스트 결제 승인 완료!\n혜택이 성공적으로 적용되었습니다.`
+        : lang === 'ja'
+        ? `🎉 [${currentPlanName}] テスト決済が完了しました！\n特典が正常に適用されました。`
+        : lang === 'es'
+        ? `🎉 ¡Pago de prueba de [${currentPlanName}] completado!\nBeneficios aplicados con éxito.`
+        : `🎉 [${currentPlanName}] Test Checkout Successful!\nBenefits have been activated.`;
+    alert(alertMsg);
+    onClose();
+    if (onStartExperience) onStartExperience();
   };
 
   const handlePrevFeature = () => {
@@ -283,46 +259,29 @@ export default function PricingModal({
   };
 
   return (
-    <div className="pricing-modal-root fixed inset-0 z-50 flex flex-col justify-between bg-[#0B0F17]/95 text-white backdrop-blur-2xl shadow-2xl animate-fade-in sm:inset-auto sm:top-1/2 sm:left-1/2 sm:-translate-x-1/2 sm:-translate-y-1/2 sm:w-full sm:max-w-md sm:max-h-[96vh] sm:rounded-[36px] sm:border sm:border-white/10 overflow-y-auto cursor-default touch-manipulation select-none p-4 pb-5">
+    <div className="pricing-modal-root fixed inset-0 z-50 flex flex-col justify-between bg-slate-950/95 text-white backdrop-blur-2xl shadow-2xl animate-fade-in sm:inset-auto sm:top-1/2 sm:left-1/2 sm:-translate-x-1/2 sm:-translate-y-1/2 sm:w-full sm:max-w-md sm:max-h-[96vh] sm:rounded-[36px] sm:border sm:border-slate-800/80 overflow-y-auto cursor-default touch-manipulation select-none p-4 pb-5">
 
       {/* ─────────────────────────────────────────────────────────────
-          1. 최상단 헤더 바 (Interio 스타일 모던 미니멀 바)
+          1. 최상단 헤더 바 (모던 미니멀 스타일)
          ───────────────────────────────────────────────────────────── */}
-      <div className="flex items-center justify-between pt-0.5 pb-2.5 border-b border-white/[0.08]">
+      <div className="flex items-center justify-between pt-0.5 pb-2 border-b border-slate-800/60">
         <div className="flex items-center gap-2 min-w-0">
-          <span className="text-lg sm:text-xl font-bold tracking-tight text-white shrink-0 flex items-center gap-1.5">
-            RoomFit <span className="text-rose-400 font-extrabold">AI</span>
+          <span className="text-lg sm:text-xl font-black tracking-tight text-white shrink-0 flex items-center gap-1.5">
+            <span className="text-amber-400">⚡</span> RoomFit AI
           </span>
-          <span className="flex items-center gap-1 rounded-full bg-rose-500/10 px-2.5 py-0.5 text-[10px] sm:text-[11px] font-bold text-rose-300 border border-rose-500/20 truncate">
-            <span>PRO</span>
+          <span className="flex items-center gap-1 rounded-full bg-amber-400/10 px-2.5 py-0.5 text-[11px] font-bold text-amber-300 border border-amber-400/20 truncate">
+            <span>{translations.header.freeBadge[lang]}</span>
           </span>
         </div>
 
-        <div className="flex items-center gap-1.5">
-          {/* 🔗 브라우저 주소 간편 복사 버튼 */}
-          <button
-            type="button"
-            onClick={handleCopyUrl}
-            onTouchEnd={(e) => {
-              e.preventDefault();
-              handleCopyUrl();
-            }}
-            className="flex items-center gap-1 rounded-full border border-white/10 bg-white/[0.04] hover:bg-white/[0.08] active:scale-95 px-2.5 py-1 text-xs font-medium text-slate-300 transition-all cursor-pointer touch-manipulation shrink-0"
-            title="웹 브라우저 주소 복사"
-          >
-            <span className="text-xs">{copyFeedback ? '✓' : '🔗'}</span>
-            <span className="text-[10px] font-bold text-slate-200">
-              {copyFeedback ? (lang === 'ko' ? '복사됨!' : 'Copied!') : (lang === 'ko' ? '주소복사' : 'Copy URL')}
-            </span>
-          </button>
-
+        <div className="flex items-center gap-2">
           {/* 🌐 언어 선택 드롭다운 */}
           {onLanguageChange && (
             <div className="relative">
               <button
                 type="button"
                 onClick={() => setIsLangDropdownOpen(!isLangDropdownOpen)}
-                className="flex items-center gap-1.5 rounded-full border border-white/10 bg-white/[0.04] hover:bg-white/[0.08] px-2.5 py-1 text-xs font-medium text-slate-300 transition-all cursor-pointer touch-manipulation"
+                className="flex items-center gap-1.5 rounded-full border border-slate-800 bg-slate-900/90 px-2.5 py-1 text-xs font-semibold text-slate-300 hover:border-slate-700 active:scale-95 transition-all shadow-sm cursor-pointer"
                 title="Change Language"
               >
                 <span>{SUPPORTED_LANGUAGES.find((l) => l.code === lang)?.flag || '🌐'}</span>
@@ -335,7 +294,7 @@ export default function PricingModal({
                     className="fixed inset-0 z-40 cursor-default"
                     onClick={() => setIsLangDropdownOpen(false)}
                   />
-                  <div className="absolute right-0 top-full mt-1.5 z-50 flex flex-col rounded-2xl border border-white/10 bg-slate-900/95 backdrop-blur-xl shadow-2xl p-1.5 min-w-[130px]">
+                  <div className="absolute right-0 top-full mt-1.5 z-50 flex flex-col rounded-2xl border border-slate-800 bg-slate-900/95 backdrop-blur-xl shadow-2xl p-1.5 min-w-[130px]">
                     {SUPPORTED_LANGUAGES.map((l) => (
                       <button
                         key={l.code}
@@ -344,15 +303,15 @@ export default function PricingModal({
                           onLanguageChange(l.code);
                           setIsLangDropdownOpen(false);
                         }}
-                        className={`flex items-center justify-between gap-2 px-3 py-1.5 rounded-xl text-xs font-medium text-left transition-all cursor-pointer ${
-                          lang === l.code ? 'bg-rose-500/15 text-rose-300 font-bold' : 'text-slate-300 hover:bg-white/[0.06]'
+                        className={`flex items-center justify-between gap-2 px-3 py-1.5 rounded-xl text-xs font-semibold text-left transition-all cursor-pointer ${
+                          lang === l.code ? 'bg-amber-500/15 text-amber-300 font-bold' : 'text-slate-300 hover:bg-slate-800/80'
                         }`}
                       >
                         <div className="flex items-center gap-2">
                           <span>{l.flag}</span>
                           <span>{l.nativeName}</span>
                         </div>
-                        {lang === l.code && <span className="text-rose-400 text-xs">✓</span>}
+                        {lang === l.code && <span className="text-amber-400 text-xs">✓</span>}
                       </button>
                     ))}
                   </div>
@@ -364,11 +323,7 @@ export default function PricingModal({
           <button
             type="button"
             onClick={onClose}
-            onTouchEnd={(e) => {
-              e.preventDefault();
-              onClose();
-            }}
-            className="flex h-7 w-7 items-center justify-center rounded-full bg-white/[0.06] hover:bg-white/[0.12] text-slate-400 hover:text-white active:scale-95 transition-all text-xs font-bold cursor-pointer touch-manipulation"
+            className="flex h-7 w-7 items-center justify-center rounded-full bg-slate-900 border border-slate-800 text-slate-400 hover:text-white hover:bg-slate-800 active:scale-95 transition-all text-xs font-bold cursor-pointer"
             aria-label="Close"
           >
             ✕
@@ -377,65 +332,51 @@ export default function PricingModal({
       </div>
 
       {/* ─────────────────────────────────────────────────────────────
-          2. [상단 인트로 영역]: 비포/애프터 쇼케이스 & Interio 스타일 혜택 칩
+          2. [상단 영역]: 기능별 인터랙티브 비포/애프터 쇼케이스
          ───────────────────────────────────────────────────────────── */}
       <div className="flex flex-col gap-2 my-2">
-        {/* 실시간 스캐닝 비디오 프레임 */}
-        <div className="relative aspect-[16/9] w-full overflow-hidden rounded-2xl border border-white/10 bg-slate-950 shadow-xl select-none group">
-          {/* 비포 원본 이미지 */}
-          <Image
-            src={currentFeature.beforeImg}
-            alt={`${currentFeature.title} Before`}
-            fill
-            className="object-cover"
-            priority
-          />
+        {/* 🌟 대표님 지정: 파란색 네온 깜박임 + 오른쪽에서 왼쪽으로 흘러가는 슬로건 */}
+        <div className="relative w-full overflow-hidden rounded-xl border border-sky-500/40 bg-black py-1.5 shadow-[0_0_15px_rgba(56,189,248,0.18)] select-none">
+          {/* 좌우 부드러운 페이드 그라데이션 마스크 */}
+          <div className="pointer-events-none absolute inset-y-0 left-0 w-6 bg-gradient-to-r from-black to-transparent z-10" />
+          <div className="pointer-events-none absolute inset-y-0 right-0 w-6 bg-gradient-to-l from-black to-transparent z-10" />
 
-          {/* 애프터 변환 이미지 */}
-          <div className="absolute inset-0 z-10 animate-modal-clip">
-            <Image
-              src={currentFeature.afterImg}
-              alt={`${currentFeature.title} After`}
-              fill
-              className="object-cover"
-              priority
-            />
+          {/* 오른쪽 ➔ 왼쪽으로 끊김 없이 흐르는 네온 텍스트 트랙 */}
+          <div className="marquee-rtl-track flex items-center gap-12">
+            {[1, 2, 3, 4].map((key) => (
+              <div
+                key={key}
+                className="neon-blue-blink flex items-center gap-2 text-xs sm:text-sm font-black tracking-wide whitespace-nowrap"
+              >
+                <span className="text-sky-400 text-xs">✨</span>
+                <span>
+                  {lang === 'ko'
+                    ? '상상이 현실이 되는 마법을 주문해보세요.'
+                    : lang === 'ja'
+                    ? '想像が現実になる魔法を注文してみてください。'
+                    : lang === 'es'
+                    ? 'Pide la magia donde la imaginación se hace realidad.'
+                    : 'Order the magic where imagination becomes reality.'}
+                </span>
+                <span className="text-sky-400 text-xs">✨</span>
+              </div>
+            ))}
           </div>
+        </div>
 
-          {/* 스캔 레이저 바 */}
-          <div className="absolute inset-y-0 z-20 w-[1.5px] bg-gradient-to-b from-rose-400 via-rose-500 to-rose-600 shadow-[0_0_8px_rgba(244,63,94,0.8)] pointer-events-none animate-modal-laser">
-            <div className="absolute top-2 -left-1 h-2 w-2 rounded-full bg-rose-400 shadow-[0_0_6px_rgba(244,63,94,1)]" />
-            <div className="absolute bottom-4 -left-1 h-2 w-2 rounded-full bg-rose-400 shadow-[0_0_6px_rgba(244,63,94,1)]" />
-          </div>
-
-          {/* 좌우 수동 이동 화살표 */}
-          <button
-            type="button"
-            onClick={handlePrevFeature}
-            className="absolute left-2.5 top-1/2 -translate-y-1/2 z-30 flex h-7 w-7 items-center justify-center rounded-full bg-black/50 text-white/80 hover:text-white backdrop-blur-md border border-white/10 active:scale-95 transition-all text-sm font-bold cursor-pointer"
-            aria-label="Previous"
-          >
-            ‹
-          </button>
-          <button
-            type="button"
-            onClick={handleNextFeature}
-            className="absolute right-2.5 top-1/2 -translate-y-1/2 z-30 flex h-7 w-7 items-center justify-center rounded-full bg-black/50 text-white/80 hover:text-white backdrop-blur-md border border-white/10 active:scale-95 transition-all text-sm font-bold cursor-pointer"
-            aria-label="Next"
-          >
-            ›
-          </button>
-
-          {/* BEFORE / AFTER 뱃지 */}
-          <div className="absolute bottom-2 left-2.5 z-30 flex items-center gap-1.5 pointer-events-none">
-            <span className="rounded-full bg-black/60 px-2 py-0.5 text-[9px] font-semibold text-slate-300 backdrop-blur-md border border-white/10">
-              {translations.pricing.before[lang]}
+        {/* 타이틀 & 서브타이틀 */}
+        <div className="flex flex-col gap-0.5 text-left px-0.5">
+          <div className="flex items-center gap-2">
+            <span className="rounded-md bg-amber-400/10 px-2 py-0.5 text-[10px] sm:text-xs font-mono font-black text-amber-400 border border-amber-400/20">
+              {currentFeature.stepNum} / 07
             </span>
-            <span className="text-[10px] text-rose-400 font-bold">➔</span>
-            <span className="rounded-full bg-rose-500 px-2 py-0.5 text-[9px] font-bold text-white shadow-sm">
-              {translations.pricing.after[lang]}
-            </span>
+            <h2 className="text-base sm:text-lg font-black tracking-tight text-white truncate">
+              {currentTitle}
+            </h2>
           </div>
+          <p className="text-[11px] sm:text-xs text-slate-400 font-medium leading-relaxed line-clamp-1">
+            {currentSubtitle}
+          </p>
         </div>
 
         {/* 7-Segment 스토리 인디케이터 (슬릭 & 미니멀) */}
@@ -447,50 +388,104 @@ export default function PricingModal({
               <div
                 key={feat.id}
                 onClick={() => setCurrentIdx(idx)}
-                className="h-1 rounded-full bg-white/10 overflow-hidden cursor-pointer touch-manipulation hover:bg-white/20 transition-all"
+                className="h-1 rounded-full bg-slate-800/80 overflow-hidden cursor-pointer touch-manipulation hover:bg-slate-700 transition-all"
               >
                 <div
-                  className={`h-full transition-all duration-300 ${
+                  className={`h-full transition-all duration-100 ${
                     isCompleted
-                      ? 'w-full bg-rose-500'
+                      ? 'w-full bg-amber-400'
                       : isCurrent
-                      ? 'w-full bg-rose-500 shadow-[0_0_6px_rgba(244,63,94,0.6)]'
+                      ? 'bg-amber-400 shadow-[0_0_6px_rgba(251,191,36,0.8)]'
                       : 'w-0'
                   }`}
+                  style={{
+                    width: isCurrent ? `${progressPercent}%` : isCompleted ? '100%' : '0%',
+                  }}
                 />
               </div>
             );
           })}
         </div>
 
-        {/* 🌟 중앙 볼드 타이틀 */}
-        <div className="text-center my-1 px-1">
-          <h1 className="text-lg sm:text-xl font-black text-white tracking-tight">
-            {lang === 'ko'
-              ? 'RoomFit AI 무제한 이용권'
-              : lang === 'ja'
-              ? 'RoomFit AI 無制限アクセス'
-              : lang === 'es'
-              ? 'Acceso Ilimitado RoomFit AI'
-              : 'Unlock Unlimited Access'}
-          </h1>
+        {/* 실시간 스캐닝 비디오 프레임 */}
+        <div className="relative aspect-[16/9] w-full overflow-hidden rounded-2xl border border-slate-800/80 bg-slate-900 shadow-xl select-none group">
+          {/* 비포 원본 이미지 */}
+          <Image
+            src={currentFeature.beforeImg}
+            alt={`${currentFeature.title} Before`}
+            fill
+            className="object-cover"
+            priority
+          />
+
+          {/* 애프터 변환 이미지 */}
+          <div
+            className="absolute inset-0 z-10"
+            style={{ clipPath: `inset(0 ${Math.max(0, 100 - scanPos)}% 0 0)` }}
+          >
+            <Image
+              src={currentFeature.afterImg}
+              alt={`${currentFeature.title} After`}
+              fill
+              className="object-cover"
+              priority
+            />
+          </div>
+
+          {/* 스캔 레이저 바 */}
+          <div
+            className="absolute inset-y-0 z-20 w-0.5 bg-gradient-to-b from-amber-300 via-amber-400 to-orange-400 shadow-[0_0_10px_rgba(251,191,36,0.9)] pointer-events-none"
+            style={{ left: `${scanPos}%` }}
+          >
+            <div className="absolute top-2 -left-1 h-2 w-2 rounded-full bg-amber-300 shadow-[0_0_6px_rgba(251,191,36,1)]" />
+            <div className="absolute bottom-4 -left-1 h-2 w-2 rounded-full bg-amber-300 shadow-[0_0_6px_rgba(251,191,36,1)]" />
+          </div>
+
+          {/* 좌우 수동 이동 화살표 */}
+          <button
+            type="button"
+            onClick={handlePrevFeature}
+            className="absolute left-2.5 top-1/2 -translate-y-1/2 z-30 flex h-7 w-7 items-center justify-center rounded-full bg-slate-950/60 text-slate-300 hover:text-white backdrop-blur-md border border-white/10 active:scale-95 transition-all text-sm font-bold cursor-pointer"
+            aria-label="Previous"
+          >
+            ‹
+          </button>
+          <button
+            type="button"
+            onClick={handleNextFeature}
+            className="absolute right-2.5 top-1/2 -translate-y-1/2 z-30 flex h-7 w-7 items-center justify-center rounded-full bg-slate-950/60 text-slate-300 hover:text-white backdrop-blur-md border border-white/10 active:scale-95 transition-all text-sm font-bold cursor-pointer"
+            aria-label="Next"
+          >
+            ›
+          </button>
+
+          {/* BEFORE / AFTER 뱃지 */}
+          <div className="absolute bottom-2 left-2.5 z-30 flex items-center gap-1.5 pointer-events-none">
+            <span className="rounded-full bg-slate-950/80 px-2 py-0.5 text-[9px] font-black text-slate-300 backdrop-blur-md border border-white/10">
+              {translations.pricing.before[lang]}
+            </span>
+            <span className="text-[10px] text-amber-400 font-bold">➔</span>
+            <span className="rounded-full bg-gradient-to-r from-amber-400 to-orange-400 px-2 py-0.5 text-[9px] font-black text-slate-950 shadow-sm">
+              {translations.pricing.after[lang]}
+            </span>
+          </div>
         </div>
       </div>
 
       {/* ─────────────────────────────────────────────────────────────
-          3. [하단 요금제 영역]: Interio 스타일 프리미엄 요금제 카드
+          3. [하단 영역]: 심플 & 모던 요금제 카드 (이전 상태로 복원)
          ───────────────────────────────────────────────────────────── */}
-      <div className="flex flex-col gap-2 pt-2 border-t border-white/[0.08]">
+      <div className="flex flex-col gap-2.5 pt-2 border-t border-slate-800/70">
         <div className="flex items-center justify-between px-0.5">
-          <span className="text-xs font-bold text-slate-300 tracking-wider">
+          <span className="text-xs font-black text-slate-200 uppercase tracking-wider">
             {translations.pricing.title[lang]}
           </span>
-          <span className="text-[11px] font-semibold text-rose-400">
+          <span className="text-[11px] font-bold text-amber-400">
             {translations.pricing.tryBeforeBuy[lang]}
           </span>
         </div>
 
-        {/* 3가지 요금제 카드 */}
+        {/* 3가지 요금제 카드 (이전 상태의 골드/앰버 럭셔리 스타일 복원) */}
         <div className="grid grid-cols-3 gap-2">
           {NEW_APP_PLANS.map((plan) => {
             const isSelected = selectedPlanId === plan.id;
@@ -505,19 +500,19 @@ export default function PricingModal({
                 type="button"
                 key={plan.id}
                 onClick={() => setSelectedPlanId(plan.id)}
-                className={`relative flex flex-col items-center justify-between rounded-2xl p-2.5 pt-3.5 pb-3 text-center transition-all duration-200 cursor-pointer touch-manipulation ${
+                className={`relative flex flex-col items-center justify-between rounded-2xl border p-2.5 pt-3.5 text-center transition-all duration-200 cursor-pointer touch-manipulation ${
                   isSelected
-                    ? 'border-2 border-rose-500 bg-gradient-to-b from-rose-500/15 via-rose-500/[0.04] to-transparent shadow-[0_8px_20px_rgba(244,63,94,0.18)] ring-1 ring-rose-400/30 scale-[1.02]'
-                    : 'border border-white/10 bg-white/[0.02] hover:bg-white/[0.05] hover:border-white/20 text-slate-400'
+                    ? 'border-amber-400/90 bg-gradient-to-b from-amber-500/15 via-amber-500/5 to-slate-900/90 shadow-lg shadow-amber-500/10 ring-1 ring-amber-400/50 scale-[1.02]'
+                    : 'border-slate-800/80 bg-slate-900/60 hover:border-slate-700/80 hover:bg-slate-900/80 text-slate-400'
                 }`}
               >
                 {/* 상단 뱃지 */}
                 {pBadge && (
                   <span
-                    className={`absolute -top-2.5 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full px-2.5 py-0.5 text-[8.5px] font-extrabold tracking-wider shadow-sm ${
+                    className={`absolute -top-2.5 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full px-2.5 py-0.5 text-[8.5px] font-black uppercase tracking-wider shadow-sm ${
                       plan.highlighted
-                        ? 'bg-rose-500 text-white shadow-rose-500/40'
-                        : 'bg-white/10 text-slate-300 border border-white/10'
+                        ? 'bg-gradient-to-r from-amber-400 to-orange-400 text-slate-950 font-black'
+                        : 'bg-slate-800 text-slate-300 border border-slate-700'
                     }`}
                   >
                     {pBadge}
@@ -526,15 +521,15 @@ export default function PricingModal({
 
                 {/* 플랜 이름 & 크레딧 */}
                 <div className="mt-0.5 flex flex-col items-center">
-                  <span className={`text-xs font-bold block leading-tight ${isSelected ? 'text-white' : 'text-slate-300'}`}>
+                  <span className={`text-xs font-black block leading-tight ${isSelected ? 'text-white' : 'text-slate-300'}`}>
                     {pName}
                   </span>
-                  <span className={`text-[10px] font-semibold mt-0.5 leading-tight ${isSelected ? 'text-rose-400' : 'text-slate-400'}`}>
+                  <span className="text-[10px] font-bold text-amber-400 mt-0.5 leading-tight">
                     {pCredits}
                   </span>
                 </div>
 
-                {/* 가격 */}
+                {/* 가격 (선명하고 깔끔한 화이트 달러 가격) */}
                 <div className="my-2 flex flex-col items-center">
                   <span className="text-xl sm:text-2xl font-black text-white tracking-tight leading-none">
                     {plan.dollarPrice || plan.priceText}
@@ -543,129 +538,99 @@ export default function PricingModal({
                     {pPeriod}
                   </span>
                 </div>
+
+                {/* 선택 상태 인디케이터 */}
+                <div className="mt-0.5">
+                  {isSelected ? (
+                    <span className="inline-flex items-center gap-1 rounded-full bg-amber-400/20 px-2 py-0.5 text-[9px] font-black text-amber-300 border border-amber-400/30">
+                      <span className="h-1.5 w-1.5 rounded-full bg-amber-400" />
+                      {lang === 'ko' ? '선택됨' : lang === 'ja' ? '選択中' : lang === 'es' ? 'Elegido' : 'Active'}
+                    </span>
+                  ) : (
+                    <span className="inline-block h-4 text-[9px] font-medium text-slate-500">
+                      {lang === 'ko' ? '선택하기' : lang === 'ja' ? '選択' : lang === 'es' ? 'Elegir' : 'Select'}
+                    </span>
+                  )}
+                </div>
               </button>
             );
           })}
         </div>
 
-        {/* 선택된 요금제 한 줄 혜택 */}
-        <div className="rounded-xl border border-white/[0.08] bg-white/[0.02] px-3 py-1.5 text-xs text-slate-200 flex items-center justify-between gap-2 shadow-sm">
+        {/* 선택된 요금제 한 줄 혜택 (이전 상태 복원) */}
+        <div className="rounded-xl border border-amber-500/20 bg-amber-500/5 px-3 py-2 text-xs text-slate-200 flex items-center justify-between gap-2 shadow-sm">
           <div className="flex items-center gap-2 min-w-0">
-            <span className="text-rose-400 font-bold text-sm shrink-0">✦</span>
-            <span className="text-xs font-medium text-slate-300 truncate">{currentPlanTagline}</span>
+            <span className="text-amber-400 font-bold text-sm shrink-0">✨</span>
+            <span className="text-xs font-medium text-slate-200 truncate">{currentPlanTagline}</span>
           </div>
-          <span className="font-bold text-rose-300 shrink-0 text-xs sm:text-sm tracking-tight bg-rose-500/10 px-2.5 py-0.5 rounded-full border border-rose-500/20">
+          <span className="font-black text-amber-300 shrink-0 text-sm tracking-tight bg-amber-500/10 px-2.5 py-0.5 rounded-full border border-amber-500/20">
             {currentPlan.dollarPrice || currentPlan.priceText}
           </span>
         </div>
 
-        {/* 🎁 눈에 확 띄는 오픈 기념 10크레딧 무료 체험 배너 (클릭 시 즉시 10크레딧 지급 및 마법사 시작) */}
-        <div
-          onClick={handleTryFree}
-          onTouchEnd={(e) => {
-            e.preventDefault();
-            handleTryFree();
-          }}
-          role="button"
-          tabIndex={0}
-          onKeyDown={(e) => {
-            if (e.key === 'Enter' || e.key === ' ') {
-              e.preventDefault();
-              handleTryFree();
-            }
-          }}
-          className="rounded-2xl border-2 border-amber-400/90 bg-gradient-to-r from-amber-500/25 via-amber-500/15 to-orange-500/20 p-2.5 sm:p-3 shadow-lg shadow-amber-500/10 flex items-center justify-between gap-2.5 cursor-pointer hover:brightness-110 active:scale-[0.98] transition-all select-none group touch-manipulation"
-        >
-          <div className="flex items-center gap-2.5 min-w-0">
-            <div className="h-9 w-9 sm:h-10 sm:w-10 shrink-0 rounded-xl bg-gradient-to-br from-amber-400 to-orange-400 text-slate-950 flex items-center justify-center text-xl font-black shadow-md group-hover:scale-105 transition-transform">
-              🎁
-            </div>
+        {/* 🎁 대표님 지정: 무료 프로모션 안내 배너 (프로 팩 시작하기 버튼 바로 위에 배치) */}
+        <div className="rounded-2xl border border-amber-400/50 bg-gradient-to-r from-amber-500/20 via-orange-500/15 to-amber-500/20 p-2.5 shadow-md flex items-center justify-between gap-2 select-none">
+          <div className="flex items-center gap-2 min-w-0">
+            <span className="text-base shrink-0">🎁</span>
             <div className="flex flex-col text-left min-w-0">
-              <div className="flex items-center gap-1.5 flex-wrap">
-                <span className="text-xs sm:text-[13px] font-black text-amber-300 tracking-tight">
-                  {lang === 'ko'
-                    ? '오픈 기념 10크레딧 즉시 무료 이용'
-                    : lang === 'ja'
-                    ? 'オープン記念 10クレジット無料進呈'
-                    : lang === 'es'
-                    ? '10 Créditos Gratis de Apertura'
-                    : 'Claim 10 Free Credits Now'}
-                </span>
-                <span className="rounded-full bg-amber-400 px-1.5 py-0.2 text-[8.5px] font-black text-slate-950 leading-tight">
-                  {lang === 'ko' ? '무료' : 'FREE'}
-                </span>
-              </div>
-              <span className="text-[10px] sm:text-[10.5px] font-semibold text-slate-200 mt-0.5 truncate">
+              <span className="text-[11px] sm:text-xs font-black text-amber-300 truncate">
                 {lang === 'ko'
-                  ? '결제 없이 지금 바로 10회 생성 체험하기'
+                  ? 'Google Play 출시 기념 오픈 무료 프로모션'
                   : lang === 'ja'
-                  ? '決済なしで今すぐ10回無料体験'
+                  ? 'Google Playリリース記念無料プロモ'
                   : lang === 'es'
-                  ? 'Prueba 10 renders sin pagar'
-                  : 'Try 10 renders free without payment'}
+                  ? 'Promo Gratuita de Lanzamiento'
+                  : 'Launch Special Free Promotion'}
+              </span>
+              <span className="text-[9.5px] sm:text-[10px] font-semibold text-slate-200 truncate">
+                {lang === 'ko'
+                  ? '10월 31일까지 누구나 10회 무료 체험 가능!'
+                  : lang === 'ja'
+                  ? '10月31日まで誰でも10回無料でお試し可能！'
+                  : lang === 'es'
+                  ? '¡10 pruebas gratis hasta el 31 de octubre!'
+                  : '10 free trials for everyone until Oct 31!'}
               </span>
             </div>
           </div>
-          <button
-            type="button"
-            onClick={(e) => {
-              e.stopPropagation();
-              handleTryFree();
-            }}
-            onTouchEnd={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              handleTryFree();
-            }}
-            className="shrink-0 rounded-xl bg-gradient-to-r from-amber-400 to-orange-400 px-3 py-1.5 text-xs font-black text-slate-950 shadow-md group-hover:shadow-amber-400/50 transition-all whitespace-nowrap active:scale-95 cursor-pointer touch-manipulation"
-          >
-            {lang === 'ko' ? '10회 받기 ➔' : lang === 'ja' ? '無料で取得 ➔' : 'Claim ➔'}
-          </button>
+          <span className="shrink-0 rounded-full bg-gradient-to-r from-amber-400 to-orange-400 px-2 py-0.5 text-[9px] sm:text-[9.5px] font-black text-slate-950 shadow-sm whitespace-nowrap">
+            {lang === 'ko'
+              ? '10.31까지 10회 무료'
+              : lang === 'ja'
+              ? '~10/31 10回無料'
+              : lang === 'es'
+              ? '10 Gratis ~31 Oct'
+              : '10 Free ~Oct 31'}
+          </span>
         </div>
 
-        {/* 하단 메인 결제 버튼 & 무료 체험 버튼 */}
+        {/* 하단 메인 결제 버튼 (블랙 버튼 + 파란색 네온 결제금액 폰트 확대) */}
         <div className="space-y-1.5 text-center mt-0.5">
           <button
             type="button"
             onClick={handleContinue}
-            disabled={isProcessingPayment}
-            className="w-full rounded-2xl bg-gradient-to-r from-rose-500 via-rose-600 to-rose-500 hover:from-rose-600 hover:to-rose-700 py-3.5 sm:py-4 text-white font-black text-sm sm:text-base shadow-[0_10px_25px_-5px_rgba(244,63,94,0.45)] hover:shadow-[0_12px_30px_-5px_rgba(244,63,94,0.55)] active:scale-[0.98] transition-all cursor-pointer touch-manipulation flex items-center justify-center gap-2 disabled:opacity-50"
+            className="w-full rounded-2xl bg-black border-2 border-sky-400/90 py-3.5 sm:py-4 text-white shadow-xl shadow-sky-500/25 hover:bg-slate-950 hover:border-sky-300 active:scale-[0.98] transition-all cursor-pointer touch-manipulation flex items-center justify-center gap-2"
           >
-            <span>
-              {isProcessingPayment
-                ? (lang === 'ko' ? '결제창 여는 중...' : 'Loading checkout...')
-                : translations.pricing.ctaStart[lang].replace('{name}', currentPlanName).split('(')[0].trim()}
+            <span className="text-sm sm:text-base font-black text-white">
+              {translations.pricing.ctaStart[lang].replace('{name}', currentPlanName).split('(')[0].trim()}
             </span>
-            {!isProcessingPayment && (
-              <span className="text-white/80 font-bold tracking-tight">
-                ({currentPlan.dollarPrice || currentPlan.priceText})
-              </span>
-            )}
+            <span className="neon-blue-blink text-lg sm:text-xl font-black tracking-tight">
+              ({currentPlan.dollarPrice || currentPlan.priceText})
+            </span>
           </button>
 
           <button
             type="button"
             onClick={handleTryFree}
-            onTouchEnd={(e) => {
-              e.preventDefault();
-              handleTryFree();
-            }}
-            className="w-full py-2.5 px-3 rounded-xl border border-amber-400/40 bg-amber-500/10 hover:bg-amber-500/20 active:scale-[0.98] transition-all cursor-pointer flex items-center justify-center gap-1.5 select-none text-amber-300 hover:text-amber-200 touch-manipulation"
+            className="w-full py-2.5 px-3 rounded-xl border border-rose-500/80 bg-rose-950/30 hover:bg-rose-900/40 active:scale-[0.98] transition-all cursor-pointer flex items-center justify-center gap-1.5 neon-red-border select-none shadow-lg"
           >
-            <span className="text-xs sm:text-sm font-bold">
-              🎁 {translations.pricing.ctaFree[lang]}
+            <span className="text-sm shrink-0">🎁</span>
+            <span className="neon-red-blink text-xs sm:text-sm font-black tracking-wide">
+              {translations.pricing.ctaFree[lang]}
             </span>
           </button>
 
-          <div className="flex items-center justify-center gap-2 text-[10px] text-slate-400 mt-1 font-medium">
-            <span>{lang === 'ko' ? '이용약관' : 'Terms'}</span>
-            <span>•</span>
-            <span>{lang === 'ko' ? '언제든 해지 가능' : 'Cancel Anytime'}</span>
-            <span>•</span>
-            <span>{lang === 'ko' ? '개인정보처리방침' : 'Privacy'}</span>
-          </div>
-
-          <p className="text-center text-[9px] text-slate-500 mt-0.5 leading-tight">
+          <p className="text-center text-[9.5px] text-slate-400 mt-1 leading-tight">
             {lang === 'ko'
               ? '※ 프로모션 기간 내 결제 내역은 결제일로부터 30일간 유효하며, 30일 후 잔여분은 자동 소멸됩니다.'
               : lang === 'ja'
@@ -676,6 +641,70 @@ export default function PricingModal({
           </p>
         </div>
       </div>
+
+      {/* 🌟 100% 무결점 인라인 CSS (파란색 네온 깜박임 + 오른쪽 ➔ 왼쪽 마키) */}
+      <style>{`
+        @keyframes marquee-rtl-smooth {
+          0% {
+            transform: translateX(0%);
+          }
+          100% {
+            transform: translateX(-50%);
+          }
+        }
+        @keyframes neon-blue-blink-anim {
+          0%, 100% {
+            color: #f0f9ff;
+            text-shadow: 0 0 4px #38bdf8, 0 0 10px #0ea5e9, 0 0 20px #0284c7, 0 0 32px #0284c7;
+            filter: drop-shadow(0 0 6px rgba(56, 189, 248, 0.95));
+            opacity: 1;
+          }
+          50% {
+            color: #7dd3fc;
+            text-shadow: 0 0 2px #38bdf8, 0 0 4px #0369a1;
+            filter: drop-shadow(0 0 2px rgba(56, 189, 248, 0.35));
+            opacity: 0.55;
+          }
+        }
+        .marquee-rtl-track {
+          display: flex;
+          width: max-content;
+          animation: marquee-rtl-smooth 15s linear infinite;
+        }
+        .neon-blue-blink {
+          animation: neon-blue-blink-anim 1.8s ease-in-out infinite;
+        }
+        @keyframes neon-red-blink-anim {
+          0%, 100% {
+            color: #ffffff;
+            text-shadow: 0 0 4px #ff3366, 0 0 10px #ff0055, 0 0 20px #ff0055, 0 0 30px #e11d48;
+            filter: drop-shadow(0 0 6px rgba(255, 0, 85, 0.95));
+            opacity: 1;
+          }
+          50% {
+            color: #fca5a5;
+            text-shadow: 0 0 2px #ff3366, 0 0 6px #e11d48;
+            filter: drop-shadow(0 0 2px rgba(255, 0, 85, 0.45));
+            opacity: 0.65;
+          }
+        }
+        @keyframes neon-red-border-anim {
+          0%, 100% {
+            border-color: rgba(255, 0, 85, 0.9);
+            box-shadow: 0 0 15px rgba(255, 0, 85, 0.45), inset 0 0 8px rgba(255, 0, 85, 0.15);
+          }
+          50% {
+            border-color: rgba(255, 0, 85, 0.35);
+            box-shadow: 0 0 5px rgba(255, 0, 85, 0.15), inset 0 0 2px rgba(255, 0, 85, 0.05);
+          }
+        }
+        .neon-red-blink {
+          animation: neon-red-blink-anim 1.6s ease-in-out infinite;
+        }
+        .neon-red-border {
+          animation: neon-red-border-anim 1.6s ease-in-out infinite;
+        }
+      `}</style>
     </div>
   );
 }

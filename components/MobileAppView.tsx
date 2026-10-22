@@ -8798,11 +8798,13 @@ Ultra-photorealistic lifestyle interior photography, Architectural Digest party 
         e.target.value = '';
       }}
     />
-    {/* ── 📱 모바일 첫 진입 시 하늘색 스플래시 인트로 (ROOMFIT AI + 망치 찬 마스코트 손 흔들기) ── */}
+    {/* ── 📱 모바일 첫 진입 시 연한 하늘색 스플래시 인트로 (타이핑 ROOMFIT AI + 망치 찬 마스코트 손 흔들기) ── */}
     {showSplash && (
       <SplashScreen
-        lang={lang}
-        onFinish={() => setShowSplash(false)}
+        onFinish={() => {
+          setShowSplash(false);
+          setIsPricingModalOpen(true);
+        }}
       />
     )}
   </>

@@ -48,6 +48,7 @@ export const NEW_APP_PLANS: PricingPlan[] = [
     creditsText: '30 Credits',
     tagline: 'One-time recharge for 1-2 rooms remodel',
     features: ['30 Interior Generations', '30-Day Promo Validity', '4K High-Res Download'],
+    lemonCheckoutUrl: 'https://airoomdesigner.lemonsqueezy.com/checkout/buy/8c987869-2f03-4597-9bea-ba7a3e2cd6d4',
   },
   {
     id: 'amateur',
@@ -61,6 +62,7 @@ export const NEW_APP_PLANS: PricingPlan[] = [
     creditsText: '1 Month Pass',
     tagline: 'Unlimited interior design for a whole month',
     features: ['1 Month Unlimited', 'All Premium Styles', 'Priority Ultra-Fast Rendering'],
+    lemonCheckoutUrl: 'https://airoomdesigner.lemonsqueezy.com/checkout/buy/c69ce40f-635c-4d36-b078-0993f9c2b30d',
   },
   {
     id: 'pro',
@@ -75,7 +77,7 @@ export const NEW_APP_PLANS: PricingPlan[] = [
     creditsText: '3 Months Pass',
     tagline: 'Complete moving & renovation 3-month all-pass',
     features: ['3 Months Unlimited', 'All Future Features Unlocked', 'Commercial License Included'],
-    lemonCheckoutUrl: 'https://airoomdesigner.lemonsqueezy.com/checkout/buy/c69ce40f-635c-4d36-b078-0993f9c2b30d',
+    lemonCheckoutUrl: 'https://airoomdesigner.lemonsqueezy.com/checkout/buy/d4fcdb92-12f1-400c-9ff3-28aae4c94ff9',
   },
 ];
 

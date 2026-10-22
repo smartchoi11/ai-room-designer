@@ -622,9 +622,12 @@ export default function PricingModal({
           <button
             type="button"
             onClick={handleTryFree}
-            className="w-full py-1 text-xs font-semibold text-slate-400 hover:text-white transition-colors cursor-pointer"
+            className="w-full py-2.5 px-3 rounded-xl border border-rose-500/80 bg-rose-950/30 hover:bg-rose-900/40 active:scale-[0.98] transition-all cursor-pointer flex items-center justify-center gap-1.5 neon-red-border select-none shadow-lg"
           >
-            {translations.pricing.ctaFree[lang]}
+            <span className="text-sm shrink-0">🎁</span>
+            <span className="neon-red-blink text-xs sm:text-sm font-black tracking-wide">
+              {translations.pricing.ctaFree[lang]}
+            </span>
           </button>
 
           <p className="text-center text-[9.5px] text-slate-400 mt-1 leading-tight">
@@ -670,6 +673,36 @@ export default function PricingModal({
         }
         .neon-blue-blink {
           animation: neon-blue-blink-anim 1.8s ease-in-out infinite;
+        }
+        @keyframes neon-red-blink-anim {
+          0%, 100% {
+            color: #ffffff;
+            text-shadow: 0 0 4px #ff3366, 0 0 10px #ff0055, 0 0 20px #ff0055, 0 0 30px #e11d48;
+            filter: drop-shadow(0 0 6px rgba(255, 0, 85, 0.95));
+            opacity: 1;
+          }
+          50% {
+            color: #fca5a5;
+            text-shadow: 0 0 2px #ff3366, 0 0 6px #e11d48;
+            filter: drop-shadow(0 0 2px rgba(255, 0, 85, 0.45));
+            opacity: 0.65;
+          }
+        }
+        @keyframes neon-red-border-anim {
+          0%, 100% {
+            border-color: rgba(255, 0, 85, 0.9);
+            box-shadow: 0 0 15px rgba(255, 0, 85, 0.45), inset 0 0 8px rgba(255, 0, 85, 0.15);
+          }
+          50% {
+            border-color: rgba(255, 0, 85, 0.35);
+            box-shadow: 0 0 5px rgba(255, 0, 85, 0.15), inset 0 0 2px rgba(255, 0, 85, 0.05);
+          }
+        }
+        .neon-red-blink {
+          animation: neon-red-blink-anim 1.6s ease-in-out infinite;
+        }
+        .neon-red-border {
+          animation: neon-red-border-anim 1.6s ease-in-out infinite;
         }
       `}</style>
     </div>

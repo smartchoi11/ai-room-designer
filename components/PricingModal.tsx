@@ -483,29 +483,29 @@ export default function PricingModal({
           </p>
         </div>
 
-        {/* 혜택 칩 (참조 이미지: Faster Outcomes, No Ads 등 가로 칩 배치) */}
+        {/* 혜택 칩 (Faster Outcomes, No Ads 등 가로 칩 배치) */}
         <div className="flex items-center justify-center gap-2 flex-wrap">
           <div className="flex items-center gap-1.5 rounded-2xl border border-slate-200/90 bg-slate-50/90 px-3 py-1.5 shadow-2xs">
-            <span className="text-[#ff2d55] text-xs font-bold">⚡</span>
+            <span className="text-amber-500 text-xs font-bold">⚡</span>
             <span className="text-xs font-bold text-slate-800">
               {lang === 'ko' ? '빠른 AI 렌더링' : 'Faster Outcomes'}
             </span>
           </div>
           <div className="flex items-center gap-1.5 rounded-2xl border border-slate-200/90 bg-slate-50/90 px-3 py-1.5 shadow-2xs">
-            <span className="text-[#ff2d55] text-xs font-bold">🔒</span>
+            <span className="text-amber-500 text-xs font-bold">🔒</span>
             <span className="text-xs font-bold text-slate-800">
               {lang === 'ko' ? '광고 없는 무제한' : 'No Ads'}
             </span>
           </div>
           <div className="flex items-center gap-1.5 rounded-2xl border border-slate-200/90 bg-slate-50/90 px-3 py-1.5 shadow-2xs">
-            <span className="text-[#ff2d55] text-xs font-bold">💎</span>
+            <span className="text-amber-500 text-xs font-bold">💎</span>
             <span className="text-xs font-bold text-slate-800">
               {lang === 'ko' ? '4K 초고화질' : 'Ultra 4K HD'}
             </span>
           </div>
         </div>
 
-        {/* 💳 요금제 가로배치 (참조 이미지 스타일: 가로 와이드 카드 스택) */}
+        {/* 💳 요금제 가로배치 (가로 와이드 카드 스택) */}
         <div className="flex flex-col gap-2.5">
           {NEW_APP_PLANS.map((plan) => {
             const isSelected = selectedPlanId === plan.id;
@@ -521,13 +521,13 @@ export default function PricingModal({
                 onClick={() => setSelectedPlanId(plan.id)}
                 className={`relative w-full rounded-2xl p-3 sm:p-3.5 text-left transition-all duration-200 cursor-pointer touch-manipulation flex items-center justify-between ${
                   isSelected
-                    ? 'border-2 border-[#ff2d55] bg-rose-50/30 shadow-md ring-1 ring-[#ff2d55]/20'
+                    ? 'border-2 border-amber-400 bg-amber-50/30 shadow-md ring-1 ring-amber-400/20'
                     : 'border border-slate-200/90 bg-white hover:border-slate-300 hover:bg-slate-50/60 shadow-xs'
                 }`}
               >
-                {/* BEST OFFER 뱃지 (프로 팩 상단 우측에 부착, 참조 이미지와 100% 동일) */}
+                {/* BEST OFFER 뱃지 (프로 팩 상단 우측에 부착, 골드 앰버 그라데이션) */}
                 {isPro && (
-                  <span className="absolute -top-2.5 right-4 rounded-full bg-[#ff2d55] px-2.5 py-0.5 text-[9px] font-black uppercase text-white shadow-sm tracking-wider">
+                  <span className="absolute -top-2.5 right-4 rounded-full bg-gradient-to-r from-amber-500 to-amber-600 px-2.5 py-0.5 text-[9px] font-black uppercase text-white shadow-sm tracking-wider">
                     BEST OFFER
                   </span>
                 )}
@@ -591,24 +591,28 @@ export default function PricingModal({
           </span>
         </button>
 
-        {/* 메인 액션 버튼 (참조 이미지의 Continue 버튼: 밝은 코랄 레드 풀와이드 버튼) */}
+        {/* 메인 액션 버튼: 연한 금색(Soft Light Gold) 풀와이드 버튼 (금액 미표기) */}
         <div className="space-y-1.5 text-center pt-0.5">
           <button
             type="button"
             onClick={handleContinue}
             disabled={isProcessingPayment}
-            className="w-full rounded-2xl bg-[#ff2d55] hover:bg-[#e02449] py-3.5 sm:py-4 text-white shadow-lg shadow-rose-500/25 active:scale-[0.98] transition-all cursor-pointer touch-manipulation flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed font-black text-base sm:text-lg tracking-tight"
+            className="w-full rounded-2xl bg-gradient-to-r from-[#fae8b2] via-[#f5d580] to-[#e8be57] hover:brightness-105 active:scale-[0.98] py-3.5 sm:py-4 text-slate-950 shadow-lg shadow-amber-400/25 border border-amber-300/60 transition-all cursor-pointer touch-manipulation flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed font-black text-base sm:text-lg tracking-tight"
           >
             {isProcessingPayment ? (
-              <span className="flex items-center gap-2 text-sm font-black text-white">
-                <span className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+              <span className="flex items-center gap-2 text-sm font-black text-slate-950">
+                <span className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-slate-950 border-t-transparent" />
                 {lang === 'ko' ? '결제창 여는 중...' : 'Loading checkout...'}
               </span>
             ) : (
               <span>
                 {lang === 'ko'
-                  ? `계속하기 (${currentPlan.dollarPrice || currentPlan.priceText})`
-                  : `Continue (${currentPlan.dollarPrice || currentPlan.priceText})`}
+                  ? '계속하기'
+                  : lang === 'ja'
+                  ? '続ける'
+                  : lang === 'es'
+                  ? 'Continuar'
+                  : 'Continue'}
               </span>
             )}
           </button>

@@ -471,12 +471,12 @@ export default function PricingModal({
         <div className="text-center pt-1">
           <h2 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight leading-tight">
             {lang === 'ko'
-              ? '무제한 인테리어 AI 이용권'
+              ? '상상이 현실이 되는 룸핏 AI 인테리어'
               : lang === 'ja'
-              ? '無制限インテリアAIアクセス'
+              ? '想像が現実になるRoomFit AIインテリア'
               : lang === 'es'
-              ? 'Acceso Ilimitado Interior AI'
-              : 'Unlock Unlimited Access'}
+              ? 'Tu imaginación hecha realidad con RoomFit AI'
+              : 'Where Imagination Becomes Reality · RoomFit AI'}
           </h2>
           <p className="text-xs text-slate-500 font-medium mt-1 truncate">
             {currentFeature.stepNum}/07 {currentTitle} · {currentSubtitle}

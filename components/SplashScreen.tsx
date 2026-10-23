@@ -23,15 +23,15 @@ export default function SplashScreen({ onFinish }: SplashScreenProps) {
       if (currentIndex >= FULL_TEXT.length) {
         clearInterval(typingInterval);
 
-        // 글자 완성 후 잠시(350ms) 머문 뒤 부드럽게 페이드아웃하며 요금제 화면으로 전환
+        // 글자 완성 후 1초 더 여유있게(1,350ms) 머물며 손 흔드는 캐릭터를 감상한 뒤 부드럽게 요금제 화면으로 전환
         setTimeout(() => {
           setIsFading(true);
           setTimeout(() => {
             onFinish();
-          }, 300);
-        }, 350);
+          }, 350);
+        }, 1350);
       }
-    }, 75); // 글자당 75ms의 경쾌하고 빠른 타이핑 속도
+    }, 75);
 
     return () => clearInterval(typingInterval);
   }, [onFinish]);

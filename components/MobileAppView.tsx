@@ -8502,208 +8502,419 @@ Ultra-photorealistic lifestyle interior photography, Architectural Digest party 
 
         const currentTargetImg = resultImages[selectedResultIndex] || uploadedImage || '';
 
-        // 🧠 사진 및 공간 키워드 기반 지능형 공간 유형 자동 감지
+        // 🧠 사진 및 공간/소재/스타일 키워드 기반 지능형 공간 유형 자동 감지 및 가구 동적 매칭 알고리즘
         const effectiveRoom = (() => {
           if (activeCommerceRoom !== 'auto') return activeCommerceRoom;
-          const searchStr = (currentTargetImg + ' ' + (uploadedImage || '') + ' ' + (selectedRoom || '')).toLowerCase();
+          // 1. 현재 표시 중인 AI 결과물 이미지 경로/파일명 우선 분석 (이전 uploadedImage의 'kid' 잔여물 간섭 차단)
+          const targetLower = (currentTargetImg || '').toLowerCase();
           if (
-            searchStr.includes('kid') ||
-            searchStr.includes('bed') ||
-            searchStr.includes('child') ||
-            searchStr.includes('sleep') ||
-            selectedRoom === 'bedroom'
+            targetLower.includes('living') ||
+            targetLower.includes('cafe') ||
+            targetLower.includes('coffee') ||
+            targetLower.includes('lounge') ||
+            targetLower.includes('salon')
+          ) {
+            return 'living_room';
+          }
+          if (
+            targetLower.includes('bed') ||
+            targetLower.includes('kid') ||
+            targetLower.includes('child') ||
+            targetLower.includes('sleep') ||
+            targetLower.includes('nursery')
           ) {
             return 'bedroom';
           }
           if (
-            searchStr.includes('kitchen') ||
-            searchStr.includes('dining') ||
-            searchStr.includes('cook') ||
-            selectedRoom === 'kitchen' ||
-            selectedRoom === 'dining_room'
+            targetLower.includes('kitchen') ||
+            targetLower.includes('dining') ||
+            targetLower.includes('cook') ||
+            targetLower.includes('restaurant')
           ) {
             return 'kitchen';
           }
           if (
-            searchStr.includes('office') ||
-            searchStr.includes('study') ||
-            searchStr.includes('desk') ||
-            selectedRoom === 'home_office' ||
-            selectedRoom === 'study'
+            targetLower.includes('office') ||
+            targetLower.includes('study') ||
+            targetLower.includes('desk') ||
+            targetLower.includes('work')
           ) {
             return 'study';
           }
+
+          // 2. 사용자가 선택한 방 유형 (selectedRoom) 감지
+          if (['bedroom', 'kids_room'].includes(selectedRoom)) return 'bedroom';
+          if (['kitchen', 'dining_room', 'restaurant'].includes(selectedRoom)) return 'kitchen';
+          if (['home_office', 'study_room', 'office', 'study'].includes(selectedRoom)) return 'study';
+          if (['living_room', 'coffee_shop', 'party_room'].includes(selectedRoom)) return 'living_room';
+
           return 'living_room';
         })();
 
+        // 🧵 선택된 소재, 스타일, 컬러에 따른 실시간 가구 명칭 및 검색어 동적 매칭 엔진
         const furnitureList = (() => {
+          const styleKey = selectedFurnitureStyle || selectedStyle || 'modern';
+          const matKey = selectedFurnitureMaterial || 'fabric_linen';
+          const colKey = selectedFurnitureColor || 'off_white';
+
+          // 스타일 수식어
+          let styleLabelKr = '모던';
+          let styleLabelEn = 'Modern';
+          if (styleKey === 'mid_century') {
+            styleLabelKr = '미드센추리 모던';
+            styleLabelEn = 'Mid-Century Modern';
+          } else if (styleKey === 'scandinavian') {
+            styleLabelKr = '북유럽 노르딕';
+            styleLabelEn = 'Scandinavian Nordic';
+          } else if (styleKey === 'japandi') {
+            styleLabelKr = '재팬디 내추럴';
+            styleLabelEn = 'Japandi';
+          } else if (styleKey === 'luxury' || styleKey === 'hotel_lounge') {
+            styleLabelKr = '호텔 럭셔리';
+            styleLabelEn = 'Hotel Luxury';
+          } else if (styleKey === 'classic') {
+            styleLabelKr = '유러피안 클래식';
+            styleLabelEn = 'European Classic';
+          } else if (styleKey === 'hanok') {
+            styleLabelKr = '모던 한옥 원목';
+            styleLabelEn = 'Modern Hanok';
+          } else if (styleKey === 'industrial') {
+            styleLabelKr = '인더스트리얼 빈티지';
+            styleLabelEn = 'Industrial Loft';
+          }
+
+          // 소재 수식어
+          let matLabelKr = '패브릭';
+          let matLabelEn = 'Fabric';
+          if (matKey === 'italian_leather') {
+            matLabelKr = '천연 가죽';
+            matLabelEn = 'Genuine Leather';
+          } else if (matKey === 'boucle_velvet') {
+            matLabelKr = '부클레 & 벨벳';
+            matLabelEn = 'Boucle & Velvet';
+          } else if (matKey === 'wood_rattan') {
+            matLabelKr = '원목 & 케인 라탄';
+            matLabelEn = 'Solid Wood & Cane';
+          }
+
+          // 컬러 수식어
+          let colLabelKr = '아이보리';
+          let colLabelEn = 'Ivory';
+          if (colKey === 'warm_cognac') {
+            colLabelKr = '웜 코냑 브라운';
+            colLabelEn = 'Warm Cognac';
+          } else if (colKey === 'charcoal_grey') {
+            colLabelKr = '모던 차콜';
+            colLabelEn = 'Charcoal';
+          } else if (colKey === 'sage_green') {
+            colLabelKr = '세이지 올리브';
+            colLabelEn = 'Sage Olive';
+          } else if (colKey === 'warm_beige') {
+            colLabelKr = '웜베이지';
+            colLabelEn = 'Warm Beige';
+          } else if (colKey === 'espresso_brown') {
+            colLabelKr = '월넛 에스프레소';
+            colLabelEn = 'Walnut Espresso';
+          }
+
           if (effectiveRoom === 'bedroom') {
+            const bedName =
+              matKey === 'italian_leather'
+                ? isKr ? `${styleLabelKr} ${colLabelKr} 천연가죽 쿠션헤드 침대 프레임 (SS/Q)` : `${styleLabelEn} ${colLabelEn} Leather Platform Bed`
+                : matKey === 'boucle_velvet'
+                ? isKr ? `${styleLabelKr} ${colLabelKr} 부클레 패브릭 쿠션헤드 침대 (SS/Q)` : `${styleLabelEn} ${colLabelEn} Boucle Upholstered Bed`
+                : matKey === 'wood_rattan'
+                ? isKr ? `${styleLabelKr} 프리미엄 원목 케인 라탄 평상형 침대 (SS/Q)` : `${styleLabelEn} Solid Wood Cane Platform Bed`
+                : isKr ? `${styleLabelKr} ${colLabelKr} 평상형 저상 침대 프레임 (SS/Q)` : `${styleLabelEn} ${colLabelEn} Low Platform Bed Frame`;
+
+            const bedKw =
+              matKey === 'italian_leather'
+                ? `${styleLabelKr} 가죽 침대 프레임`
+                : matKey === 'boucle_velvet'
+                ? `${styleLabelKr} 부클레 침대 프레임`
+                : matKey === 'wood_rattan'
+                ? `${styleLabelKr} 원목 라탄 침대 프레임`
+                : `${styleLabelKr} 평상형 저상 침대 프레임`;
+
             return [
               {
                 id: 'bed_platform',
                 category: isKr ? '침대' : 'Bed',
                 icon: '🛏️',
-                name: isKr ? '원목 평상형 저상 침대 프레임 (SS/Q)' : 'Solid Wood Low Platform Bed Frame',
-                price: isKr ? '₩189,000원~' : '$199~',
-                coupangKw: '원목 평상형 저상 침대 프레임',
-                amazonKw: 'Solid Wood Low Platform Bed Frame Queen',
-                posX: 52,
-                posY: 38,
+                name: bedName,
+                price: matKey === 'italian_leather' ? (isKr ? '₩359,000원~' : '$290~') : (isKr ? '₩249,000원~' : '$210~'),
+                coupangKw: bedKw,
+                amazonKw: `${styleLabelEn} Platform Bed Frame`,
+                posX: 48,
+                posY: 50,
               },
               {
                 id: 'desk_study',
-                category: isKr ? '책상' : 'Desk',
+                category: isKr ? '책상·협탁' : 'Nightstand',
                 icon: '🪵',
-                name: isKr ? '내추럴 원목 학생/서재 책상 & 의자 세트' : 'Solid Wood Study Writing Desk & Chair',
+                name: isKr ? `${styleLabelKr} 내추럴 원목 침대 협탁 & 서재 책상 세트` : `${styleLabelEn} Solid Wood Bedside Table & Desk`,
                 price: isKr ? '₩145,000원~' : '$130~',
-                coupangKw: '원목 학생 서재 책상 의자 세트',
-                amazonKw: 'Solid Wood Writing Study Desk',
-                posX: 78,
-                posY: 44,
+                coupangKw: `${styleLabelKr} 원목 침대 협탁 책상`,
+                amazonKw: `${styleLabelEn} Wood Nightstand Desk`,
+                posX: 80,
+                posY: 54,
               },
               {
                 id: 'lamp_desk',
-                category: isKr ? '단스탠드' : 'Lamp',
+                category: isKr ? '취침등' : 'Table Lamp',
                 icon: '💡',
-                name: isKr ? '미니멀 모던 테이블 단스탠드 무드등' : 'Modern Minimal Table Desk Lamp',
+                name: isKr ? `${styleLabelKr} 미니멀 세라믹 단스탠드 감성 수면 무드등` : `${styleLabelEn} Bedside Ceramic Mood Lamp`,
                 price: isKr ? '₩35,000원~' : '$28~',
-                coupangKw: '테이블 단스탠드 무드등',
-                amazonKw: 'Minimalist Desk Table Lamp',
-                posX: 76,
-                posY: 34,
+                coupangKw: `${styleLabelKr} 테이블 단스탠드 무드등`,
+                amazonKw: `${styleLabelEn} Minimalist Bedside Lamp`,
+                posX: 80,
+                posY: 26,
               },
               {
                 id: 'rug_ivory',
                 category: isKr ? '러그' : 'Rug',
                 icon: '🧶',
-                name: isKr ? '사계절 내추럴 아이보리 단색 거실/침실 러그' : 'Solid Ivory Natural Area Rug',
+                name: isKr ? `${colLabelKr} 사계절 내추럴 먼지없는 침실/거실 러그` : `${colLabelEn} Solid Area Rug`,
                 price: isKr ? '₩49,000원~' : '$45~',
-                coupangKw: '사계절 아이보리 단색 러그',
-                amazonKw: 'Solid Ivory Area Rug',
-                posX: 48,
-                posY: 46,
+                coupangKw: `${colLabelKr} 사계절 침실 러그`,
+                amazonKw: `${colLabelEn} Bedroom Area Rug`,
+                posX: 26,
+                posY: 76,
               },
             ];
           } else if (effectiveRoom === 'kitchen') {
+            const tableName =
+              matKey === 'wood_rattan' || styleKey === 'japandi'
+                ? isKr ? `${styleLabelKr} 내추럴 오크 원목 타원형 4인용 다이닝 식탁 (1400)` : `${styleLabelEn} Solid Oak Oval Dining Table 1400`
+                : styleKey === 'luxury' || styleKey === 'modern'
+                ? isKr ? `${styleLabelKr} 비앙코 포세린 세라믹 4인용 다이닝 식탁 (1400)` : `${styleLabelEn} Porcelain Marble Dining Table 1400`
+                : isKr ? `${styleLabelKr} 타원형 오벌 원목 다이닝 식탁 (1400)` : `${styleLabelEn} Oval Wood Dining Table 1400`;
+
             return [
               {
                 id: 'table_oval',
                 category: isKr ? '식탁' : 'Table',
                 icon: '🪵',
-                name: isKr ? '원목 타원형 오벌 다이닝 식탁 (1400)' : 'Oval Solid Wood Dining Table 1400mm',
+                name: tableName,
                 price: isKr ? '₩320,000원~' : '$260~',
-                coupangKw: '타원형 오벌 원목 식탁 1400',
-                amazonKw: 'Oval Solid Wood Dining Table',
+                coupangKw: `${styleLabelKr} 4인용 식탁 다이닝 테이블`,
+                amazonKw: `${styleLabelEn} 4-Person Dining Table`,
                 posX: 50,
-                posY: 64,
+                posY: 54,
               },
               {
                 id: 'chair_eames',
                 category: isKr ? '체어' : 'Chair',
                 icon: '🪑',
-                name: isKr ? '에펠 DSW 스타일 인테리어 디자인 체어' : 'Eames Style Molded Dining Armchair',
-                price: isKr ? '₩38,000원~' : '$42~',
-                coupangKw: '에펠 체어 인테리어 의자',
-                amazonKw: 'Molded Plastic Dining Armchair Wooden Legs',
-                posX: 32,
-                posY: 68,
+                name: isKr ? `${styleLabelKr} ${matLabelKr} 디자인 식탁 의자 (2P)` : `${styleLabelEn} ${matLabelEn} Dining Chairs Set`,
+                price: isKr ? '₩58,000원~' : '$49~',
+                coupangKw: `${styleLabelKr} ${matLabelKr} 식탁 의자`,
+                amazonKw: `${styleLabelEn} Dining Chair Wooden Legs`,
+                posX: 26,
+                posY: 66,
               },
               {
                 id: 'pendant_light',
-                category: isKr ? '조명' : 'Lighting',
+                category: isKr ? '펜던트조명' : 'Pendant',
                 icon: '💡',
-                name: isKr ? '미니멀 펜던트 다이닝 식탁 조명' : 'Modern Pendant Dining Light Fixture',
+                name: isKr ? `${styleLabelKr} 미니멀 펜던트 다이닝 식탁 조명` : `${styleLabelEn} Pendant Dining Light Fixture`,
                 price: isKr ? '₩58,000원~' : '$49~',
-                coupangKw: '식탁 펜던트 조명 인테리어',
-                amazonKw: 'Modern Dining Room Pendant Light',
+                coupangKw: `${styleLabelKr} 식탁 펜던트 조명`,
+                amazonKw: `${styleLabelEn} Dining Room Pendant Light`,
                 posX: 50,
-                posY: 28,
+                posY: 22,
+              },
+              {
+                id: 'bar_stool',
+                category: isKr ? '아일랜드체어' : 'Stool',
+                icon: '🪑',
+                name: isKr ? `${styleLabelKr} 모던 아일랜드 홈바 스툴 의자` : `${styleLabelEn} Modern Counter Bar Stool`,
+                price: isKr ? '₩45,000원~' : '$38~',
+                coupangKw: `${styleLabelKr} 아일랜드 홈바 스툴 의자`,
+                amazonKw: `${styleLabelEn} Counter Bar Stool`,
+                posX: 76,
+                posY: 64,
               },
             ];
           } else if (effectiveRoom === 'study') {
             return [
               {
                 id: 'desk_office',
-                category: isKr ? '책상' : 'Desk',
+                category: isKr ? '서재책상' : 'Desk',
                 icon: '🪵',
-                name: isKr ? '미드센추리 원목 컴퓨터 서재 데스크' : 'Mid-Century Modern Computer Writing Desk',
+                name: isKr ? `${styleLabelKr} 컴퓨터 서재 책상 데스크 (1200x600)` : `${styleLabelEn} Computer Writing Desk`,
                 price: isKr ? '₩165,000원~' : '$150~',
-                coupangKw: '미드센추리 원목 서재 책상',
-                amazonKw: 'Mid Century Modern Wood Computer Desk',
-                posX: 52,
-                posY: 60,
+                coupangKw: `${styleLabelKr} 서재 컴퓨터 책상`,
+                amazonKw: `${styleLabelEn} Computer Desk Home Office`,
+                posX: 50,
+                posY: 52,
               },
               {
                 id: 'chair_ergonomic',
-                category: isKr ? '의자' : 'Chair',
+                category: isKr ? '데스크체어' : 'Chair',
                 icon: '🪑',
-                name: isKr ? '인체공학 요추지지 프리미엄 메쉬 체어' : 'Ergonomic High-Back Mesh Desk Chair',
-                price: isKr ? '₩129,000원~' : '$110~',
-                coupangKw: '인체공학 요추 메쉬 사무용 의자',
-                amazonKw: 'Ergonomic Office Mesh Desk Chair',
-                posX: 48,
+                name:
+                  matKey === 'italian_leather'
+                    ? isKr ? `${styleLabelKr} 프리미엄 천연가죽 중역용 사무용 체어` : `${styleLabelEn} Top-Grain Leather Executive Chair`
+                    : isKr ? `${styleLabelKr} 인체공학 요추지지 프리미엄 메쉬 사무용 체어` : `${styleLabelEn} Ergonomic High-Back Mesh Desk Chair`,
+                price: matKey === 'italian_leather' ? (isKr ? '₩189,000원~' : '$160~') : (isKr ? '₩129,000원~' : '$110~'),
+                coupangKw: matKey === 'italian_leather' ? `${styleLabelKr} 천연가죽 사무용 의자` : `${styleLabelKr} 인체공학 사무용 메쉬 의자`,
+                amazonKw: `${styleLabelEn} Ergonomic Desk Chair`,
+                posX: 50,
                 posY: 72,
               },
               {
                 id: 'lamp_reading',
-                category: isKr ? '조명' : 'Lighting',
+                category: isKr ? '스탠드' : 'Lamp',
                 icon: '💡',
-                name: isKr ? '아르떼미데 스타일 단스탠드 독서 무드등' : 'Mushroom Table Lamp Ambient Light',
-                price: isKr ? '₩45,000원~' : '$35~',
-                coupangKw: '버섯 단스탠드 무드등',
-                amazonKw: 'Mushroom Table Lamp Ambient Mood Light',
-                posX: 26,
-                posY: 46,
+                name: isKr ? `${styleLabelKr} 시력보호 각도조절 서재 데스크 단스탠드` : `${styleLabelEn} Eye-Caring LED Desk Lamp`,
+                price: isKr ? '₩38,000원~' : '$32~',
+                coupangKw: `${styleLabelKr} 데스크 스탠드 단스탠드`,
+                amazonKw: `${styleLabelEn} LED Desk Reading Lamp`,
+                posX: 24,
+                posY: 36,
+              },
+              {
+                id: 'rug_study',
+                category: isKr ? '체어러그' : 'Chair Mat',
+                icon: '🧶',
+                name: isKr ? `${colLabelKr} 바닥보호 스크래치 방지 체어 매트 러그` : `${colLabelEn} Floor Protector Desk Chair Mat`,
+                price: isKr ? '₩32,000원~' : '$26~',
+                coupangKw: `${styleLabelKr} 체어 매트 러그 바닥보호`,
+                amazonKw: `${styleLabelEn} Desk Chair Mat Area Rug`,
+                posX: 76,
+                posY: 74,
               },
             ];
           } else {
+            // 거실·카페 (living_room)
+            const sofaName = isKr
+              ? `${styleLabelKr} ${colLabelKr} ${matLabelKr} 3인용 소파`
+              : `${styleLabelEn} ${colLabelEn} ${matLabelEn} 3-Seater Sofa`;
+
+            const sofaPrice =
+              matKey === 'italian_leather'
+                ? isKr ? '₩680,000원~' : '$540~'
+                : matKey === 'boucle_velvet'
+                ? isKr ? '₩490,000원~' : '$390~'
+                : matKey === 'wood_rattan'
+                ? isKr ? '₩420,000원~' : '$340~'
+                : isKr ? '₩389,000원~' : '$310~';
+
             return [
               {
-                id: 'sofa_midcentury',
+                id: 'sofa_main',
                 category: isKr ? '소파' : 'Sofa',
                 icon: '🛋️',
-                name: isKr ? '미드센추리 모던 3인용 패브릭 소파' : 'Mid-Century Modern 3-Seater Fabric Sofa',
-                price: isKr ? '₩489,000원~' : '$380~',
-                coupangKw: '미드센추리 모던 3인 패브릭 소파',
-                amazonKw: 'Mid Century Modern 3 Seater Sofa',
-                posX: 48,
-                posY: 60,
+                name: sofaName,
+                price: sofaPrice,
+                coupangKw: `${styleLabelKr} ${matLabelKr} 3인용 소파`,
+                amazonKw: `${styleLabelEn} ${matLabelEn} 3 Seater Sofa`,
+                posX: 50,
+                posY: 52,
               },
               {
-                id: 'table_oval',
+                id: 'table_living',
                 category: isKr ? '테이블' : 'Table',
                 icon: '🪵',
-                name: isKr ? '원목 타원형 오벌 리빙 커피 테이블' : 'Oval Solid Wood Living Coffee Table',
+                name:
+                  styleKey === 'luxury'
+                    ? isKr ? `${styleLabelKr} 비앙코 마블 세라믹 골드 프레임 거실 테이블` : `${styleLabelEn} Marble Top Living Coffee Table`
+                    : isKr ? `${styleLabelKr} 원목 타원형 오벌 리빙 커피 테이블` : `${styleLabelEn} Oval Wood Living Coffee Table`,
                 price: isKr ? '₩180,000원~' : '$160~',
-                coupangKw: '타원형 오벌 원목 거실 테이블',
-                amazonKw: 'Mid Century Modern Oval Coffee Table',
-                posX: 56,
-                posY: 74,
+                coupangKw: `${styleLabelKr} 거실 소파 테이블`,
+                amazonKw: `${styleLabelEn} Living Room Coffee Table`,
+                posX: 50,
+                posY: 72,
               },
               {
-                id: 'lamp_mushroom',
-                category: isKr ? '조명' : 'Lighting',
+                id: 'chair_lounge',
+                category: isKr ? '암체어' : 'Armchair',
+                icon: '🪑',
+                name: isKr ? `${styleLabelKr} ${matLabelKr} 1인용 라운지 안락체어` : `${styleLabelEn} ${matLabelEn} Accent Lounge Chair`,
+                price: isKr ? '₩210,000원~' : '$170~',
+                coupangKw: `${styleLabelKr} 1인용 라운지 안락 체어`,
+                amazonKw: `${styleLabelEn} Accent Lounge Armchair`,
+                posX: 22,
+                posY: 46,
+              },
+              {
+                id: 'lamp_living',
+                category: isKr ? '무드조명' : 'Lighting',
                 icon: '💡',
-                name: isKr ? '아르떼미데 스타일 버섯 단스탠드 무드등' : 'Mushroom Table Lamp Ambient Mood Light',
+                name:
+                  styleKey === 'mid_century'
+                    ? isKr ? '아르떼미데 스타일 버섯 단스탠드 무드등' : 'Mushroom Table Lamp Ambient Mood Light'
+                    : isKr ? `${styleLabelKr} 감성 단스탠드 인테리어 무드등` : `${styleLabelEn} Ambient Mood Table Lamp`,
                 price: isKr ? '₩45,000원~' : '$35~',
-                coupangKw: '버섯 단스탠드 오렌지 무드등',
-                amazonKw: 'Mushroom Table Lamp Orange Ambient Light',
-                posX: 24,
-                posY: 42,
+                coupangKw: `${styleLabelKr} 단스탠드 무드등`,
+                amazonKw: `${styleLabelEn} Ambient Table Lamp`,
+                posX: 78,
+                posY: 30,
               },
               {
                 id: 'rug_checker',
                 category: isKr ? '러그' : 'Rug',
                 icon: '🧶',
-                name: isKr ? '감성 체커보드 극세사 사계절 거실 러그' : 'Checkerboard Living Room Area Rug',
+                name: isKr ? `${colLabelKr} 사계절 극세사 워셔블 거실 러그` : `${colLabelEn} Living Room Area Rug`,
                 price: isKr ? '₩59,000원~' : '$48~',
-                coupangKw: '체커보드 러그 사계절 카페트',
-                amazonKw: 'Checkerboard Area Rug Modern Living Room',
-                posX: 48,
-                posY: 80,
+                coupangKw: `${styleLabelKr} 사계절 거실 러그 카페트`,
+                amazonKw: `${styleLabelEn} Living Room Area Rug`,
+                posX: 50,
+                posY: 86,
               },
             ];
           }
+        })();
+
+        // 🛡️ 핀 겹침 방지 알고리즘 (Anti-Collision Layout Relaxation)
+        // 두 핀 사이의 수평/수직 거리가 너무 가까우면 좌표를 밀어내어 텍스트가 절대 겹치지 않도록 자동 보정
+        const resolvedPins = (() => {
+          const pins = furnitureList.map((item) => ({
+            ...item,
+            displayX: item.posX,
+            displayY: item.posY,
+          }));
+
+          const minDistX = 20; // 수평 최소 간격 (%)
+          const minDistY = 13; // 수직 최소 간격 (%)
+
+          for (let iter = 0; iter < 4; iter++) {
+            for (let i = 0; i < pins.length; i++) {
+              for (let j = i + 1; j < pins.length; j++) {
+                const dx = pins[j].displayX - pins[i].displayX;
+                const dy = pins[j].displayY - pins[i].displayY;
+                const absDx = Math.abs(dx);
+                const absDy = Math.abs(dy);
+
+                if (absDx < minDistX && absDy < minDistY) {
+                  const overlapX = minDistX - absDx;
+                  const overlapY = minDistY - absDy;
+
+                  if (overlapY <= overlapX) {
+                    const shift = overlapY / 2 + 1;
+                    if (dy >= 0) {
+                      pins[i].displayY = Math.max(16, pins[i].displayY - shift);
+                      pins[j].displayY = Math.min(84, pins[j].displayY + shift);
+                    } else {
+                      pins[i].displayY = Math.min(84, pins[i].displayY + shift);
+                      pins[j].displayY = Math.max(16, pins[j].displayY - shift);
+                    }
+                  } else {
+                    const shift = overlapX / 2 + 1;
+                    if (dx >= 0) {
+                      pins[i].displayX = Math.max(15, pins[i].displayX - shift);
+                      pins[j].displayX = Math.min(85, pins[j].displayX + shift);
+                    } else {
+                      pins[i].displayX = Math.min(85, pins[i].displayX + shift);
+                      pins[j].displayX = Math.max(15, pins[j].displayX - shift);
+                    }
+                  }
+                }
+              }
+            }
+          }
+          return pins;
         })();
 
         const handleFurnitureClick = (item: typeof furnitureList[0]) => {
@@ -8837,63 +9048,72 @@ Ultra-photorealistic lifestyle interior photography, Architectural Digest party 
               {/* 🏷️ AI 결과 사진 위 가구 인터랙티브 핀 & 태그 오버레이 */}
               {showFurnitureTags && (
                 <div className="absolute inset-0 pointer-events-none z-20 animate-fade-in">
-                  {/* 상단 힌트 배너 */}
-                  <div className="absolute top-2.5 left-1/2 -translate-x-1/2 rounded-full bg-slate-950/85 border border-emerald-400/80 px-3 py-1 shadow-lg backdrop-blur-md pointer-events-auto">
-                    <p className="text-[10px] font-black text-emerald-300 flex items-center gap-1">
+                  {/* 상단 미니 힌트 배너 (화면 시야 및 조명 핀 가림 방지) */}
+                  <div className="absolute top-2 left-2 rounded-full bg-slate-950/80 border border-emerald-400/60 px-2.5 py-0.5 shadow-md backdrop-blur-md pointer-events-none z-10">
+                    <p className="text-[9.5px] font-bold text-emerald-300 flex items-center gap-1">
                       <span>✨</span>
-                      <span>{lang === 'ko' ? '가구 태그를 누르면 쇼핑탭으로 연결됩니다' : 'Tap tags to shop matched furniture'}</span>
+                      <span>{lang === 'ko' ? '핀을 눌러 가구 구경하기' : 'Tap pin to shop'}</span>
                     </p>
                   </div>
 
-                  {furnitureList.map((item) => {
+                  {resolvedPins.map((item) => {
                     const isSelected = selectedFurnitureId === item.id;
                     return (
                       <div
                         key={item.id}
-                        style={{ top: `${item.posY}%`, left: `${item.posX}%` }}
+                        style={{ top: `${item.displayY}%`, left: `${item.displayX}%` }}
                         className="absolute -translate-x-1/2 -translate-y-1/2 pointer-events-auto z-20"
                       >
-                        {/* 펄스 링 & 핀 버튼 */}
+                        {/* 펄스 링 & 컴팩트 핀 버튼 (겹침 방지: 가로 폭 최소화, 아이콘 + 짧은 카테고리명) */}
                         <button
                           type="button"
                           onClick={(e) => {
                             e.stopPropagation();
                             setSelectedFurnitureId(isSelected ? null : item.id);
                           }}
-                          className={`flex items-center gap-1.5 rounded-full px-2.5 py-1 shadow-2xl backdrop-blur-md transition-all active:scale-95 cursor-pointer border ${
+                          className={`flex items-center gap-1 rounded-full px-2 py-0.5 shadow-xl backdrop-blur-md transition-all active:scale-95 cursor-pointer border ${
                             isSelected
-                              ? 'bg-emerald-500 text-slate-950 border-white ring-4 ring-emerald-300/60 scale-110 font-black'
-                              : 'bg-slate-950/90 hover:bg-slate-900 border-emerald-400/90 text-white shadow-[0_0_15px_rgba(16,185,129,0.7)]'
+                              ? 'bg-emerald-500 text-slate-950 border-white ring-2 ring-emerald-300/80 scale-105 font-black z-30'
+                              : 'bg-slate-950/85 hover:bg-slate-900 border-emerald-400/80 text-white shadow-[0_0_12px_rgba(16,185,129,0.5)]'
                           }`}
                         >
-                          <span className="relative flex h-2.5 w-2.5">
-                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-80"></span>
-                            <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
+                          <span className="relative flex h-2 w-2 shrink-0">
+                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                            <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
                           </span>
-                          <span className="text-[11px]">{item.icon}</span>
-                          <span className="text-[11px] font-black">{item.category}</span>
-                          <span className="text-[10px] font-extrabold text-amber-300">{item.price}</span>
+                          <span className="text-[10px] leading-none">{item.icon}</span>
+                          <span className="text-[10px] font-black leading-none whitespace-nowrap">{item.category}</span>
                         </button>
 
-                        {/* 태그 클릭 시 이미지 위에 뜨는 즉시 구매 팝오버 */}
+                        {/* 태그 클릭 시 이미지 위에 뜨는 즉시 구경하기 스마트 팝오버 (경계 자동 감지) */}
                         {isSelected && (
-                          <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-52 rounded-2xl bg-slate-950/95 border-2 border-emerald-400 p-3 shadow-2xl backdrop-blur-xl animate-fade-in z-30 pointer-events-auto">
+                          <div
+                            className={`absolute z-30 w-48 rounded-xl bg-slate-950/95 border border-emerald-400 p-2.5 shadow-2xl backdrop-blur-xl animate-fade-in pointer-events-auto ${
+                              item.displayY < 38 ? 'top-full mt-2' : 'bottom-full mb-2'
+                            } ${
+                              item.displayX > 70
+                                ? 'right-0'
+                                : item.displayX < 30
+                                ? 'left-0'
+                                : 'left-1/2 -translate-x-1/2'
+                            }`}
+                          >
                             <div className="flex items-center justify-between pb-1 border-b border-slate-800">
-                              <span className="text-[10px] font-bold text-amber-400">{item.category}</span>
-                              <span className="text-[9.5px] font-black text-emerald-400">
+                              <span className="text-[9.5px] font-black text-amber-400">{item.category}</span>
+                              <span className="text-[9px] font-black text-emerald-400">
                                 {isKr ? '🚀 쿠팡 로켓배송' : '📦 Amazon'}
                               </span>
                             </div>
-                            <p className="mt-1.5 text-[11px] font-bold text-white line-clamp-2 leading-tight">{item.name}</p>
-                            <div className="mt-2.5 flex items-center justify-between gap-1.5">
-                              <span className="text-xs font-black text-amber-300">{item.price}</span>
+                            <p className="mt-1 text-[10.5px] font-bold text-white line-clamp-2 leading-tight">{item.name}</p>
+                            <div className="mt-2 flex items-center justify-between gap-1">
+                              <span className="text-[11px] font-black text-amber-300">{item.price}</span>
                               <button
                                 type="button"
                                 onClick={(e) => {
                                   e.stopPropagation();
                                   handleFurnitureClick(item);
                                 }}
-                                className="rounded-lg bg-gradient-to-r from-emerald-500 to-teal-500 px-3 py-1.5 text-[11px] font-black text-slate-950 shadow hover:opacity-90 active:scale-95 flex items-center gap-1 cursor-pointer"
+                                className="rounded-lg bg-gradient-to-r from-emerald-500 to-teal-500 px-2 py-1 text-[10.5px] font-black text-slate-950 shadow hover:opacity-90 active:scale-95 flex items-center gap-1 cursor-pointer"
                               >
                                 <span>{isKr ? '구경해보기' : 'View Item'}</span>
                                 <span className="font-bold">➔</span>
@@ -8974,8 +9194,8 @@ Ultra-photorealistic lifestyle interior photography, Architectural Digest party 
               {/* 🏷️ 공간 카테고리 퀵 선택 탭 (터치 한 번으로 방 맞춤 가구 변경) */}
               <div className="flex items-center gap-1.5 overflow-x-auto pb-1 mt-2.5 scrollbar-none">
                 {[
+                  { id: 'living_room', icon: '🛋️', label: isKr ? '거실·카페' : 'Living & Cafe' },
                   { id: 'bedroom', icon: '🛏️', label: isKr ? '침실·아이방' : 'Bedroom & Kids' },
-                  { id: 'living_room', icon: '🛋️', label: isKr ? '거실' : 'Living Room' },
                   { id: 'kitchen', icon: '🍽️', label: isKr ? '주방·다이닝' : 'Kitchen' },
                   { id: 'study', icon: '💻', label: isKr ? '서재·공부방' : 'Study' },
                 ].map((rTab) => {
@@ -9049,7 +9269,7 @@ Ultra-photorealistic lifestyle interior photography, Architectural Digest party 
                         }}
                         className="shrink-0 flex items-center gap-1 rounded-lg bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 px-2.5 py-1.5 text-[11px] font-black text-slate-950 shadow-md transition-all active:scale-95 cursor-pointer"
                       >
-                        <span>{isKr ? '🚀 쿠팡 최저가' : '📦 View'}</span>
+                        <span>{isKr ? '구경해보기' : 'View Item'}</span>
                         <span className="text-xs font-black">➔</span>
                       </button>
                     </div>

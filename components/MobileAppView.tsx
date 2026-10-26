@@ -8702,21 +8702,21 @@ Ultra-photorealistic lifestyle interior photography, Architectural Digest party 
 
           <div id="result-modal-scroll-container" className="flex-1 overflow-y-auto p-4 flex flex-col items-center justify-start">
             {/* 비포/애프터 비교 뷰어 전환 탭 + 가구 쇼핑 탭 */}
-            <div className="mb-2.5 flex items-center justify-center gap-1 w-full">
-              <div className="flex rounded-full border border-slate-800 bg-slate-900/90 p-1 backdrop-blur-md overflow-x-auto max-w-full scrollbar-none">
+            <div className="mb-2.5 w-full">
+              <div className="grid grid-cols-4 gap-1 w-full rounded-2xl border border-slate-800 bg-slate-900/90 p-1 backdrop-blur-md">
                 <button
                   type="button"
                   onClick={() => {
                     setCompareViewMode('slider');
                     setShowFurnitureTags(false);
                   }}
-                  className={`rounded-full px-2.5 py-1 text-[11px] font-bold transition-all shrink-0 ${
+                  className={`rounded-xl py-1.5 text-center text-[10px] font-bold transition-all truncate ${
                     compareViewMode === 'slider' && !showFurnitureTags
                       ? 'bg-amber-400 text-slate-950 shadow-md'
                       : 'text-slate-400 hover:text-white'
                   }`}
                 >
-                  {lang === 'ko' ? '↔ 슬라이더 비교' : lang === 'ja' ? '↔ スライダー' : lang === 'es' ? '↔ Deslizador' : '↔ Slider'}
+                  {lang === 'ko' ? '↔ 슬라이더' : lang === 'ja' ? '↔ スライダー' : lang === 'es' ? '↔ Deslizador' : '↔ Slider'}
                 </button>
                 <button
                   type="button"
@@ -8724,13 +8724,13 @@ Ultra-photorealistic lifestyle interior photography, Architectural Digest party 
                     setCompareViewMode('after');
                     setShowFurnitureTags(false);
                   }}
-                  className={`rounded-full px-2.5 py-1 text-[11px] font-bold transition-all shrink-0 ${
+                  className={`rounded-xl py-1.5 text-center text-[10px] font-bold transition-all truncate ${
                     compareViewMode === 'after' && !showFurnitureTags
                       ? 'bg-amber-400 text-slate-950 shadow-md'
                       : 'text-slate-400 hover:text-white'
                   }`}
                 >
-                  {lang === 'ko' ? '✨ AI 결과 (After)' : lang === 'ja' ? '✨ AI結果' : lang === 'es' ? '✨ AI' : '✨ After'}
+                  {lang === 'ko' ? '✨ AI 결과' : lang === 'ja' ? '✨ AI結果' : lang === 'es' ? '✨ AI' : '✨ After'}
                 </button>
                 <button
                   type="button"
@@ -8738,13 +8738,13 @@ Ultra-photorealistic lifestyle interior photography, Architectural Digest party 
                     setCompareViewMode('before');
                     setShowFurnitureTags(false);
                   }}
-                  className={`rounded-full px-2.5 py-1 text-[11px] font-bold transition-all shrink-0 ${
+                  className={`rounded-xl py-1.5 text-center text-[10px] font-bold transition-all truncate ${
                     compareViewMode === 'before'
                       ? 'bg-amber-400 text-slate-950 shadow-md'
                       : 'text-slate-400 hover:text-white'
                   }`}
                 >
-                  {lang === 'ko' ? '📷 원본 사진 (Before)' : lang === 'ja' ? '📷 元写真' : lang === 'es' ? '📷 Original' : '📷 Before'}
+                  {lang === 'ko' ? '📷 원본 사진' : lang === 'ja' ? '📷 元写真' : lang === 'es' ? '📷 Original' : '📷 Before'}
                 </button>
                 <button
                   type="button"
@@ -8752,7 +8752,7 @@ Ultra-photorealistic lifestyle interior photography, Architectural Digest party 
                     setCompareViewMode('after');
                     setShowFurnitureTags(true);
                   }}
-                  className={`rounded-full px-2.5 py-1 text-[11px] font-extrabold transition-all shrink-0 ${
+                  className={`rounded-xl py-1.5 text-center text-[10px] font-extrabold transition-all truncate ${
                     showFurnitureTags
                       ? 'bg-gradient-to-r from-emerald-500 to-teal-500 text-slate-950 shadow-lg font-black'
                       : 'text-emerald-400 hover:text-emerald-300'
@@ -8763,19 +8763,36 @@ Ultra-photorealistic lifestyle interior photography, Architectural Digest party 
               </div>
             </div>
 
-            <div className="relative aspect-[4/3] w-full overflow-hidden rounded-3xl border border-slate-800 shadow-2xl">
+            <div
+              className="relative w-full h-[280px] xs:h-[320px] sm:h-[400px] overflow-hidden rounded-3xl border border-slate-800 shadow-2xl shrink-0"
+              style={{ width: '100%', height: '280px', minHeight: '280px', position: 'relative' }}
+            >
               {compareViewMode === 'slider' && !showFurnitureTags ? (
                 <CompareSlider
                   beforeSrc={uploadedImage || EXAMPLE_PHOTOS[0]}
-                  afterSrc={resultImages[selectedResultIndex]}
+                  afterSrc={resultImages[selectedResultIndex] || uploadedImage || EXAMPLE_PHOTOS[0]}
                   beforeAlt="Original Room"
                   afterAlt="Optimized Layout Room"
                   className="w-full h-full rounded-3xl"
                 />
               ) : compareViewMode === 'before' ? (
-                <Image src={uploadedImage || EXAMPLE_PHOTOS[0]} alt="Original Photo" fill className="object-cover" />
+                <Image
+                  src={uploadedImage || EXAMPLE_PHOTOS[0]}
+                  alt="Original Photo"
+                  fill
+                  className="object-cover"
+                  priority
+                  unoptimized
+                />
               ) : (
-                <Image src={resultImages[selectedResultIndex]} alt="Result Design" fill className="object-cover" />
+                <Image
+                  src={resultImages[selectedResultIndex] || uploadedImage || EXAMPLE_PHOTOS[0]}
+                  alt="Result Design"
+                  fill
+                  className="object-cover"
+                  priority
+                  unoptimized
+                />
               )}
 
               {/* 🏷️ AI 결과 사진 위 가구 인터랙티브 핀 & 태그 오버레이 */}

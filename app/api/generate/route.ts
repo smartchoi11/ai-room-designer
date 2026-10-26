@@ -1207,6 +1207,16 @@ CORE PHILOSOPHY & MANDATORY RULES OF SPATIAL LAYOUT REDESIGN
     const errMsg = error instanceof Error ? error.message : '';
 
     if (
+      errMsg.includes('leaked') ||
+      errMsg.includes('reported as leaked')
+    ) {
+      return NextResponse.json(
+        { error: '기존 Gemini API 키가 Google 보안 감지에 의해 만료(비활성화)되었습니다. Google AI Studio(https://aistudio.google.com/app/apikey)에서 새 API Key를 발급받아 Vercel 환경변수(GEMINI_API_KEY)에 등록해 주세요.' },
+        { status: 403 }
+      );
+    }
+
+    if (
       errMsg.includes('API_KEY_INVALID') ||
       errMsg.includes('API key not valid') ||
       errMsg.includes('invalid api key')

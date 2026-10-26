@@ -9,7 +9,10 @@ const visionCache = new Map<string, { roomType: string; items: any[]; timestamp:
 
 export async function POST(req: NextRequest) {
   try {
-    const apiKey = process.env.GEMINI_API_KEY || 'AIzaSyAuIdIzQCYwwfTjbP_oUL6gWpSgB75EGa4';
+    const apiKey = process.env.GEMINI_API_KEY;
+    if (!apiKey) {
+      return NextResponse.json({ error: 'GEMINI_API_KEY is not configured in server environment' }, { status: 500 });
+    }
 
     const body = await req.json();
     const { image, roomHint, styleHint, materialHint } = body;

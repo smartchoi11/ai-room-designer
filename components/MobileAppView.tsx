@@ -3682,6 +3682,8 @@ export default function MobileAppView() {
   const [showFurnitureTags, setShowFurnitureTags] = useState(false);
   const [selectedFurnitureId, setSelectedFurnitureId] = useState<string | null>(null);
   const [activeCommerceRoom, setActiveCommerceRoom] = useState<'auto' | 'bedroom' | 'living_room' | 'kitchen' | 'study'>('auto');
+  const [visionDetectedData, setVisionDetectedData] = useState<Record<string, { roomType: string; items: any[] }>>({});
+  const [isDetectingVision, setIsDetectingVision] = useState(false);
   // 스마트 편집 툴 상태 (색상/벽지 변경, 가구 교체, 식물/소품 추가)
   const [activeSmartEditTool, setActiveSmartEditTool] = useState<'paint' | 'replace' | 'plant' | null>(null);
   const [smartEditInput, setSmartEditInput] = useState('');
@@ -3701,6 +3703,51 @@ export default function MobileAppView() {
       }, 50);
     }
   }, [showResultModal]);
+
+  // 🧠 Google Gemini Vision AI를 통한 사진 속 실물 가구 및 방 유형 자동 시각 감지
+  useEffect(() => {
+    const currentImg = resultImages[selectedResultIndex] || uploadedImage;
+    if (!currentImg || !showResultModal) return;
+
+    const imgKey = typeof currentImg === 'string' && currentImg.length > 200
+      ? `${currentImg.slice(0, 60)}_${currentImg.slice(-60)}_${currentImg.length}`
+      : currentImg;
+
+    if (visionDetectedData[imgKey]) return;
+
+    let isMounted = true;
+    setIsDetectingVision(true);
+
+    fetch('/api/detect-furniture', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        image: currentImg,
+        roomHint: selectedRoom,
+        styleHint: selectedFurnitureStyle || selectedStyle,
+        materialHint: selectedFurnitureMaterial,
+      }),
+    })
+      .then((res) => res.json())
+      .then((res) => {
+        if (isMounted && res.success && res.data) {
+          setVisionDetectedData((prev) => ({
+            ...prev,
+            [imgKey]: res.data,
+          }));
+        }
+      })
+      .catch((err) => {
+        console.warn('Vision furniture detection failed, using fallback:', err);
+      })
+      .finally(() => {
+        if (isMounted) setIsDetectingVision(false);
+      });
+
+    return () => {
+      isMounted = false;
+    };
+  }, [showResultModal, selectedResultIndex, resultImages, uploadedImage]);
 
   // 🪄 스마트 편집 적용 함수 (색상/벽지 변경, 가구 교체, 식물/소품 추가)
   const handleApplySmartEdit = async (customInstruction?: string) => {
@@ -8502,10 +8549,20 @@ Ultra-photorealistic lifestyle interior photography, Architectural Digest party 
 
         const currentTargetImg = resultImages[selectedResultIndex] || uploadedImage || '';
 
-        // 🧠 사진 및 공간/소재/스타일 키워드 기반 지능형 공간 유형 자동 감지 및 가구 동적 매칭 알고리즘
+        const imgKey = typeof currentTargetImg === 'string' && currentTargetImg.length > 200
+          ? `${currentTargetImg.slice(0, 60)}_${currentTargetImg.slice(-60)}_${currentTargetImg.length}`
+          : currentTargetImg;
+
+        const visionData = visionDetectedData[imgKey];
+
+        // 🧠 Google Gemini Vision 시각 분석 결과 + 사진 및 공간/소재/스타일 키워드 기반 지능형 공간 유형 자동 감지
         const effectiveRoom = (() => {
           if (activeCommerceRoom !== 'auto') return activeCommerceRoom;
-          // 1. 현재 표시 중인 AI 결과물 이미지 경로/파일명 우선 분석 (이전 uploadedImage의 'kid' 잔여물 간섭 차단)
+          // 1. Google Gemini Vision이 사진을 직접 시각 분석하여 확정한 방 유형이 있다면 최우선 적용
+          if (visionData && visionData.roomType) {
+            return visionData.roomType as 'bedroom' | 'living_room' | 'kitchen' | 'study';
+          }
+          // 2. 현재 표시 중인 AI 결과물 이미지 경로/파일명 우선 분석 (이전 uploadedImage의 'kid' 잔여물 간섭 차단)
           const targetLower = (currentTargetImg || '').toLowerCase();
           if (
             targetLower.includes('living') ||
@@ -8542,7 +8599,7 @@ Ultra-photorealistic lifestyle interior photography, Architectural Digest party 
             return 'study';
           }
 
-          // 2. 사용자가 선택한 방 유형 (selectedRoom) 감지
+          // 3. 사용자가 선택한 방 유형 (selectedRoom) 감지
           if (['bedroom', 'kids_room'].includes(selectedRoom)) return 'bedroom';
           if (['kitchen', 'dining_room', 'restaurant'].includes(selectedRoom)) return 'kitchen';
           if (['home_office', 'study_room', 'office', 'study'].includes(selectedRoom)) return 'study';
@@ -8551,8 +8608,18 @@ Ultra-photorealistic lifestyle interior photography, Architectural Digest party 
           return 'living_room';
         })();
 
-        // 🧵 선택된 소재, 스타일, 컬러에 따른 실시간 가구 명칭 및 검색어 동적 매칭 엔진
+        // 🧵 Google Vision 시각 인식 실물 가구 우선 적용 + 선택 소재/스타일 동적 폴백 엔진
         const furnitureList = (() => {
+          // Vision AI가 실물 사진 속에서 직접 찾은 가구 아이템이 있고, 사용자가 수동으로 다른 방으로 전환하지 않은 경우
+          if (
+            visionData &&
+            visionData.items &&
+            visionData.items.length >= 2 &&
+            (activeCommerceRoom === 'auto' || activeCommerceRoom === visionData.roomType)
+          ) {
+            return visionData.items;
+          }
+
           const styleKey = selectedFurnitureStyle || selectedStyle || 'modern';
           const matKey = selectedFurnitureMaterial || 'fabric_linen';
           const colKey = selectedFurnitureColor || 'off_white';
@@ -9051,8 +9118,12 @@ Ultra-photorealistic lifestyle interior photography, Architectural Digest party 
                   {/* 상단 미니 힌트 배너 (화면 시야 및 조명 핀 가림 방지) */}
                   <div className="absolute top-2 left-2 rounded-full bg-slate-950/80 border border-emerald-400/60 px-2.5 py-0.5 shadow-md backdrop-blur-md pointer-events-none z-10">
                     <p className="text-[9.5px] font-bold text-emerald-300 flex items-center gap-1">
-                      <span>✨</span>
-                      <span>{lang === 'ko' ? '핀을 눌러 가구 구경하기' : 'Tap pin to shop'}</span>
+                      <span>{isDetectingVision ? '🧠' : '✨'}</span>
+                      <span>
+                        {isDetectingVision
+                          ? (lang === 'ko' ? 'AI 실물 가구 탐지 중...' : 'Detecting furniture...')
+                          : (lang === 'ko' ? '핀을 눌러 가구 구경하기' : 'Tap pin to shop')}
+                      </span>
                     </p>
                   </div>
 

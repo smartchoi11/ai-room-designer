@@ -9252,7 +9252,7 @@ Ultra-photorealistic lifestyle interior photography, Architectural Digest party 
                             <div className="flex items-center justify-between pb-1 border-b border-slate-800">
                               <span className="text-[9.5px] font-black text-amber-400">{item.category}</span>
                               <span className="text-[9px] font-black text-emerald-400">
-                                {isKr ? '🚀 쿠팡 로켓배송' : '📦 Amazon'}
+                                {isKr ? '⚡ 최저가 검색' : '⚡ Best Price'}
                               </span>
                             </div>
                             <p className="mt-1 text-[10.5px] font-bold text-white line-clamp-2 leading-tight">{item.name}</p>
@@ -9364,7 +9364,7 @@ Ultra-photorealistic lifestyle interior photography, Architectural Digest party 
                   </div>
                 </div>
                 <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/15 border border-emerald-500/40 px-2.5 py-1 text-[11px] font-black text-emerald-300 shadow-sm animate-pulse">
-                  {isKr ? '🚀 쿠팡 로켓배송' : '📦 Amazon Prime'}
+                  {isKr ? '⚡ 최저가 검색' : '⚡ Best Price Search'}
                 </span>
               </div>
 

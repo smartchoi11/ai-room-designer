@@ -3691,6 +3691,16 @@ export default function MobileAppView() {
   const [usedImageUrls, setUsedImageUrls] = useState<Set<string>>(new Set());
   const [selectedBoardItemIds, setSelectedBoardItemIds] = useState<string[]>([]);
 
+  // 결과 모달 오픈 시 최상단으로 스크롤 리셋
+  useEffect(() => {
+    if (showResultModal) {
+      setTimeout(() => {
+        const el = document.getElementById('result-modal-scroll-container');
+        if (el) el.scrollTop = 0;
+      }, 50);
+    }
+  }, [showResultModal]);
+
   // 🪄 스마트 편집 적용 함수 (색상/벽지 변경, 가구 교체, 식물/소품 추가)
   const handleApplySmartEdit = async (customInstruction?: string) => {
     const instruction = (customInstruction || smartEditInput).trim();
@@ -4776,6 +4786,9 @@ Ultra-photorealistic lifestyle interior photography, Architectural Digest party 
       setResultImages(imgs);
       setSelectedResultIndex(0);
       setFreeCountRaw(String(Math.max(0, freeCount - 1)));
+      setCompareViewMode('slider');
+      setShowFurnitureTags(false);
+      setSelectedFurnitureId(null);
       setShowResultModal(true);
 
       // 🌟 보드 이력(Your Board)에 새 신규 컨셉 항목들 저장 (이전 이력 보존 & 누적)
@@ -8376,6 +8389,9 @@ Ultra-photorealistic lifestyle interior photography, Architectural Digest party 
                                   setResultImages((prev) => [item.image, ...prev]);
                                   setSelectedResultIndex(0);
                                 }
+                                setCompareViewMode('slider');
+                                setShowFurnitureTags(false);
+                                setSelectedFurnitureId(null);
                                 setShowResultModal(true);
                               }}
                               className="w-full h-full cursor-pointer"
@@ -8684,30 +8700,31 @@ Ultra-photorealistic lifestyle interior photography, Architectural Digest party 
             </button>
           </div>
 
-          <div className="flex-1 overflow-y-auto p-4 flex flex-col items-center justify-start">
+          <div id="result-modal-scroll-container" className="flex-1 overflow-y-auto p-4 flex flex-col items-center justify-start">
             {/* 비포/애프터 비교 뷰어 전환 탭 + 가구 쇼핑 탭 */}
-            <div className="mb-2 flex items-center justify-center gap-1 w-full flex-wrap">
-              <div className="flex rounded-full border border-slate-800 bg-slate-900/90 p-1 backdrop-blur-md">
+            <div className="mb-2.5 flex items-center justify-center gap-1 w-full">
+              <div className="flex rounded-full border border-slate-800 bg-slate-900/90 p-1 backdrop-blur-md overflow-x-auto max-w-full scrollbar-none">
                 <button
                   type="button"
                   onClick={() => {
                     setCompareViewMode('slider');
                     setShowFurnitureTags(false);
                   }}
-                  className={`rounded-full px-2.5 py-1 text-[11px] font-bold transition-all ${
+                  className={`rounded-full px-2.5 py-1 text-[11px] font-bold transition-all shrink-0 ${
                     compareViewMode === 'slider' && !showFurnitureTags
                       ? 'bg-amber-400 text-slate-950 shadow-md'
                       : 'text-slate-400 hover:text-white'
                   }`}
                 >
-                  {lang === 'ko' ? '↔️ 슬라이더' : lang === 'ja' ? '↔️ スライダー' : lang === 'es' ? '↔️ Deslizador' : '↔️ Slider'}
+                  {lang === 'ko' ? '↔ 슬라이더 비교' : lang === 'ja' ? '↔ スライダー' : lang === 'es' ? '↔ Deslizador' : '↔ Slider'}
                 </button>
                 <button
                   type="button"
                   onClick={() => {
                     setCompareViewMode('after');
+                    setShowFurnitureTags(false);
                   }}
-                  className={`rounded-full px-2.5 py-1 text-[11px] font-bold transition-all ${
+                  className={`rounded-full px-2.5 py-1 text-[11px] font-bold transition-all shrink-0 ${
                     compareViewMode === 'after' && !showFurnitureTags
                       ? 'bg-amber-400 text-slate-950 shadow-md'
                       : 'text-slate-400 hover:text-white'
@@ -8721,7 +8738,7 @@ Ultra-photorealistic lifestyle interior photography, Architectural Digest party 
                     setCompareViewMode('before');
                     setShowFurnitureTags(false);
                   }}
-                  className={`rounded-full px-2.5 py-1 text-[11px] font-bold transition-all ${
+                  className={`rounded-full px-2.5 py-1 text-[11px] font-bold transition-all shrink-0 ${
                     compareViewMode === 'before'
                       ? 'bg-amber-400 text-slate-950 shadow-md'
                       : 'text-slate-400 hover:text-white'
@@ -8734,54 +8751,16 @@ Ultra-photorealistic lifestyle interior photography, Architectural Digest party 
                   onClick={() => {
                     setCompareViewMode('after');
                     setShowFurnitureTags(true);
-                    setTimeout(() => {
-                      document.getElementById('furniture-shopping-section')?.scrollIntoView({ behavior: 'smooth' });
-                    }, 100);
                   }}
-                  className={`rounded-full px-2.5 py-1 text-[11px] font-extrabold transition-all ${
+                  className={`rounded-full px-2.5 py-1 text-[11px] font-extrabold transition-all shrink-0 ${
                     showFurnitureTags
                       ? 'bg-gradient-to-r from-emerald-500 to-teal-500 text-slate-950 shadow-lg font-black'
                       : 'text-emerald-400 hover:text-emerald-300'
                   }`}
                 >
-                  {lang === 'ko' ? '🛒 가구 쇼핑' : lang === 'ja' ? '🛒 家具ショップ' : lang === 'es' ? '🛒 Muebles' : '🛒 Shop'}
+                  {lang === 'ko' ? '🛋️ 가구 쇼핑' : lang === 'ja' ? '🛋️ 家具ショップ' : lang === 'es' ? '🛋️ Muebles' : '🛋️ Shop'}
                 </button>
               </div>
-            </div>
-
-            {/* 🛒 [원본 사진에 나온 가구 쇼핑하기] 메인 강조 버튼 */}
-            <div className="mb-3 w-full">
-              <button
-                type="button"
-                onClick={() => {
-                  const nextTags = !showFurnitureTags;
-                  setShowFurnitureTags(nextTags);
-                  if (nextTags) {
-                    setCompareViewMode('after');
-                  }
-                }}
-                className={`w-full py-2.5 px-3.5 rounded-2xl flex items-center justify-between font-black transition-all shadow-lg active:scale-98 cursor-pointer border ${
-                  showFurnitureTags
-                    ? 'bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-700 text-white border-emerald-400 ring-2 ring-emerald-400/50 shadow-[0_0_20px_rgba(16,185,129,0.4)]'
-                    : 'bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 text-emerald-300 border-emerald-500/50 hover:border-emerald-400'
-                }`}
-              >
-                <div className="flex items-center gap-2">
-                  <span className="text-lg animate-bounce">🛋️</span>
-                  <span className="text-[12.5px] font-black tracking-tight">
-                    {lang === 'ko' ? '원본 사진에 나온 가구 쇼핑하기' : lang === 'ja' ? '写真に写った家具をショッピング' : lang === 'es' ? 'Comprar muebles de la foto' : 'Shop Furniture from Photo'}
-                  </span>
-                </div>
-                <span className={`text-[10.5px] px-2.5 py-1 rounded-full font-black transition-all flex items-center gap-1 ${
-                  showFurnitureTags
-                    ? 'bg-slate-950/80 text-emerald-300 border border-emerald-400'
-                    : 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30'
-                }`}>
-                  {showFurnitureTags
-                    ? (lang === 'ko' ? '📍 가구 태그 ON (클릭 시 구매)' : '📍 Tags ON')
-                    : (lang === 'ko' ? '가구 태그 켜기 ➔' : 'View Tags ➔')}
-                </span>
-              </button>
             </div>
 
             <div className="relative aspect-[4/3] w-full overflow-hidden rounded-3xl border border-slate-800 shadow-2xl">
@@ -8824,12 +8803,6 @@ Ultra-photorealistic lifestyle interior photography, Architectural Digest party 
                           onClick={(e) => {
                             e.stopPropagation();
                             setSelectedFurnitureId(isSelected ? null : item.id);
-                            const el = document.getElementById(`furniture-item-${item.id}`);
-                            if (el) {
-                              el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                            } else {
-                              document.getElementById('furniture-shopping-section')?.scrollIntoView({ behavior: 'smooth' });
-                            }
                           }}
                           className={`flex items-center gap-1.5 rounded-full px-2.5 py-1 shadow-2xl backdrop-blur-md transition-all active:scale-95 cursor-pointer border ${
                             isSelected

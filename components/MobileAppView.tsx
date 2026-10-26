@@ -8856,7 +8856,7 @@ Ultra-photorealistic lifestyle interior photography, Architectural Digest party 
                                 }}
                                 className="rounded-lg bg-gradient-to-r from-emerald-500 to-teal-500 px-3 py-1.5 text-[11px] font-black text-slate-950 shadow hover:opacity-90 active:scale-95 flex items-center gap-1 cursor-pointer"
                               >
-                                <span>{isKr ? '구매하기' : 'Buy Now'}</span>
+                                <span>{isKr ? '구경해보기' : 'View Item'}</span>
                                 <span className="font-bold">➔</span>
                               </button>
                             </div>
@@ -8920,7 +8920,7 @@ Ultra-photorealistic lifestyle interior photography, Architectural Digest party 
                   <span className="text-lg">🛋️</span>
                   <div>
                     <h5 className="text-xs font-black text-white flex items-center gap-1">
-                      {isKr ? '디자인 속 추천 가구 구매' : 'Shop Furniture in this Design'}
+                      {isKr ? '디자인 속 추천 가구 구경하기' : 'Explore Furniture in this Design'}
                     </h5>
                     <p className="text-[10px] text-slate-400">
                       {isKr ? 'AI가 매칭한 실물 가구 최저가 쇼핑탭' : 'AI-matched authentic items'}

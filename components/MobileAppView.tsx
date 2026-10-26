@@ -8562,26 +8562,27 @@ Ultra-photorealistic lifestyle interior photography, Architectural Digest party 
           if (visionData && visionData.roomType) {
             return visionData.roomType as 'bedroom' | 'living_room' | 'kitchen' | 'study';
           }
+
           // 2. 현재 표시 중인 AI 결과물 이미지 경로/파일명 우선 분석 (이전 uploadedImage의 'kid' 잔여물 간섭 차단)
           const targetLower = (currentTargetImg || '').toLowerCase();
+
+          // 침실 관련 파일명/키워드 (재팬디 침실, 마스터베드룸, 아이방, 쇼케이스 침실 등)
           if (
-            targetLower.includes('living') ||
-            targetLower.includes('cafe') ||
-            targetLower.includes('coffee') ||
-            targetLower.includes('lounge') ||
-            targetLower.includes('salon')
-          ) {
-            return 'living_room';
-          }
-          if (
+            targetLower.includes('japandi') ||
+            targetLower.includes('bedroom') ||
             targetLower.includes('bed') ||
             targetLower.includes('kid') ||
             targetLower.includes('child') ||
             targetLower.includes('sleep') ||
-            targetLower.includes('nursery')
+            targetLower.includes('nursery') ||
+            targetLower.includes('gallery_08') ||
+            targetLower.includes('gallery_07') ||
+            targetLower.includes('showcase_bedroom')
           ) {
             return 'bedroom';
           }
+
+          // 주방 관련 키워드
           if (
             targetLower.includes('kitchen') ||
             targetLower.includes('dining') ||
@@ -8590,6 +8591,8 @@ Ultra-photorealistic lifestyle interior photography, Architectural Digest party 
           ) {
             return 'kitchen';
           }
+
+          // 서재 관련 키워드
           if (
             targetLower.includes('office') ||
             targetLower.includes('study') ||
@@ -8599,13 +8602,44 @@ Ultra-photorealistic lifestyle interior photography, Architectural Digest party 
             return 'study';
           }
 
-          // 3. 사용자가 선택한 방 유형 (selectedRoom) 감지
+          // 거실 관련 키워드
+          if (
+            targetLower.includes('living') ||
+            targetLower.includes('cafe') ||
+            targetLower.includes('coffee') ||
+            targetLower.includes('lounge') ||
+            targetLower.includes('salon')
+          ) {
+            return 'living_room';
+          }
+
+          // 3. 선택된 스타일 기반 방 유형 자동 매칭 (재팬디/미니멀/클래식/프로방스는 침실 프리셋)
+          if (
+            ['japandi', 'minimal', 'classic', 'provence'].includes(selectedStyle) ||
+            ['japandi', 'classic'].includes(selectedFurnitureStyle)
+          ) {
+            return 'bedroom';
+          }
+
+          // 4. 보드 이력에 저장된 메타데이터가 있다면 방 유형 반영
+          const matchingBoardItem = boardHistory.find((b) => b.image === currentTargetImg);
+          if (matchingBoardItem) {
+            const bTitle = (matchingBoardItem.title || '').toLowerCase();
+            const bStyle = (matchingBoardItem.style || '').toLowerCase();
+            if (bTitle.includes('침실') || bStyle.includes('침실') || bStyle.includes('재팬디') || bStyle.includes('japandi')) {
+              return 'bedroom';
+            }
+            if (bTitle.includes('주방') || bStyle.includes('주방')) return 'kitchen';
+            if (bTitle.includes('서재') || bStyle.includes('서재')) return 'study';
+          }
+
+          // 5. 사용자가 선택한 방 유형 (selectedRoom) 감지
           if (['bedroom', 'kids_room'].includes(selectedRoom)) return 'bedroom';
           if (['kitchen', 'dining_room', 'restaurant'].includes(selectedRoom)) return 'kitchen';
           if (['home_office', 'study_room', 'office', 'study'].includes(selectedRoom)) return 'study';
           if (['living_room', 'coffee_shop', 'party_room'].includes(selectedRoom)) return 'living_room';
 
-          return 'living_room';
+          return 'bedroom';
         })();
 
         // 🧵 Google Vision 시각 인식 실물 가구 우선 적용 + 선택 소재/스타일 동적 폴백 엔진
@@ -8712,8 +8746,8 @@ Ultra-photorealistic lifestyle interior photography, Architectural Digest party 
                 price: matKey === 'italian_leather' ? (isKr ? '₩359,000원~' : '$290~') : (isKr ? '₩249,000원~' : '$210~'),
                 coupangKw: bedKw,
                 amazonKw: `${styleLabelEn} Platform Bed Frame`,
-                posX: 48,
-                posY: 50,
+                posX: 66,
+                posY: 54,
               },
               {
                 id: 'desk_study',
@@ -8723,19 +8757,30 @@ Ultra-photorealistic lifestyle interior photography, Architectural Digest party 
                 price: isKr ? '₩145,000원~' : '$130~',
                 coupangKw: `${styleLabelKr} 원목 침대 협탁 책상`,
                 amazonKw: `${styleLabelEn} Wood Nightstand Desk`,
-                posX: 80,
+                posX: 26,
                 posY: 54,
               },
               {
                 id: 'lamp_desk',
-                category: isKr ? '취침등' : 'Table Lamp',
+                category: isKr ? '조명' : 'Lighting',
                 icon: '💡',
-                name: isKr ? `${styleLabelKr} 미니멀 세라믹 단스탠드 감성 수면 무드등` : `${styleLabelEn} Bedside Ceramic Mood Lamp`,
+                name: isKr ? `${styleLabelKr} 감성 볼 펜던트 & 수면 단스탠드 조명` : `${styleLabelEn} Ambient Bedside & Pendant Light`,
                 price: isKr ? '₩35,000원~' : '$28~',
-                coupangKw: `${styleLabelKr} 테이블 단스탠드 무드등`,
-                amazonKw: `${styleLabelEn} Minimalist Bedside Lamp`,
-                posX: 80,
-                posY: 26,
+                coupangKw: `${styleLabelKr} 침실 펜던트 단스탠드 조명`,
+                amazonKw: `${styleLabelEn} Bedside Lamp Light`,
+                posX: 62,
+                posY: 28,
+              },
+              {
+                id: 'shelf_storage',
+                category: isKr ? '수납장' : 'Shelving',
+                icon: '📚',
+                name: isKr ? `${styleLabelKr} 내추럴 원목 모듈형 낮은 수납 책장 선반` : `${styleLabelEn} Solid Wood Low Storage Bookshelf`,
+                price: isKr ? '₩89,000원~' : '$79~',
+                coupangKw: `${styleLabelKr} 원목 낮은 수납 책장`,
+                amazonKw: `${styleLabelEn} Low Storage Bookshelf`,
+                posX: 50,
+                posY: 42,
               },
               {
                 id: 'rug_ivory',
@@ -8745,7 +8790,7 @@ Ultra-photorealistic lifestyle interior photography, Architectural Digest party 
                 price: isKr ? '₩49,000원~' : '$45~',
                 coupangKw: `${colLabelKr} 사계절 침실 러그`,
                 amazonKw: `${colLabelEn} Bedroom Area Rug`,
-                posX: 26,
+                posX: 52,
                 posY: 76,
               },
             ];

@@ -3681,6 +3681,7 @@ export default function MobileAppView() {
   // 🛒 가구 인터랙티브 쇼핑 태그 상태
   const [showFurnitureTags, setShowFurnitureTags] = useState(false);
   const [selectedFurnitureId, setSelectedFurnitureId] = useState<string | null>(null);
+  const [activeCommerceRoom, setActiveCommerceRoom] = useState<'auto' | 'bedroom' | 'living_room' | 'kitchen' | 'study'>('auto');
   // 스마트 편집 툴 상태 (색상/벽지 변경, 가구 교체, 식물/소품 추가)
   const [activeSmartEditTool, setActiveSmartEditTool] = useState<'paint' | 'replace' | 'plant' | null>(null);
   const [smartEditInput, setSmartEditInput] = useState('');
@@ -4789,6 +4790,7 @@ Ultra-photorealistic lifestyle interior photography, Architectural Digest party 
       setCompareViewMode('slider');
       setShowFurnitureTags(false);
       setSelectedFurnitureId(null);
+      setActiveCommerceRoom('auto');
       setShowResultModal(true);
 
       // 🌟 보드 이력(Your Board)에 새 신규 컨셉 항목들 저장 (이전 이력 보존 & 누적)
@@ -8392,6 +8394,7 @@ Ultra-photorealistic lifestyle interior photography, Architectural Digest party 
                                 setCompareViewMode('slider');
                                 setShowFurnitureTags(false);
                                 setSelectedFurnitureId(null);
+                                setActiveCommerceRoom('auto');
                                 setShowResultModal(true);
                               }}
                               className="w-full h-full cursor-pointer"
@@ -8497,8 +8500,44 @@ Ultra-photorealistic lifestyle interior photography, Architectural Digest party 
         const trackingIdCoupang = 'AF6618001';
         const trackingIdAmazon = 'roomfitai-20';
 
+        const currentTargetImg = resultImages[selectedResultIndex] || uploadedImage || '';
+
+        // 🧠 사진 및 공간 키워드 기반 지능형 공간 유형 자동 감지
+        const effectiveRoom = (() => {
+          if (activeCommerceRoom !== 'auto') return activeCommerceRoom;
+          const searchStr = (currentTargetImg + ' ' + (uploadedImage || '') + ' ' + (selectedRoom || '')).toLowerCase();
+          if (
+            searchStr.includes('kid') ||
+            searchStr.includes('bed') ||
+            searchStr.includes('child') ||
+            searchStr.includes('sleep') ||
+            selectedRoom === 'bedroom'
+          ) {
+            return 'bedroom';
+          }
+          if (
+            searchStr.includes('kitchen') ||
+            searchStr.includes('dining') ||
+            searchStr.includes('cook') ||
+            selectedRoom === 'kitchen' ||
+            selectedRoom === 'dining_room'
+          ) {
+            return 'kitchen';
+          }
+          if (
+            searchStr.includes('office') ||
+            searchStr.includes('study') ||
+            searchStr.includes('desk') ||
+            selectedRoom === 'home_office' ||
+            selectedRoom === 'study'
+          ) {
+            return 'study';
+          }
+          return 'living_room';
+        })();
+
         const furnitureList = (() => {
-          if (selectedRoom === 'bedroom') {
+          if (effectiveRoom === 'bedroom') {
             return [
               {
                 id: 'bed_platform',
@@ -8508,44 +8547,44 @@ Ultra-photorealistic lifestyle interior photography, Architectural Digest party 
                 price: isKr ? '₩189,000원~' : '$199~',
                 coupangKw: '원목 평상형 저상 침대 프레임',
                 amazonKw: 'Solid Wood Low Platform Bed Frame Queen',
-                posX: 42,
-                posY: 60,
+                posX: 52,
+                posY: 38,
               },
               {
-                id: 'desk_wood',
-                category: isKr ? '책상/콘솔' : 'Desk',
+                id: 'desk_study',
+                category: isKr ? '책상' : 'Desk',
                 icon: '🪵',
-                name: isKr ? '슬림 원목 서재 책상 & 콘솔 테이블' : 'Solid Wood Slim Desk Console Table',
+                name: isKr ? '내추럴 원목 학생/서재 책상 & 의자 세트' : 'Solid Wood Study Writing Desk & Chair',
                 price: isKr ? '₩145,000원~' : '$130~',
-                coupangKw: '원목 슬림 서재 책상 콘솔',
-                amazonKw: 'Solid Wood Slim Writing Desk',
-                posX: 82,
-                posY: 54,
+                coupangKw: '원목 학생 서재 책상 의자 세트',
+                amazonKw: 'Solid Wood Writing Study Desk',
+                posX: 78,
+                posY: 44,
               },
               {
-                id: 'lamp_paper',
-                category: isKr ? '조명' : 'Lighting',
+                id: 'lamp_desk',
+                category: isKr ? '단스탠드' : 'Lamp',
                 icon: '💡',
-                name: isKr ? '한지 감성 단스탠드 무드등 (아코리 스타일)' : 'Paper Lantern Table Mood Lamp',
+                name: isKr ? '미니멀 모던 테이블 단스탠드 무드등' : 'Modern Minimal Table Desk Lamp',
                 price: isKr ? '₩35,000원~' : '$28~',
-                coupangKw: '한지 무드등 단스탠드 아코리',
-                amazonKw: 'Japanese Paper Lantern Table Lamp',
-                posX: 50,
+                coupangKw: '테이블 단스탠드 무드등',
+                amazonKw: 'Minimalist Desk Table Lamp',
+                posX: 76,
                 posY: 34,
               },
               {
-                id: 'rug_jute',
+                id: 'rug_ivory',
                 category: isKr ? '러그' : 'Rug',
                 icon: '🧶',
-                name: isKr ? '사계절 내추럴 황마 사이잘룩 거실/침실 러그' : 'Natural Sisal Jute Area Rug',
+                name: isKr ? '사계절 내추럴 아이보리 단색 거실/침실 러그' : 'Solid Ivory Natural Area Rug',
                 price: isKr ? '₩49,000원~' : '$45~',
-                coupangKw: '사계절 사이잘룩 러그',
-                amazonKw: 'Natural Jute Sisal Area Rug',
-                posX: 46,
-                posY: 84,
+                coupangKw: '사계절 아이보리 단색 러그',
+                amazonKw: 'Solid Ivory Area Rug',
+                posX: 48,
+                posY: 46,
               },
             ];
-          } else if (selectedRoom === 'kitchen' || selectedRoom === 'dining_room') {
+          } else if (effectiveRoom === 'kitchen') {
             return [
               {
                 id: 'table_oval',
@@ -8581,7 +8620,7 @@ Ultra-photorealistic lifestyle interior photography, Architectural Digest party 
                 posY: 28,
               },
             ];
-          } else if (selectedRoom === 'home_office' || selectedRoom === 'study') {
+          } else if (effectiveRoom === 'study') {
             return [
               {
                 id: 'desk_office',
@@ -8628,7 +8667,7 @@ Ultra-photorealistic lifestyle interior photography, Architectural Digest party 
                 coupangKw: '미드센추리 모던 3인 패브릭 소파',
                 amazonKw: 'Mid Century Modern 3 Seater Sofa',
                 posX: 48,
-                posY: 64,
+                posY: 60,
               },
               {
                 id: 'table_oval',
@@ -8639,7 +8678,7 @@ Ultra-photorealistic lifestyle interior photography, Architectural Digest party 
                 coupangKw: '타원형 오벌 원목 거실 테이블',
                 amazonKw: 'Mid Century Modern Oval Coffee Table',
                 posX: 56,
-                posY: 76,
+                posY: 74,
               },
               {
                 id: 'lamp_mushroom',
@@ -8649,8 +8688,8 @@ Ultra-photorealistic lifestyle interior photography, Architectural Digest party 
                 price: isKr ? '₩45,000원~' : '$35~',
                 coupangKw: '버섯 단스탠드 오렌지 무드등',
                 amazonKw: 'Mushroom Table Lamp Orange Ambient Light',
-                posX: 22,
-                posY: 44,
+                posX: 24,
+                posY: 42,
               },
               {
                 id: 'rug_checker',
@@ -8660,8 +8699,8 @@ Ultra-photorealistic lifestyle interior photography, Architectural Digest party 
                 price: isKr ? '₩59,000원~' : '$48~',
                 coupangKw: '체커보드 러그 사계절 카페트',
                 amazonKw: 'Checkerboard Area Rug Modern Living Room',
-                posX: 45,
-                posY: 85,
+                posX: 48,
+                posY: 80,
               },
             ];
           }
@@ -8930,6 +8969,36 @@ Ultra-photorealistic lifestyle interior photography, Architectural Digest party 
                 <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/15 border border-emerald-500/40 px-2.5 py-1 text-[11px] font-black text-emerald-300 shadow-sm animate-pulse">
                   {isKr ? '🚀 쿠팡 로켓배송' : '📦 Amazon Prime'}
                 </span>
+              </div>
+
+              {/* 🏷️ 공간 카테고리 퀵 선택 탭 (터치 한 번으로 방 맞춤 가구 변경) */}
+              <div className="flex items-center gap-1.5 overflow-x-auto pb-1 mt-2.5 scrollbar-none">
+                {[
+                  { id: 'bedroom', icon: '🛏️', label: isKr ? '침실·아이방' : 'Bedroom & Kids' },
+                  { id: 'living_room', icon: '🛋️', label: isKr ? '거실' : 'Living Room' },
+                  { id: 'kitchen', icon: '🍽️', label: isKr ? '주방·다이닝' : 'Kitchen' },
+                  { id: 'study', icon: '💻', label: isKr ? '서재·공부방' : 'Study' },
+                ].map((rTab) => {
+                  const isCurrent = effectiveRoom === rTab.id;
+                  return (
+                    <button
+                      key={rTab.id}
+                      type="button"
+                      onClick={() => {
+                        setActiveCommerceRoom(rTab.id as any);
+                        setSelectedFurnitureId(null);
+                      }}
+                      className={`shrink-0 flex items-center gap-1 rounded-full px-2.5 py-1 text-[10.5px] font-bold transition-all border cursor-pointer ${
+                        isCurrent
+                          ? 'bg-emerald-500 text-slate-950 border-emerald-400 font-black shadow-md scale-105'
+                          : 'bg-slate-900/90 text-slate-300 border-slate-700/80 hover:text-white hover:border-slate-600'
+                      }`}
+                    >
+                      <span>{rTab.icon}</span>
+                      <span>{rTab.label}</span>
+                    </button>
+                  );
+                })}
               </div>
 
               {/* 가구 리스트 */}

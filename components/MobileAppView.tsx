@@ -9114,13 +9114,19 @@ Ultra-photorealistic lifestyle interior photography, Architectural Digest party 
                     setCompareViewMode('after');
                     setShowFurnitureTags(true);
                   }}
-                  className={`rounded-xl py-1.5 text-center text-[10px] font-extrabold transition-all truncate ${
+                  className={`rounded-xl py-1.5 px-2 flex items-center justify-center gap-1 text-center text-[10px] font-extrabold transition-all truncate ${
                     showFurnitureTags
                       ? 'bg-gradient-to-r from-emerald-500 to-teal-500 text-slate-950 shadow-lg font-black'
                       : 'text-emerald-400 hover:text-emerald-300'
                   }`}
                 >
-                  {lang === 'ko' ? '🛋️ 가구 쇼핑' : lang === 'ja' ? '🛋️ 家具ショップ' : lang === 'es' ? '🛋️ Muebles' : '🛋️ Shop'}
+                  {isDetectingVision && (
+                    <span className="relative flex h-1.5 w-1.5 shrink-0">
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-500 opacity-90"></span>
+                      <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-rose-500"></span>
+                    </span>
+                  )}
+                  <span>{lang === 'ko' ? '🛋️ 가구 쇼핑' : lang === 'ja' ? '🛋️ 家具ショップ' : lang === 'es' ? '🛋️ Muebles' : '🛋️ Shop'}</span>
                 </button>
               </div>
             </div>
@@ -9157,20 +9163,49 @@ Ultra-photorealistic lifestyle interior photography, Architectural Digest party 
                 />
               )}
 
+              {/* 🏷️ AI 가구 탐지 상태 배지 (탐지 중: 빨간색 깜빡임, 완료: 녹색) */}
+              {(showFurnitureTags || isDetectingVision) && (
+                <div
+                  onClick={() => {
+                    if (!showFurnitureTags) {
+                      setCompareViewMode('after');
+                      setShowFurnitureTags(true);
+                    }
+                  }}
+                  className={`absolute top-2 left-2 rounded-full px-2.5 py-1 shadow-lg backdrop-blur-md z-30 transition-all cursor-pointer pointer-events-auto ${
+                    isDetectingVision
+                      ? 'bg-slate-950/95 border border-rose-500 shadow-[0_0_15px_rgba(244,63,94,0.7)]'
+                      : 'bg-slate-950/85 border border-emerald-400/80 shadow-[0_0_12px_rgba(16,185,129,0.5)]'
+                  }`}
+                >
+                  <p className="text-[10px] flex items-center gap-1.5 leading-none">
+                    {isDetectingVision ? (
+                      <>
+                        <span className="relative flex h-2 w-2 shrink-0">
+                          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-500 opacity-90"></span>
+                          <span className="relative inline-flex rounded-full h-2 w-2 bg-rose-500"></span>
+                        </span>
+                        <span className="font-black text-rose-400 animate-pulse tracking-wide">
+                          {lang === 'ko' ? 'AI 가구 탐지 중...' : 'AI Detecting furniture...'}
+                        </span>
+                      </>
+                    ) : (
+                      <>
+                        <span className="relative flex h-2 w-2 shrink-0">
+                          <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-400"></span>
+                        </span>
+                        <span className="font-bold text-emerald-300">
+                          {lang === 'ko' ? 'AI 가구 탐지 완료' : 'AI Furniture Detected'}
+                        </span>
+                      </>
+                    )}
+                  </p>
+                </div>
+              )}
+
               {/* 🏷️ AI 결과 사진 위 가구 인터랙티브 핀 & 태그 오버레이 */}
               {showFurnitureTags && (
                 <div className="absolute inset-0 pointer-events-none z-20 animate-fade-in">
-                  {/* 상단 미니 힌트 배너 (화면 시야 및 조명 핀 가림 방지) */}
-                  <div className="absolute top-2 left-2 rounded-full bg-slate-950/80 border border-emerald-400/60 px-2.5 py-0.5 shadow-md backdrop-blur-md pointer-events-none z-10">
-                    <p className="text-[9.5px] font-bold text-emerald-300 flex items-center gap-1">
-                      <span>{isDetectingVision ? '🧠' : '✨'}</span>
-                      <span>
-                        {isDetectingVision
-                          ? (lang === 'ko' ? 'AI 실물 가구 탐지 중...' : 'Detecting furniture...')
-                          : (lang === 'ko' ? '핀을 눌러 가구 구경하기' : 'Tap pin to shop')}
-                      </span>
-                    </p>
-                  </div>
 
                   {resolvedPins.map((item) => {
                     const isSelected = selectedFurnitureId === item.id;
@@ -9291,12 +9326,38 @@ Ultra-photorealistic lifestyle interior photography, Architectural Digest party 
               }`}
             >
               <div className="flex items-center justify-between pb-2 border-b border-slate-800/80">
-                <div className="flex items-center gap-1.5">
+                <div className="flex items-center gap-2">
                   <span className="text-lg">🛋️</span>
                   <div>
-                    <h5 className="text-xs font-black text-white flex items-center gap-1">
-                      {isKr ? '디자인 속 추천 가구 구경하기' : 'Explore Furniture in this Design'}
-                    </h5>
+                    <div className="flex items-center gap-1.5 flex-wrap">
+                      <h5 className="text-xs font-black text-white">
+                        {isKr ? '디자인 속 추천 가구 구경하기' : 'Explore Furniture in this Design'}
+                      </h5>
+                      {/* 탐지 상태 배지 */}
+                      <span
+                        className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[9.5px] border transition-all ${
+                          isDetectingVision
+                            ? 'bg-rose-950/80 border-rose-500 text-rose-300 shadow-[0_0_8px_rgba(244,63,94,0.6)] animate-pulse'
+                            : 'bg-emerald-950/80 border-emerald-500/80 text-emerald-300 shadow-[0_0_8px_rgba(16,185,129,0.4)]'
+                        }`}
+                      >
+                        <span className="relative flex h-1.5 w-1.5 shrink-0">
+                          {isDetectingVision && (
+                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-500 opacity-90"></span>
+                          )}
+                          <span
+                            className={`relative inline-flex rounded-full h-1.5 w-1.5 ${
+                              isDetectingVision ? 'bg-rose-500' : 'bg-emerald-400'
+                            }`}
+                          ></span>
+                        </span>
+                        <span className="font-bold">
+                          {isDetectingVision
+                            ? (isKr ? 'AI 가구 탐지 중...' : 'Detecting...')
+                            : (isKr ? 'AI 가구 탐지 완료' : 'Detected')}
+                        </span>
+                      </span>
+                    </div>
                     <p className="text-[10px] text-slate-400">
                       {isKr ? 'AI가 매칭한 실물 가구 최저가 쇼핑탭' : 'AI-matched authentic items'}
                     </p>

@@ -2,7 +2,7 @@ import type { MetadataRoute } from 'next';
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: 'RoomFit AI - AI 인테리어 디자인 & 가상 스튜디오',
+    name: 'RoomFit AI: 방꾸미기 인테리어 AI 디자인 & 가구 최저가',
     short_name: 'RoomFit AI',
     description: '방 사진 한 장으로 3초 만에 공간과 가구에 딱 맞추는 4K 초고화질 인테리어 시안을 생성하는 AI 서비스입니다.',
     start_url: '/',

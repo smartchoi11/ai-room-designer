@@ -19,9 +19,9 @@ export const viewport: Viewport = {
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://roomfit-ai.vercel.app"),
-  title: "RoomFit AI — 사진 한 장으로 완성하는 AI 인테리어 & 가구 맞춤배치",
+  title: "RoomFit AI: 방꾸미기 인테리어 AI — 사진 한 장으로 완성하는 가구 맞춤배치 & 최저가",
   description:
-    "방 사진을 올리고 스타일을 고르면, AI가 10초 만에 공간을 다시 디자인합니다. 가구 치수와 공간 크기에 꼭 맞는 AI 인테리어 솔루션.",
+    "방 사진 한 장으로 3초 만에 공간과 가구에 딱 맞추는 4K 초고화질 인테리어 시안 생성 및 가구 최저가 쇼핑 솔루션.",
   openGraph: {
     title: "RoomFit AI — 사진 한 장으로 완성하는 AI 인테리어 & 가구 맞춤배치",
     description:

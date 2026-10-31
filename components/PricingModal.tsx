@@ -577,6 +577,28 @@ export default function PricingModal({
           })}
         </div>
 
+        {/* 🎁 기본 무료 크레딧으로 시작하기 (신규 유저 무료 체험 버튼) */}
+        <button
+          type="button"
+          onClick={handleTryFree}
+          className="w-full flex items-center justify-between p-3 px-3.5 rounded-2xl bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 text-white hover:brightness-105 active:scale-[0.98] transition-all cursor-pointer shadow-md"
+        >
+          <div className="flex items-center gap-2.5 min-w-0">
+            <span className="text-xl">✨</span>
+            <div className="flex flex-col min-w-0 text-left">
+              <span className="text-xs sm:text-sm font-black truncate">
+                {lang === 'ko' ? '기본 무료 크레딧으로 시작하기' : 'Start with Free Credits'}
+              </span>
+              <span className="text-[10px] text-amber-100 font-semibold truncate">
+                {lang === 'ko' ? `신규 가입 기본 ${freeCreditsCount}회 무료 제공!` : `${freeCreditsCount} free trials included!`}
+              </span>
+            </div>
+          </div>
+          <span className="shrink-0 rounded-full bg-white/20 backdrop-blur-md px-3 py-1 text-xs font-black shadow-xs whitespace-nowrap">
+            {lang === 'ko' ? '지금 체험하기 ➔' : 'Try Now ➔'}
+          </span>
+        </button>
+
         {/* 🎁 보너스 미션 섹션: 카톡 공유(+5) 및 스토어 리뷰(+5) */}
         <div className="flex flex-col gap-2 pt-1">
           <div className="flex items-center justify-between px-1">

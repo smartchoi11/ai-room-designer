@@ -590,7 +590,7 @@ export default function PricingModal({
                 {lang === 'ko' ? '기본 무료 크레딧으로 시작하기' : 'Start with Free Credits'}
               </span>
               <span className="text-[10px] text-amber-100 font-semibold truncate">
-                {lang === 'ko' ? `신규 가입 기본 ${freeCreditsCount}회 무료 제공!` : `${freeCreditsCount} free trials included!`}
+                {lang === 'ko' ? '신규 가입 기본 3회 무료 제공! (미션 참여 시 최대 10회 추가)' : '3 free trials included! (Up to 10 with missions)'}
               </span>
             </div>
           </div>

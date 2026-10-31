@@ -3150,6 +3150,86 @@ export default function MobileAppView() {
   const [userPlan, setUserPlan] = useLocalStorage('reroom_user_plan', 'free');
   const isPaidUser = userPlan === 'starter' || userPlan === 'pro' || userPlan === 'amateur';
 
+  // 🎁 보너스 미션 달성 여부 (공유 5회 / 리뷰 5회)
+  const [isShareClaimed, setIsShareClaimed] = useLocalStorage('reroom_share_reward_claimed', 'false');
+  const [isReviewClaimed, setIsReviewClaimed] = useLocalStorage('reroom_review_reward_claimed', 'false');
+
+  // 📲 스마트폰 공유창 감지 방식 미션 핸들러
+  const handleShareMission = async () => {
+    if (isShareClaimed === 'true') {
+      alert(lang === 'ko' ? '이미 친구 공유 보너스를 받으셨습니다.' : 'You have already claimed this bonus.');
+      return;
+    }
+
+    const shareData = {
+      title: 'RoomFit AI - 3초 만에 완성하는 인테리어 AI',
+      text: '방 사진 한 장으로 완성하는 감각적인 AI 인테리어 디자인! 지금 3회 무료 체험해 보세요.',
+      url: 'https://ai-room-smart-designer-choi.vercel.app',
+    };
+
+    try {
+      if (typeof navigator !== 'undefined' && navigator.share) {
+        // 스마트폰 OS 공유 창 (카톡, 문자 등) 실행 및 감지
+        await navigator.share(shareData);
+      } else {
+        // PC 또는 미지원 브라우저: 클립보드 링크 복사
+        await navigator.clipboard.writeText(shareData.url);
+        alert(
+          lang === 'ko'
+            ? '🔗 룸핏 AI 공유 링크가 클립보드에 복사되었습니다! 친구나 단톡방에 붙여넣어 공유해 보세요.'
+            : 'Link copied! Share it with your friends.'
+        );
+      }
+
+      // 공유 동작 완료 시 즉시 5 크레딧 지급!
+      setIsShareClaimed('true');
+      const newTotal = freeCount + 5;
+      setFreeCountRaw(String(newTotal));
+      recordPromoPurchase('share_mission_bonus_5', 5);
+      alert(
+        lang === 'ko'
+          ? '🎉 [친구 공유 완료] 5 크레딧이 추가 지급되었습니다! 마음껏 인테리어를 디자인해 보세요.'
+          : '🎉 5 Bonus Credits added for sharing! Enjoy your interior design.'
+      );
+    } catch (err: any) {
+      if (err.name !== 'AbortError') {
+        try {
+          await navigator.clipboard.writeText(shareData.url);
+          setIsShareClaimed('true');
+          const newTotal = freeCount + 5;
+          setFreeCountRaw(String(newTotal));
+          recordPromoPurchase('share_mission_bonus_5', 5);
+          alert(
+            lang === 'ko'
+              ? '🎉 [공유 링크 복사 완료] 5 크레딧이 추가 지급되었습니다!'
+              : '🎉 5 Bonus Credits added!'
+          );
+        } catch (e) {}
+      }
+    }
+  };
+
+  // ⭐ 구글 플레이 스토어 리뷰 미션 핸들러
+  const handleReviewMission = () => {
+    if (isReviewClaimed === 'true') {
+      alert(lang === 'ko' ? '이미 스토어 리뷰 보너스를 받으셨습니다.' : 'You have already claimed this bonus.');
+      return;
+    }
+
+    const playStoreUrl = 'https://play.google.com/store/apps/details?id=com.hwanggeumson.roomfit';
+    window.open(playStoreUrl, '_blank');
+
+    setIsReviewClaimed('true');
+    const newTotal = freeCount + 5;
+    setFreeCountRaw(String(newTotal));
+    recordPromoPurchase('review_mission_bonus_5', 5);
+    alert(
+      lang === 'ko'
+        ? '🎉 [스토어 리뷰 보너스] 5 크레딧이 추가 지급되었습니다! 소중한 별점 평가 감사드립니다.'
+        : '🎉 5 Bonus Credits added for reviewing! Thank you for supporting RoomFit AI.'
+    );
+  };
+
   // 마법사 상태
   const [uploadedImage, setUploadedImage] = useState<string | null>(null);
   const [selectedRoom, setSelectedRoom] = useState('living_room');
@@ -4995,22 +5075,26 @@ Ultra-photorealistic lifestyle interior photography, Architectural Digest party 
         </div>
       </header>
 
-      {/* 📢 10월 31일까지 무료 이용 가능 안내 최상단 공지 띠배너 (처음 화면 노출) */}
+      {/* 📢 스마트 바이럴 프로모션 안내 최상단 공지 띠배너 (처음 화면 노출) */}
       <div className="bg-gradient-to-r from-amber-400 via-orange-400 to-amber-400 py-2 px-3 text-center shadow-xs border-b border-amber-300 animate-fade-in">
         <div className="flex items-center justify-center gap-1.5 flex-wrap">
           <span className="text-xs">🎉</span>
           <span className="text-xs font-black text-slate-950">
             {lang === 'ko'
-              ? '10월 31일까지 10회 무료로 이용 가능합니다!'
+              ? '기본 3회 무료 체험! (카톡 공유 & 스토어 리뷰 시 최대 10회 추가)'
               : lang === 'ja'
-              ? '10月31日まで10回無料でご利用いただけます！'
+              ? '基本3回無料体験！シェア＆レビューで最大10回追加！'
               : lang === 'es'
-              ? '¡10 pruebas gratis hasta el 31 de octubre!'
-              : '10 free trials to use until October 31!'}
+              ? '¡3 pruebas gratis! ¡Comparte o reseña para obtener hasta 10 más!'
+              : '3 Free Trials! Share or Review to get up to 10 more!'}
           </span>
-          <span className="bg-black/80 text-amber-300 px-2 py-0.5 rounded-full text-[10px] font-black border border-white/20">
-            {lang === 'ko' ? '오픈 프로모션 10회 무료 제공' : lang === 'ja' ? '10回無料体験付与' : lang === 'es' ? '10 pruebas gratis' : '10 Free Trials'}
-          </span>
+          <button
+            type="button"
+            onClick={() => setIsPricingModalOpen(true)}
+            className="bg-black/80 hover:bg-black text-amber-300 px-2 py-0.5 rounded-full text-[10px] font-black border border-white/20 transition-all cursor-pointer shadow-2xs"
+          >
+            {lang === 'ko' ? '보너스 받기 ➔' : lang === 'ja' ? 'ボーナス受け取り ➔' : 'Get Bonus ➔'}
+          </button>
         </div>
       </div>
 
@@ -9994,15 +10078,18 @@ Ultra-photorealistic lifestyle interior photography, Architectural Digest party 
       )}
     </div>
 
-    {/* ── 💳 온보딩 첫 접속 요금제 & 2 크레딧 제공 안내 팝업 모달 (메인화면 고유 크기 유지) ── */}
+    {/* ── 💳 온보딩 첫 접속 요금제 & 기본 3 크레딧 및 보너스 미션 모달 ── */}
     <PricingModal
       isOpen={isPricingModalOpen}
       onClose={() => setIsPricingModalOpen(false)}
       onClaimFreeCredits={() => {
-        const newCount = Math.max(freeCount, 10);
+        const newCount = Math.max(freeCount, 3);
         setFreeCountRaw(String(newCount));
-        recordPromoPurchase('launch_promo_10', 10);
       }}
+      onShareReward={handleShareMission}
+      onReviewReward={handleReviewMission}
+      isShareClaimed={isShareClaimed === 'true'}
+      isReviewClaimed={isReviewClaimed === 'true'}
       onPurchasePlan={(plan) => {
         if (plan.id === 'starter') {
           setFreeCountRaw(String(freeCount + 30));

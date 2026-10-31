@@ -697,6 +697,6 @@ export const PARTY_STYLES: StyleOption[] = [
 
 export const ALL_STYLES = [...STYLES, ...EXTERIOR_STYLES, ...GARDEN_STYLES, ...PARTY_STYLES, ...PARTY_EVENT_TYPES];
 
-export const FREE_GENERATIONS = 0;
+export const FREE_GENERATIONS = 3;
 export const DAILY_IP_LIMIT = 9999;
 

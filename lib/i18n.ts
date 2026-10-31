@@ -42,10 +42,10 @@ export const translations = {
       es: '💎 Elige tu Plan de Membresía',
     },
     tryBeforeBuy: {
-      en: 'Free trial available until Oct 31',
-      ko: '10월 31일까지 무료 이용 가능',
-      ja: '10月31日まで無料利用可能',
-      es: 'Disponible gratis hasta el 31 de octubre',
+      en: '3 free trials + up to 10 bonus credits',
+      ko: '기본 3회 무료 + 최대 10회 보너스 제공',
+      ja: '基本3回無料＋最大10回ボーナス付与',
+      es: '3 pruebas gratis + hasta 10 créditos de bono',
     },
     before: { en: 'BEFORE', ko: 'BEFORE', ja: 'BEFORE', es: 'BEFORE' },
     after: { en: 'AFTER', ko: 'AFTER', ja: 'AFTER', es: 'AFTER' },
@@ -94,10 +94,10 @@ export const translations = {
       es: 'Iniciar {name} ({price})',
     },
     ctaFree: {
-      en: 'Start with 10 free trials (Oct 31 promo) ➔',
-      ko: '10월 31일 한정 10회 무료 체험으로 시작하기 ➔',
-      ja: '10月31日限定 10回無料体験で始める ➔',
-      es: 'Comenzar con 10 pruebas gratis (Promo 31 Oct) ➔',
+      en: 'Start with 3 free trials ➔',
+      ko: '기본 3회 무료 체험으로 시작하기 ➔',
+      ja: '基本3回無料体験で始める ➔',
+      es: 'Comenzar con 3 pruebas gratis ➔',
     },
     showcaseFeatures: [
       {

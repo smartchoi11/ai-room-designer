@@ -3761,7 +3761,7 @@ export default function MobileAppView() {
   // 🛒 가구 인터랙티브 쇼핑 태그 상태
   const [showFurnitureTags, setShowFurnitureTags] = useState(false);
   const [selectedFurnitureId, setSelectedFurnitureId] = useState<string | null>(null);
-  const [activeCommerceRoom, setActiveCommerceRoom] = useState<'auto' | 'bedroom' | 'living_room' | 'kitchen' | 'study'>('auto');
+  const [activeCommerceRoom, setActiveCommerceRoom] = useState<'auto' | 'bedroom' | 'living_room' | 'kitchen' | 'study' | 'season_decor'>('auto');
   const [visionDetectedData, setVisionDetectedData] = useState<Record<string, { roomType: string; items: any[] }>>({});
   const [isDetectingVision, setIsDetectingVision] = useState(false);
   // 스마트 편집 툴 상태 (색상/벽지 변경, 가구 교체, 식물/소품 추가)
@@ -8644,13 +8644,22 @@ Ultra-photorealistic lifestyle interior photography, Architectural Digest party 
           if (activeCommerceRoom !== 'auto') return activeCommerceRoom;
           // 1. Google Gemini Vision이 사진을 직접 시각 분석하여 확정한 방 유형이 있다면 최우선 적용
           if (visionData && visionData.roomType) {
-            return visionData.roomType as 'bedroom' | 'living_room' | 'kitchen' | 'study';
+            return visionData.roomType as 'bedroom' | 'living_room' | 'kitchen' | 'study' | 'season_decor';
           }
 
           // 2. 현재 표시 중인 AI 결과물 이미지 경로/파일명 우선 분석 (이전 uploadedImage의 'kid' 잔여물 간섭 차단)
           const targetLower = (currentTargetImg || '').toLowerCase();
 
-          // 침실 관련 파일명/키워드 (재팬디 침실, 마스터베드룸, 아이방, 쇼케이스 침실 등)
+          // 크리스마스 / 파티 / 시즌 데코 관련 키워드 감지
+          if (
+            targetLower.includes('christmas') ||
+            targetLower.includes('xmas') ||
+            targetLower.includes('tree') ||
+            targetLower.includes('party') ||
+            targetLower.includes('holiday')
+          ) {
+            return 'season_decor';
+          }
           if (
             targetLower.includes('japandi') ||
             targetLower.includes('bedroom') ||
@@ -8722,6 +8731,7 @@ Ultra-photorealistic lifestyle interior photography, Architectural Digest party 
           if (['kitchen', 'dining_room', 'restaurant'].includes(selectedRoom)) return 'kitchen';
           if (['home_office', 'study_room', 'office', 'study'].includes(selectedRoom)) return 'study';
           if (['living_room', 'coffee_shop', 'party_room'].includes(selectedRoom)) return 'living_room';
+          if (['party', 'christmas'].includes(selectedRoom)) return 'season_decor';
 
           return 'bedroom';
         })();
@@ -8980,6 +8990,64 @@ Ultra-photorealistic lifestyle interior photography, Architectural Digest party 
                 amazonKw: `${styleLabelEn} Desk Chair Mat Area Rug`,
                 posX: 76,
                 posY: 74,
+              },
+            ];
+          } else if (effectiveRoom === 'season_decor') {
+            return [
+              {
+                id: 'tree_christmas',
+                category: isKr ? '크리스마스트리' : 'Christmas Tree',
+                icon: '🎄',
+                name: isKr ? '감성 무반사 프리미엄 전나무 크리스마스 트리 풀세트 (150cm)' : 'Premium Pre-lit Christmas Tree Full Set',
+                price: isKr ? '₩69,000원~' : '$59~',
+                coupangKw: '크리스마스 트리 풀세트 전나무 오너먼트',
+                amazonKw: 'Pre-lit Christmas Tree with lights',
+                posX: 25,
+                posY: 42,
+              },
+              {
+                id: 'wreath_garland',
+                category: isKr ? '리스/가랜드' : 'Wreath & Garland',
+                icon: '🎀',
+                name: isKr ? '솔방울 베리 LED 감성 크리스마스 벽걸이 리스 (40cm)' : 'Holiday Berry Pine Cone Door Wreath',
+                price: isKr ? '₩28,000원~' : '$24~',
+                coupangKw: '크리스마스 리스 현관 벽장식',
+                amazonKw: 'Christmas Door Wreath Pine Cones',
+                posX: 82,
+                posY: 26,
+              },
+              {
+                id: 'fairylight_decor',
+                category: isKr ? '트리조명/전구' : 'Fairy Lights',
+                icon: '💡',
+                name: isKr ? '감성 웜화이트 1000구 촘촘 지네전구 스트링 조명' : 'Warm White Cluster Fairy String Lights',
+                price: isKr ? '₩19,800원~' : '$16~',
+                coupangKw: '크리스마스 지네전구 웜화이트',
+                amazonKw: 'Cluster Fairy String Lights Warm White',
+                posX: 38,
+                posY: 60,
+              },
+              {
+                id: 'sofa_warm',
+                category: isKr ? '소파' : 'Sofa',
+                icon: '🛋️',
+                name: isKr ? '코지 웜베이지 패브릭 3인용 아늑한 소파' : 'Cozy Warm Fabric 3-Seater Sofa',
+                price: isKr ? '₩389,000원~' : '$310~',
+                coupangKw: '베이지 패브릭 3인용 소파',
+                amazonKw: 'Cozy Fabric Living Sofa',
+                posX: 60,
+                posY: 52,
+              },
+              {
+                id: 'carpet_cozy',
+                category: isKr ? '러그' : 'Rug',
+                icon: '🧶',
+                name: isKr ? '포근한 겨울 워셔블 극세사 단모 거실 러그' : 'Warm Winter Washable Plush Area Rug',
+                price: isKr ? '₩49,000원~' : '$42~',
+                coupangKw: '겨울 극세사 거실 러그',
+                amazonKw: 'Warm Winter Living Area Rug',
+                posX: 52,
+                posY: 84,
               },
             ];
           } else {
@@ -9459,6 +9527,7 @@ Ultra-photorealistic lifestyle interior photography, Architectural Digest party 
                   { id: 'bedroom', icon: '🛏️', label: isKr ? '침실·아이방' : 'Bedroom & Kids' },
                   { id: 'kitchen', icon: '🍽️', label: isKr ? '주방·다이닝' : 'Kitchen' },
                   { id: 'study', icon: '💻', label: isKr ? '서재·공부방' : 'Study' },
+                  { id: 'season_decor', icon: '🎄', label: isKr ? '트리·시즌소품' : 'Holiday & Decor' },
                 ].map((rTab) => {
                   const isCurrent = effectiveRoom === rTab.id;
                   return (

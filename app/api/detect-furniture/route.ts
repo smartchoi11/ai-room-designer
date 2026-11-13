@@ -110,14 +110,26 @@ CRITICAL ZERO-SOFA RULE:
 - If this room has a bed (bedroom), ABSOLUTELY NEVER output a sofa or couch! Only output bed, nightstand, desk, chair, pendant light, rug, storage shelving.
 - Do NOT hallucinate furniture that is not visually present in the photo.
 
-2. "items": Array of 3 to 5 key furniture pieces actually visible in this room.
+2. "items": Array of 3 to 6 key furniture pieces and prominent decor items actually visible in this room.
+   CRITICAL SEASONAL / DECOR / CHRISTMAS DETECTION:
+   - If a Christmas tree (크리스마스트리), holiday wreath (리스), garland, gift boxes, large indoor plant (대형 화분), or decorative wall art is visible, YOU MUST DETECT IT as one of the items!
+   - For a Christmas tree:
+     - "id": "christmas_tree_1"
+     - "category": "트리/소품" (or "크리스마스트리")
+     - "icon": "🎄"
+     - "name": Detailed appealing Korean name (e.g. "감성 무반사 프리미엄 전나무 크리스마스 트리 풀세트", "LED 지네전구 오너먼트 크리스마스 트리 150cm")
+     - "price": e.g. "₩69,000원~" or "₩89,000원~"
+     - "coupangKw": "크리스마스 트리 풀세트 오너먼트 전나무"
+     - "amazonKw": "Pre-lit Christmas Tree with Lights"
+     - "posX", "posY": Exact coordinates of the Christmas tree in the photo.
+
    For each item, provide:
-   - "id": unique string id like "bed_1", "table_1", "lamp_1", "rug_1"
-   - "category": Short Korean category (e.g. '침대', '소반/좌탁', '식탁', '책상', '의자', '조명', '러그', '수납장')
-   - "icon": single emoji matching the item (e.g. '🛏️', '🪵', '🪑', '💡', '🧶', '📚')
-   - "name": Authentic, appealing Korean product shopping name accurately describing the visual appearance, material, shape, and tone in the photo (e.g. "내추럴 원목 평상형 저상 침대", "한지 구름 펜던트 조명", "전통 오리엔탈 원목 소반 찻상 세트", "미니 원목 협탁 책상")
-   - "price": Realistic Korean market price string (e.g. "₩189,000원~", "₩45,000원~", "₩320,000원~")
-   - "coupangKw": Clean search keyword for Coupang (e.g. "원목 저상형 침대 프레임", "한지 펜던트 조명", "원목 좌식 소반 찻상")
+   - "id": unique string id like "bed_1", "table_1", "lamp_1", "rug_1", "christmas_tree_1", "plant_1"
+   - "category": Short Korean category (e.g. '침대', '소파', '소반/좌탁', '식탁', '책상', '의자', '조명', '러그', '트리/소품', '식물/화분')
+   - "icon": single emoji matching the item (e.g. '🛏️', '🛋️', '🪵', '🪑', '💡', '🧶', '🎄', '🪴')
+   - "name": Authentic, appealing Korean product shopping name accurately describing the visual appearance, material, shape, and tone in the photo (e.g. "내추럴 원목 평상형 저상 침대", "한지 구름 펜던트 조명", "감성 무반사 크리스마스 트리 풀세트")
+   - "price": Realistic Korean market price string (e.g. "₩189,000원~", "₩45,000원~", "₩89,000원~")
+   - "coupangKw": Clean search keyword for Coupang (e.g. "원목 저상형 침대 프레임", "크리스마스 트리 전나무 풀세트")
    - "amazonKw": Clean search keyword for Amazon
    - "posX": Horizontal position percentage (15 to 85) where the center of this item is located in the image
    - "posY": Vertical position percentage (18 to 84) where the center of this item is located in the image

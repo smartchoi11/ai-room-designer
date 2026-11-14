@@ -304,7 +304,7 @@ export default function PricingModal({
   };
 
   return (
-    <div className="pricing-modal-root fixed inset-0 z-50 flex flex-col bg-white text-slate-900 shadow-2xl animate-fade-in sm:inset-auto sm:top-1/2 sm:left-1/2 sm:-translate-x-1/2 sm:-translate-y-1/2 sm:w-full sm:max-w-md sm:max-h-[94vh] sm:rounded-[36px] sm:border sm:border-slate-200/90 overflow-y-auto cursor-default touch-manipulation select-none">
+    <div className="pricing-modal-root fixed inset-0 z-[9999] flex flex-col bg-white text-slate-900 shadow-2xl animate-fade-in sm:inset-auto sm:top-1/2 sm:left-1/2 sm:-translate-x-1/2 sm:-translate-y-1/2 sm:w-full sm:max-w-md sm:max-h-[94vh] sm:rounded-[36px] sm:border sm:border-slate-200/90 overflow-y-auto cursor-default touch-manipulation">
 
       {/* ─────────────────────────────────────────────────────────────
           1. [상단 비주얼 영역]: 화면의 약 1/2을 채우는 전면 쇼케이스 (Edge-to-Edge)
@@ -343,7 +343,7 @@ export default function PricingModal({
           <button
             type="button"
             onClick={onClose}
-            className="flex h-8 w-8 items-center justify-center rounded-full bg-black/45 hover:bg-black/65 backdrop-blur-md text-white transition-all text-xs font-bold cursor-pointer shadow-md"
+            className="flex h-9 w-9 items-center justify-center rounded-full bg-black/60 hover:bg-black/80 active:scale-90 backdrop-blur-md text-white transition-all text-sm font-black cursor-pointer shadow-lg border border-white/20 touch-manipulation"
             aria-label="Close"
           >
             ✕
@@ -581,7 +581,7 @@ export default function PricingModal({
         <button
           type="button"
           onClick={handleTryFree}
-          className="w-full flex items-center justify-between p-3 px-3.5 rounded-2xl bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 text-white hover:brightness-105 active:scale-[0.98] transition-all cursor-pointer shadow-md"
+          className="relative z-30 w-full flex items-center justify-between p-3.5 px-4 rounded-2xl bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 text-white hover:brightness-105 active:scale-[0.98] transition-all cursor-pointer shadow-lg shadow-orange-500/30 touch-manipulation"
         >
           <div className="flex items-center gap-2.5 min-w-0">
             <span className="text-xl">✨</span>

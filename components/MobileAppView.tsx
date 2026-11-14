@@ -3077,11 +3077,11 @@ export default function MobileAppView() {
   const [isWizardOpen, setIsWizardOpen] = useState(false);
   const [wizardStep, setWizardStep] = useState<WizardStep>(1);
 
-  // 🌟 구글 플레이 온보딩 결제/구독(Paywall) 시작 화면 기본 오픈
-  const [isPricingModalOpen, setIsPricingModalOpen] = useState(true);
+  // 🌟 구글 플레이 온보딩 결제/구독(Paywall) 시작 화면 (사용자가 직접 요금제 버튼 누를 때만 오픈)
+  const [isPricingModalOpen, setIsPricingModalOpen] = useState(false);
 
-  // 🌟 모바일 첫 진입 시 하늘색 스플래시 인트로 (ROOMFIT AI + 망치 찬 마스코트 손 흔들기)
-  const [showSplash, setShowSplash] = useState(true);
+  // 🌟 모바일 첫 진입 시 스플래시 인트로 (빠른 진입을 위해 1회 후 바로 메인 도구로 진입)
+  const [showSplash, setShowSplash] = useState(false);
 
   // 🌐 글로벌 4개국어 i18n 상태 (기본값: 한국어 'ko' - 초기 영어 깜빡임 방지)
   const [lang, setLang] = useState<Language>('ko');
@@ -10217,7 +10217,7 @@ Ultra-photorealistic lifestyle interior photography, Architectural Digest party 
       <SplashScreen
         onFinish={() => {
           setShowSplash(false);
-          setIsPricingModalOpen(true);
+          setIsPricingModalOpen(false);
         }}
       />
     )}

@@ -3150,15 +3150,20 @@ export default function MobileAppView() {
   const [userPlan, setUserPlan] = useLocalStorage('reroom_user_plan', 'free');
   const isPaidUser = userPlan === 'starter' || userPlan === 'pro' || userPlan === 'amateur';
 
-  // 🎁 보너스 미션 달성 여부 (테스트 및 반복 체험을 위해 항상 클릭 및 참여 가능하도록 열어둠)
-  const [isShareClaimed, setIsShareClaimed] = useState<string>('false');
-  const [isReviewClaimed, setIsReviewClaimed] = useState<string>('false');
+  // 🎁 보너스 미션 달성 여부 (로컬 스토리지에 영구 저장하여 딱 1회만 지급되도록 잠금)
+  const [isShareClaimed, setIsShareClaimed] = useLocalStorage('reroom_share_reward_claimed', 'false');
+  const [isReviewClaimed, setIsReviewClaimed] = useLocalStorage('reroom_review_reward_claimed', 'false');
 
-  // 📲 스마트폰 공유창 감지 방식 미션 핸들러
+  // 📲 스마트폰 공유창 감지 방식 미션 핸들러 (1회 한정, +3 크레딧)
   const handleShareMission = async () => {
+    if (isShareClaimed === 'true') {
+      alert(lang === 'ko' ? '이미 친구 공유 보너스를 받으셨습니다.' : 'You have already claimed this bonus.');
+      return;
+    }
+
     const shareData = {
-      title: 'RoomFit AI - 3초 만에 완성하는 인테리어 AI',
-      text: '방 사진 한 장으로 완성하는 감각적인 AI 인테리어 디자인! 지금 3회 무료 체험해 보세요.',
+      title: '룸핏 AI (RoomFit AI) - 3초 만에 끝내는 AI 인테리어 & 방꾸미기',
+      text: '사진 딱 한 장으로 끝내는 AI 홈스타일링! 우리 집 방 구조 그대로 호텔식으로 3초 만에 리모델링해 보세요. 지금 3회 무료 체험 가능!',
       url: 'https://ai-room-smart-designer-choi.vercel.app',
     };
 
@@ -3168,39 +3173,44 @@ export default function MobileAppView() {
         await navigator.share(shareData);
       } else {
         // PC 또는 미지원 브라우저: 클립보드 링크 복사
-        await navigator.clipboard.writeText(shareData.url);
+        await navigator.clipboard.writeText(`${shareData.title}\n${shareData.text}\n${shareData.url}`);
       }
 
-      // 공유 동작 완료 시 즉시 5 크레딧 지급!
+      // 공유 동작 완료 시 즉시 1회 한정 3 크레딧 지급 및 잠금 처리!
       setIsShareClaimed('true');
-      const newTotal = freeCount + 5;
+      const newTotal = freeCount + 3;
       setFreeCountRaw(String(newTotal));
-      recordPromoPurchase('share_mission_bonus_5', 5);
+      recordPromoPurchase('share_mission_bonus_3', 3);
       alert(
         lang === 'ko'
-          ? '🎉 [친구 공유 완료] 5 크레딧이 추가 지급되었습니다! 마음껏 인테리어를 디자인해 보세요.'
-          : '🎉 5 Bonus Credits added for sharing! Enjoy your interior design.'
+          ? '🎉 [친구 공유 완료] 3 크레딧이 추가 지급되었습니다! 마음껏 인테리어를 디자인해 보세요.'
+          : '🎉 3 Bonus Credits added for sharing! Enjoy your interior design.'
       );
     } catch (err: any) {
       if (err.name !== 'AbortError') {
         try {
-          await navigator.clipboard.writeText(shareData.url);
+          await navigator.clipboard.writeText(`${shareData.title}\n${shareData.text}\n${shareData.url}`);
           setIsShareClaimed('true');
-          const newTotal = freeCount + 5;
+          const newTotal = freeCount + 3;
           setFreeCountRaw(String(newTotal));
-          recordPromoPurchase('share_mission_bonus_5', 5);
+          recordPromoPurchase('share_mission_bonus_3', 3);
           alert(
             lang === 'ko'
-              ? '🎉 [공유 링크 복사 완료] 5 크레딧이 추가 지급되었습니다!'
-              : '🎉 5 Bonus Credits added!'
+              ? '🎉 [공유 링크 복사 완료] 3 크레딧이 추가 지급되었습니다!'
+              : '🎉 3 Bonus Credits added!'
           );
         } catch (e) {}
       }
     }
   };
 
-  // ⭐ 구글 플레이 스토어 리뷰 미션 핸들러
+  // ⭐ 구글 플레이 스토어 리뷰 미션 핸들러 (1회 한정, +5 크레딧)
   const handleReviewMission = () => {
+    if (isReviewClaimed === 'true') {
+      alert(lang === 'ko' ? '이미 스토어 리뷰 보너스를 받으셨습니다.' : 'You have already claimed this bonus.');
+      return;
+    }
+
     const playStoreUrl = 'https://play.google.com/store/apps/details?id=com.hwanggeumson.roomfit';
     window.open(playStoreUrl, '_blank');
 
@@ -5066,12 +5076,12 @@ Ultra-photorealistic lifestyle interior photography, Architectural Digest party 
           <span className="text-xs">🎉</span>
           <span className="text-xs font-black text-slate-950">
             {lang === 'ko'
-              ? '기본 3회 무료 체험! (카톡 공유 & 스토어 리뷰 시 최대 10회 추가)'
+              ? '기본 3회 무료 체험! (카톡 공유 & 스토어 리뷰 시 최대 8회 추가)'
               : lang === 'ja'
-              ? '基本3回無料体験！シェア＆レビューで最大10回追加！'
+              ? '基本3回無料体験！シェア＆レビューで最大8回追加！'
               : lang === 'es'
-              ? '¡3 pruebas gratis! ¡Comparte o reseña para obtener hasta 10 más!'
-              : '3 Free Trials! Share or Review to get up to 10 more!'}
+              ? '¡3 pruebas gratis! ¡Comparte o reseña para obtener hasta 8 más!'
+              : '3 Free Trials! Share or Review to get up to 8 more!'}
           </span>
           <button
             type="button"

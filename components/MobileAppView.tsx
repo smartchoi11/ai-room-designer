@@ -3077,8 +3077,8 @@ export default function MobileAppView() {
   const [isWizardOpen, setIsWizardOpen] = useState(false);
   const [wizardStep, setWizardStep] = useState<WizardStep>(1);
 
-  // 🌟 구글 플레이 온보딩 결제/구독(Paywall) 시작 화면 (사용자가 직접 요금제 버튼 누를 때만 오픈)
-  const [isPricingModalOpen, setIsPricingModalOpen] = useState(false);
+  // 🌟 구글 플레이 온보딩 결제/구독(Paywall) 시작 화면 기본 오픈 (미션 테스트용)
+  const [isPricingModalOpen, setIsPricingModalOpen] = useState(true);
 
   // 🌟 모바일 첫 진입 시 스플래시 인트로 (빠른 진입을 위해 1회 후 바로 메인 도구로 진입)
   const [showSplash, setShowSplash] = useState(false);
@@ -3150,17 +3150,12 @@ export default function MobileAppView() {
   const [userPlan, setUserPlan] = useLocalStorage('reroom_user_plan', 'free');
   const isPaidUser = userPlan === 'starter' || userPlan === 'pro' || userPlan === 'amateur';
 
-  // 🎁 보너스 미션 달성 여부 (공유 5회 / 리뷰 5회)
-  const [isShareClaimed, setIsShareClaimed] = useLocalStorage('reroom_share_reward_claimed', 'false');
-  const [isReviewClaimed, setIsReviewClaimed] = useLocalStorage('reroom_review_reward_claimed', 'false');
+  // 🎁 보너스 미션 달성 여부 (테스트 및 반복 체험을 위해 항상 클릭 및 참여 가능하도록 열어둠)
+  const [isShareClaimed, setIsShareClaimed] = useState<string>('false');
+  const [isReviewClaimed, setIsReviewClaimed] = useState<string>('false');
 
   // 📲 스마트폰 공유창 감지 방식 미션 핸들러
   const handleShareMission = async () => {
-    if (isShareClaimed === 'true') {
-      alert(lang === 'ko' ? '이미 친구 공유 보너스를 받으셨습니다.' : 'You have already claimed this bonus.');
-      return;
-    }
-
     const shareData = {
       title: 'RoomFit AI - 3초 만에 완성하는 인테리어 AI',
       text: '방 사진 한 장으로 완성하는 감각적인 AI 인테리어 디자인! 지금 3회 무료 체험해 보세요.',
@@ -3174,11 +3169,6 @@ export default function MobileAppView() {
       } else {
         // PC 또는 미지원 브라우저: 클립보드 링크 복사
         await navigator.clipboard.writeText(shareData.url);
-        alert(
-          lang === 'ko'
-            ? '🔗 룸핏 AI 공유 링크가 클립보드에 복사되었습니다! 친구나 단톡방에 붙여넣어 공유해 보세요.'
-            : 'Link copied! Share it with your friends.'
-        );
       }
 
       // 공유 동작 완료 시 즉시 5 크레딧 지급!
@@ -3211,11 +3201,6 @@ export default function MobileAppView() {
 
   // ⭐ 구글 플레이 스토어 리뷰 미션 핸들러
   const handleReviewMission = () => {
-    if (isReviewClaimed === 'true') {
-      alert(lang === 'ko' ? '이미 스토어 리뷰 보너스를 받으셨습니다.' : 'You have already claimed this bonus.');
-      return;
-    }
-
     const playStoreUrl = 'https://play.google.com/store/apps/details?id=com.hwanggeumson.roomfit';
     window.open(playStoreUrl, '_blank');
 

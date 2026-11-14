@@ -615,12 +615,7 @@ export default function PricingModal({
           <button
             type="button"
             onClick={onShareReward}
-            disabled={isShareClaimed}
-            className={`w-full flex items-center justify-between p-2.5 px-3 rounded-2xl border text-left transition-all ${
-              isShareClaimed
-                ? 'bg-slate-50 border-slate-200 opacity-70 cursor-default'
-                : 'bg-amber-50/90 border-amber-300 hover:bg-amber-100/80 active:scale-[0.99] cursor-pointer shadow-2xs'
-            }`}
+            className="w-full flex items-center justify-between p-2.5 px-3 rounded-2xl border text-left transition-all bg-amber-50/90 border-amber-300 hover:bg-amber-100/80 active:scale-[0.99] cursor-pointer shadow-2xs touch-manipulation"
           >
             <div className="flex items-center gap-2 min-w-0">
               <span className="text-base">📲</span>
@@ -629,18 +624,12 @@ export default function PricingModal({
                   {lang === 'ko' ? '친구에게 룸핏 공유하기 (+5 크레딧)' : 'Share RoomFit with Friends (+5)'}
                 </span>
                 <span className="text-[9.5px] font-medium text-slate-500 truncate">
-                  {isShareClaimed
-                    ? (lang === 'ko' ? '✅ 이미 보너스를 받으셨습니다' : '✅ Reward claimed')
-                    : (lang === 'ko' ? '카톡/문자로 링크 1번만 공유하면 5회 즉시 지급!' : 'Share once to get 5 free trials!')}
+                  {lang === 'ko' ? '카톡/문자로 링크 1번만 공유하면 5회 즉시 지급!' : 'Share once to get 5 free trials!'}
                 </span>
               </div>
             </div>
-            <span className={`shrink-0 rounded-full px-2.5 py-0.5 text-[10px] font-black shadow-sm whitespace-nowrap ${
-              isShareClaimed
-                ? 'bg-slate-200 text-slate-600'
-                : 'bg-gradient-to-r from-amber-500 to-orange-500 text-white'
-            }`}>
-              {isShareClaimed ? (lang === 'ko' ? '지급 완료' : 'Claimed') : (lang === 'ko' ? '공유하고 5회 받기 ➔' : 'Share ➔')}
+            <span className="shrink-0 rounded-full px-2.5 py-0.5 text-[10px] font-black shadow-sm whitespace-nowrap bg-gradient-to-r from-amber-500 to-orange-500 text-white">
+              {lang === 'ko' ? '공유하고 5회 받기 ➔' : 'Share ➔'}
             </span>
           </button>
 
@@ -648,12 +637,7 @@ export default function PricingModal({
           <button
             type="button"
             onClick={onReviewReward}
-            disabled={isReviewClaimed}
-            className={`w-full flex items-center justify-between p-2.5 px-3 rounded-2xl border text-left transition-all ${
-              isReviewClaimed
-                ? 'bg-slate-50 border-slate-200 opacity-70 cursor-default'
-                : 'bg-orange-50/90 border-orange-300 hover:bg-orange-100/80 active:scale-[0.99] cursor-pointer shadow-2xs'
-            }`}
+            className="w-full flex items-center justify-between p-2.5 px-3 rounded-2xl border text-left transition-all bg-orange-50/90 border-orange-300 hover:bg-orange-100/80 active:scale-[0.99] cursor-pointer shadow-2xs touch-manipulation"
           >
             <div className="flex items-center gap-2 min-w-0">
               <span className="text-base">⭐</span>
@@ -662,18 +646,12 @@ export default function PricingModal({
                   {lang === 'ko' ? '스토어 별점 리뷰 남기기 (+5 크레딧)' : 'Leave a Store Review (+5)'}
                 </span>
                 <span className="text-[9.5px] font-medium text-slate-500 truncate">
-                  {isReviewClaimed
-                    ? (lang === 'ko' ? '✅ 이미 보너스를 받으셨습니다' : '✅ Reward claimed')
-                    : (lang === 'ko' ? '구글 플레이 별점 남기러 가고 5회 즉시 지급!' : 'Rate on Play Store to get 5 free trials!')}
+                  {lang === 'ko' ? '구글 플레이 별점 남기러 가고 5회 즉시 지급!' : 'Rate on Play Store to get 5 free trials!'}
                 </span>
               </div>
             </div>
-            <span className={`shrink-0 rounded-full px-2.5 py-0.5 text-[10px] font-black shadow-sm whitespace-nowrap ${
-              isReviewClaimed
-                ? 'bg-slate-200 text-slate-600'
-                : 'bg-gradient-to-r from-orange-500 to-amber-600 text-white'
-            }`}>
-              {isReviewClaimed ? (lang === 'ko' ? '지급 완료' : 'Claimed') : (lang === 'ko' ? '리뷰 쓰고 5회 받기 ➔' : 'Review ➔')}
+            <span className="shrink-0 rounded-full px-2.5 py-0.5 text-[10px] font-black shadow-sm whitespace-nowrap bg-gradient-to-r from-orange-500 to-amber-600 text-white">
+              {lang === 'ko' ? '리뷰 쓰고 5회 받기 ➔' : 'Review ➔'}
             </span>
           </button>
         </div>

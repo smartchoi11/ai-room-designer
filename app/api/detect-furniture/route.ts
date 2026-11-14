@@ -157,8 +157,21 @@ Return strictly valid JSON with this exact structure:
       }
     });
 
-    const text = response.text || '{}';
-    const parsed = JSON.parse(text);
+    const text = (response.text || '{}').trim();
+    let parsed: any = {};
+    try {
+      parsed = JSON.parse(text);
+    } catch (parseErr) {
+      // Gemini JSON 응답 내 특수문자/이스케이프 예외 처리 (코드블록 감싸짐 등 제거)
+      const cleanJson = text.replace(/```json/gi, '').replace(/```/g, '').trim();
+      try {
+        parsed = JSON.parse(cleanJson);
+      } catch (e2) {
+        // 제어 문자 및 비정상 백슬래시 정리
+        const sanitized = cleanJson.replace(/[\x00-\x1F\x7F]/g, ' ');
+        parsed = JSON.parse(sanitized);
+      }
+    }
 
     // X, Y 유효성 및 경계 보정
     if (parsed.items && Array.isArray(parsed.items)) {
